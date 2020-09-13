@@ -1,0 +1,29 @@
+[13-09-2020 14:57:02] [main/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 14:57:02] [main/INFO]: Startup completed (took 214ms)
+[13-09-2020 14:57:54] [main/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 14:57:54] [main/INFO]: Startup completed (took 212ms)
+[13-09-2020 16:16:56] [main/INFO]: Startup completed (took 1ms)
+[13-09-2020 16:16:57] [Thread-0/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 16:16:58] [main/INFO]: Startup completed (took 0ms)
+[13-09-2020 16:16:58] [Thread-0/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 21:46:14] [main/INFO]: Webserver started
+[13-09-2020 21:46:14] [main/INFO]: Startup completed (took 29ms)
+[13-09-2020 21:46:14] [SerialThread/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 21:46:51] [main/INFO]: Webserver started
+[13-09-2020 21:46:51] [main/INFO]: Startup completed (took 28ms)
+[13-09-2020 21:46:51] [SerialThread/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 21:56:04] [main/ERROR]: Error occurred while attempting to start webserver
+java.net.BindException: Address already in use: JVM_Bind
+	at java.net.DualStackPlainSocketImpl.bind0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketBind(DualStackPlainSocketImpl.java:106)
+	at java.net.AbstractPlainSocketImpl.bind(AbstractPlainSocketImpl.java:387)
+	at java.net.PlainSocketImpl.bind(PlainSocketImpl.java:190)
+	at java.net.ServerSocket.bind(ServerSocket.java:375)
+	at java.net.ServerSocket.bind(ServerSocket.java:329)
+	at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1761)
+	at java.lang.Thread.run(Thread.java:748)
+[13-09-2020 21:56:04] [main/INFO]: Startup completed (took 31ms)
+[13-09-2020 21:56:04] [SerialThread/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
+[13-09-2020 21:56:50] [main/INFO]: Webserver started
+[13-09-2020 21:56:50] [main/INFO]: Startup completed (took 27ms)
+[13-09-2020 21:56:51] [SerialThread/WARN]: Failed to open serial port (/dev/ttyS0 at 38400 baud)
