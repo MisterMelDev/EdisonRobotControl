@@ -56,11 +56,11 @@ public class WebHandler extends NanoWSD {
 	}
 	
 	public void onPacketReceive(JSONObject json) {
-		String packetType = json.getString("type");
+		String packetType = json.optString("type");
 		
 		if(packetType.equals("control")) {
-			int speed = json.getInt("speed");
-			int steer = json.getInt("steer");
+			int speed = json.optInt("speed");
+			int steer = json.optInt("steer");
 			
 			if(speed < -1000 || speed > 1000) {
 				logger.warn("Received a control packet with a speed value outside of the acceptable range ({})", speed);
