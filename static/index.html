@@ -7,12 +7,12 @@
 		<title>Edison Robot</title>
 	</head>
 	<body>
-		<p id="telemetry"><i class="fas fa-bolt"></i> <span id="battery-voltage">0.00v</span> <i class="fas fa-thermometer-full"></i> <span id="board-temperature">0.0 &#8451;</span></p>
+		<p id="telemetry" class="text-centered"><i class="fas fa-bolt"></i> <span id="battery-voltage">0.00v</span> <i class="fas fa-thermometer-full"></i> <span id="board-temperature">0.0 &#8451;</span></p>
 	
 		<div id="connection-error-modal" class="modal">
 			<div class="modal-content text-centered">
 				<h2 class="modal-title">Connection error</h2>
-				<p class="modal-subtitle">Failed to connect to websocket.</p>
+				<p class="modal-subtitle" id="connection-error-msg"></p>
 			</div>
 		</div>
 
