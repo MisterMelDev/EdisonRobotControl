@@ -24,6 +24,7 @@ public class WebHandler extends NanoWSD {
 	private static final Map<String, String> MIME_TYPES = new HashMap<>();
 	private static final String DEFAULT_MIME_TYPE = "text/plain";
 	private static final String INDEX_FILE = "index.html";
+	private static final byte[] PING_PAYLOAD = "1889BEJANDJKM859".getBytes();
 	
 	static {
 		MIME_TYPES.put("html", "text/html");
@@ -63,6 +64,7 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					JSONObject json = new JSONObject();
 					json.put("type", "telemetry");
+					json.put("isConnected", serialInterface.isCommunicationWorking());
 					json.put("battVoltage", serialInterface.getBattVoltage());
 					json.put("boardTemp", serialInterface.getBoardTemp());
 					
@@ -75,6 +77,12 @@ public class WebHandler extends NanoWSD {
 						webSocketHandler.send(json.toString());
 					} catch (IOException e) {
 						logger.error("Error occurred while attempting to send telemetry packet", e);
+					}
+					
+					try {
+						webSocketHandler.ping(PING_PAYLOAD);
+					} catch (IOException e) {
+						logger.error("Error occurred while attempting to send ping", e);
 					}
 				}
 				
