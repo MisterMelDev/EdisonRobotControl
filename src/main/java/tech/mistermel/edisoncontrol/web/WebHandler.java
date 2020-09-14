@@ -55,6 +55,38 @@ public class WebHandler extends NanoWSD {
 		}
 	}
 	
+	public void onPacketReceive(JSONObject json) {
+		String packetType = json.getString("type");
+		
+		if(packetType.equals("control")) {
+			int speed = json.getInt("speed");
+			int steer = json.getInt("steer");
+			
+			if(speed < -1000 || speed > 1000) {
+				logger.warn("Received a control packet with a speed value outside of the acceptable range ({})", speed);
+				return;
+			}
+			
+			if(steer < -1000 || steer > 1000) {
+				logger.warn("Received a control packet with a steer value outside of the acceptable range ({})", steer);
+				return;
+			}
+			
+			EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
+			return;
+		}
+		
+		logger.warn("Received packet with invalid type ('{}')", packetType);
+	}
+	
+	public void sendPacket(JSONObject json) {
+		try {
+			webSocketHandler.send(json.toString());
+		} catch (IOException e) {
+			logger.error("Error occurred while attempting to send packet", e);
+		}
+	}
+	
 	private class TelemetryThread extends Thread {
 		
 		@Override
@@ -73,11 +105,7 @@ public class WebHandler extends NanoWSD {
 					speedJson.put("right", serialInterface.getSpeedR());
 					speedJson.put("left", serialInterface.getSpeedL());
 					
-					try {
-						webSocketHandler.send(json.toString());
-					} catch (IOException e) {
-						logger.error("Error occurred while attempting to send telemetry packet", e);
-					}
+					sendPacket(json);
 					
 					try {
 						webSocketHandler.ping(PING_PAYLOAD);
