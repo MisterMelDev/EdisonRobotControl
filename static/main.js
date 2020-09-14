@@ -54,7 +54,7 @@ function hideConnectionError() {
 
 let pressedKeys = {};
 window.onkeyup = function(e) {
-    if(!controlKeyCodes.includes(e.keyCode)) {
+    if(!controlKeyCodes.includes(e.keyCode) || !pressedKeys[e.keyCode]) {
         return;
     }
 
@@ -63,7 +63,7 @@ window.onkeyup = function(e) {
 };
 
 window.onkeydown = function(e) {
-    if(!controlKeyCodes.includes(e.keyCode)) {
+    if(!controlKeyCodes.includes(e.keyCode) || pressedKeys[e.keyCode]) {
         return;
     }
 
