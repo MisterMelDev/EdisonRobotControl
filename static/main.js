@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://127.0.0.1:8888");
+const socket = new WebSocket("ws://" + window.location.hostname + (window.location.port ? ":" + window.location.port : ""));
 
 const connectionErrorModal = document.getElementById("connection-error-modal");
 const connectionErrorMsg = document.getElementById("connection-error-msg");
@@ -42,9 +42,9 @@ socket.addEventListener("error", function(event) {
 let modalActive = false;
 
 function setConnectionError(errorMsg) {
-    //connectionErrorModal.style.display = "block";
-    //connectionErrorMsg.innerHTML = errorMsg;
-    //modalActive = true;
+    connectionErrorModal.style.display = "block";
+    connectionErrorMsg.innerHTML = errorMsg;
+    modalActive = true;
 }
 
 function hideConnectionError() {
