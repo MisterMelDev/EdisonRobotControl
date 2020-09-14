@@ -16,10 +16,12 @@ public class SerialInterface extends Thread {
 	private static final int SERIAL_BAUD = 38400;
 	private static final int START_FRAME = 0xABCD;
 	private static final int SEND_INTERVAL = 50;
+	private static final int MAX_RECEIVE_INTERVAL = 300;
 	
 	private static final Logger logger = LoggerFactory.getLogger(SerialInterface.class);
 	
 	private SerialPort port;
+	private long lastMessage;
 	
 	private short speed, steer;
 	
@@ -58,13 +60,17 @@ public class SerialInterface extends Thread {
 					return;
 				}
 				
-				int cmd1 = (int) buffer.getShort();
-				int cmd2 = (int) buffer.getShort();
+				SerialInterface.this.lastMessage = System.currentTimeMillis();
+				
+				//int cmd1 = (int) buffer.getShort();
+				//int cmd2 = (int) buffer.getShort();
+				buffer.position(buffer.position() + 4);
+				
 				int speedR = (int) buffer.getShort();
 				int speedL = (int) buffer.getShort();
 				int battVoltage = (int) buffer.getShort();
 				int boardTemp = (int) buffer.getShort();
-				int cmdLed = toSigned(buffer.getShort());
+				//int cmdLed = toSigned(buffer.getShort());
 				
 				SerialInterface.this.speedR = speedR;
 				SerialInterface.this.speedL = speedL;
@@ -109,6 +115,11 @@ public class SerialInterface extends Thread {
 		}
 		
 		logger.warn("SerialInterface send loop exited");
+	}
+	
+	public boolean isCommunicationWorking() {
+		long timePassed = System.currentTimeMillis() - lastMessage;
+		return timePassed < MAX_RECEIVE_INTERVAL;
 	}
 	
 	private int toSigned(int unsigned) {
