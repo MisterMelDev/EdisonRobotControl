@@ -3,6 +3,7 @@ package tech.mistermel.edisoncontrol;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,8 +13,6 @@ import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
 public class SerialInterface extends Thread {
 
-	private static final String SERIAL_PORT_NAME = "/dev/ttyS0";
-	private static final int SERIAL_BAUD = 38400;
 	private static final int START_FRAME = 0xABCD;
 	private static final int SEND_INTERVAL = 50;
 	private static final int MAX_RECEIVE_INTERVAL = 300;
@@ -34,14 +33,23 @@ public class SerialInterface extends Thread {
 	
 	@Override
 	public void run() {
-		this.port = SerialPort.getCommPort(SERIAL_PORT_NAME);
-		port.setBaudRate(SERIAL_BAUD);
-		
-		if(!port.openPort()) {
-			logger.warn("Failed to open serial port ({} at {} baud)", SERIAL_PORT_NAME, SERIAL_BAUD);
+		JSONObject configJson = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("motherboard_serial");
+		if(configJson == null) {
+			logger.warn("Serial port initialization failed, no 'motherboard_serial' config section");
 			return;
 		}
-		logger.info("Serial port opened ({} at {} baud)", SERIAL_PORT_NAME, SERIAL_BAUD);
+		
+		String serialPortName = configJson.optString("port_name", "/dev/ttyS0");
+		int baudrate = configJson.optInt("baudrate", 38400);
+		
+		this.port = SerialPort.getCommPort(serialPortName);
+		port.setBaudRate(baudrate);
+		
+		if(!port.openPort()) {
+			logger.warn("Failed to open serial port ({} at {} baud)", serialPortName, baudrate);
+			return;
+		}
+		logger.info("Serial port opened ({} at {} baud)", serialPortName, baudrate);
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 			

@@ -20,7 +20,6 @@ public class WebHandler extends NanoWSD {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebHandler.class);
 	
-	private static final int PORT = 8888;
 	private static final Map<String, String> MIME_TYPES = new HashMap<>();
 	private static final String DEFAULT_MIME_TYPE = "text/plain";
 	private static final String INDEX_FILE = "index.html";
@@ -35,8 +34,8 @@ public class WebHandler extends NanoWSD {
 	private File staticFolder;
 	private WebSocketHandler webSocketHandler;
 	
-	public WebHandler() {
-		super(PORT);
+	public WebHandler(int port) {
+		super(port);
 		
 		this.staticFolder = new File("static");
 		if(!staticFolder.isDirectory()) {
@@ -49,7 +48,7 @@ public class WebHandler extends NanoWSD {
 			this.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 			new TelemetryThread().start();
 			
-			logger.info("Webserver startup completed");
+			logger.info("Webserver started on port {}", this.getListeningPort());
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to start webserver", e);
 		}

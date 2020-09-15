@@ -11,10 +11,14 @@ public class EdisonControl {
 	
 	private SerialInterface serialInterface;
 	private WebHandler webHandler;
+	private ConfigHandler configHandler;
 	
 	public EdisonControl() {
+		this.configHandler = new ConfigHandler();
+		configHandler.load();
+		
 		this.serialInterface = new SerialInterface();
-		this.webHandler = new WebHandler();
+		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 	}
 	
 	public void start() {
@@ -31,6 +35,10 @@ public class EdisonControl {
 	
 	public WebHandler getWebHandler() {
 		return webHandler;
+	}
+	
+	public ConfigHandler getConfigHandler() {
+		return configHandler;
 	}
 	
 	private static EdisonControl instance;
