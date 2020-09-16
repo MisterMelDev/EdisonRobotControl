@@ -39,7 +39,9 @@ public class ProcessHandler {
 	}
 
 	public void stopStreamingProcess() {
-		streamProcess.destroyForcibly();
+		if(streamProcess != null) {
+			streamProcess.destroyForcibly();
+		}
 	}
 	
 }
