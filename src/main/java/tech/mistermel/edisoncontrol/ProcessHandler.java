@@ -3,6 +3,7 @@ package tech.mistermel.edisoncontrol;
 import java.io.File;
 import java.io.IOException;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,14 +20,20 @@ public class ProcessHandler {
 			return false;
 		}
 		
-		String streamCmd = EdisonControl.getInstance().getConfigHandler().getJson().optString("stream_cmd");
+		JSONObject streamJson = EdisonControl.getInstance().getConfigHandler().getJson().getJSONObject("stream");
+		JSONObject resolutionJson = streamJson.getJSONObject("resolution");
+		
+		int resolutionX = resolutionJson.optInt("x", 1280);
+		int resolutionY = resolutionJson.optInt("y", 720);
+		int fps = streamJson.optInt("fps", 20);
 		
 		try {
-			this.streamProcess = new ProcessBuilder(streamCmd.split(" "))
+			this.streamProcess = new ProcessBuilder("./mjpg_streamer", "-o", "output_http.so -w ./www", "-i", "input_raspicam.so -x " + resolutionX + " -y " + resolutionY + " -fps " + fps)
 					.directory(folder)
 					.inheritIO()
 					.start();
 			
+			logger.info("Stream process started");
 			return true;
 		} catch (IOException e) {
 			logger.error("Error while attempting to start streaming process", e);
