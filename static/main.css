@@ -50,7 +50,7 @@ body {
 }
 
 #controls {
-    width: 100%;
-    margin-right: 10px;
-    margin-left: 10px;
+    width: 90%;
+    margin: auto;
+    margin-bottom: 10px;
 }
