@@ -11,6 +11,12 @@ const boardTemperatureElement = document.getElementById("board-temperature");
 
 const speedInput = document.getElementById("speed-input");
 
+setTimeout(function() {
+    if(socket.readyState == WebSocket.OPEN) {
+        socket.send(JSON.stringify({"type": "heartbeat"}));
+    }
+}, 3000);
+
 socket.addEventListener("open", function(event) {
     console.log("WebSocket opened");
     hideConnectionError();
