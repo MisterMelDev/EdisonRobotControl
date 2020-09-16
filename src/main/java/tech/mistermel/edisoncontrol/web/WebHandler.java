@@ -75,6 +75,11 @@ public class WebHandler extends NanoWSD {
 			return;
 		}
 		
+		if(packetType.equals("heartbeat")) {
+			webSocketHandler.onHeartbeatReceived();
+			return;
+		}
+		
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	

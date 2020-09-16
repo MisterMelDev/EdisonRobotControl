@@ -22,7 +22,7 @@ public class EdisonControl {
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
 		
-		Runtime.getRuntime().addShutdownHook(new Thread() {
+		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
 			public void run() {
 				logger.info("Shutting down");

@@ -16,6 +16,8 @@ public class WebSocketHandler extends WebSocket {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 	
+	private long lastHeartbeat;
+	
 	public WebSocketHandler(IHTTPSession handshakeRequest) {
 		super(handshakeRequest);
 	}
@@ -44,6 +46,14 @@ public class WebSocketHandler extends WebSocket {
 	@Override
 	protected void onException(IOException exception) {
 		logger.error("Error occured in websocket handler", exception);
+	}
+	
+	protected void onHeartbeatReceived() {
+		this.lastHeartbeat = System.currentTimeMillis();
+	}
+	
+	public long getLastHeartbeat() {
+		return lastHeartbeat;
 	}
 	
 	public void disconnectForNewConnection() {
