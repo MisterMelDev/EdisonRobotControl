@@ -35,10 +35,22 @@ body {
     text-align: center;
 }
 
+.image-centered {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .modal-title {
     margin-bottom: 2px;
 }
 
 .modal-subtitle {
     margin-top: 0px;
+}
+
+#controls {
+    width: 100%;
+    margin-right: 10px;
+    margin-left: 10px;
 }

@@ -1,5 +1,8 @@
 const socket = new WebSocket("ws://" + window.location.hostname + (window.location.port ? ":" + window.location.port : ""));
 
+const streamPort = 8080;
+document.getElementById("camera-stream").src = "http://" + window.location.hostname + ":" + streamPort + "/?action=stream";
+
 const connectionErrorModal = document.getElementById("connection-error-modal");
 const connectionErrorMsg = document.getElementById("connection-error-msg");
 
