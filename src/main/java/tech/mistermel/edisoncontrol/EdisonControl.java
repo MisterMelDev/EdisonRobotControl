@@ -12,6 +12,7 @@ public class EdisonControl {
 	private SerialInterface serialInterface;
 	private WebHandler webHandler;
 	private ConfigHandler configHandler;
+	private ProcessHandler processHandler;
 	
 	public EdisonControl() {
 		this.configHandler = new ConfigHandler();
@@ -19,12 +20,23 @@ public class EdisonControl {
 		
 		this.serialInterface = new SerialInterface();
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
+		this.processHandler = new ProcessHandler();
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				logger.info("Shutting down");
+				processHandler.stopStreamingProcess();
+			}
+		});
 	}
 	
 	public void start() {
 		serialInterface.start();
 		webHandler.start();
 
+		processHandler.startStreamProcess();
+		
 		long timePassed = System.currentTimeMillis() - startupTime;
 		logger.info("Startup completed (took {}ms)", timePassed);
 	}
@@ -39,6 +51,10 @@ public class EdisonControl {
 	
 	public ConfigHandler getConfigHandler() {
 		return configHandler;
+	}
+	
+	public ProcessHandler getProcessHandler() {
+		return processHandler;
 	}
 	
 	private static EdisonControl instance;
