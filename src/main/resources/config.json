@@ -1,5 +1,5 @@
 {
-	"motherboard_interface": {
+	"motherboard_serial": {
 		"port_name": "/dev/ttyS0",
 		"baudrate": 38400
 	},
