@@ -41,13 +41,22 @@ public class ProcessHandler {
 		}
 	}
 	
+	public void stopStreamingProcess() {
+		if(streamProcess != null) {
+			streamProcess.destroyForcibly();
+		}
+	}
+	
 	public Process getStreamProcess() {
 		return streamProcess;
 	}
 
-	public void stopStreamingProcess() {
-		if(streamProcess != null) {
-			streamProcess.destroyForcibly();
+	public void shutdown() {
+		try {
+			logger.info("Shutting down RPi");
+			Runtime.getRuntime().exec("sudo shutdown now").waitFor();
+		} catch (InterruptedException | IOException e) {
+			logger.error("Error while attempting to shut down RPi", e);
 		}
 	}
 	

@@ -80,6 +80,11 @@ public class WebHandler extends NanoWSD {
 			return;
 		}
 		
+		if(packetType.equals("shutdown")) {
+			EdisonControl.getInstance().getProcessHandler().shutdown();
+			return;
+		}
+		
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
