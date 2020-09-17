@@ -139,3 +139,7 @@ function sendControlPacket() {
     };
     socket.send(JSON.stringify(json));
 }
+
+function onImgError(e) {
+    e.src = "img-fail.png";
+}
