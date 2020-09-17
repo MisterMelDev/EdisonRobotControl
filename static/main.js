@@ -6,10 +6,26 @@ document.getElementById("camera-stream").src = "http://" + window.location.hostn
 const connectionErrorModal = document.getElementById("connection-error-modal");
 const connectionErrorMsg = document.getElementById("connection-error-msg");
 
+const confirmationModal = document.getElementById("confirmation-modal");
+const confirmationModalQuestion = document.getElementById("confirmation-modal-question");
+let confirmationModalCallback = null;
+
 const batteryVoltageElement = document.getElementById("battery-voltage");
 const boardTemperatureElement = document.getElementById("board-temperature");
 
 const speedInput = document.getElementById("speed-input");
+
+document.getElementById("confirmation-modal-cancel").addEventListener("click", hideConfirmationModal);
+document.getElementById("confirmation-modal-confirm").addEventListener("click", function(e) {
+    confirmationModalCallback();
+    hideConfirmationModal();
+});
+
+document.getElementById("shutdown-btn").addEventListener("click", function(e) {
+    showConfirmationModal("Are you sure you want to shut down?", function() {
+        socket.send(JSON.stringify({"type": "shutdown"}));
+    });
+});
 
 setInterval(function() {
     if(socket.readyState == WebSocket.OPEN) {
@@ -58,6 +74,18 @@ function setConnectionError(errorMsg) {
 
 function hideConnectionError() {
     connectionErrorModal.style.display = "none";
+    modalActive = false;
+}
+
+function showConfirmationModal(question, callback) {
+    confirmationModal.style.display = "block";
+    confirmationModalQuestion.innerHTML = question;
+    confirmationModalCallback = callback;
+    modalActive = true;
+}
+
+function hideConfirmationModal() {
+    confirmationModal.style.display = "none";
     modalActive = false;
 }
 

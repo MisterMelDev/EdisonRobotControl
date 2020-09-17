@@ -49,6 +49,13 @@ body {
     margin-top: 0px;
 }
 
+.modal-button {
+    margin-top: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding: 6px;
+}
+
 #controls {
     width: 90%;
     margin: auto;
