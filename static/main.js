@@ -53,8 +53,16 @@ document.getElementById("reboot-btn").addEventListener("click", function(e) {
     });
 });
 
-document.getElementById("motherboard-toggle").addEventListener("click", function(e) {
-    socket.send(JSON.stringify({type: "mobo_toggle"}));
+const headlightsToggle = document.getElementById("headlights-toggle");
+headlightsToggle.addEventListener("click", function(e) {
+    let checked = headlightsToggle.checked;
+    socket.send(JSON.stringify({type: "lighting", element: "headlights", enabled: checked}));
+})
+
+const warningLightsToggle = document.getElementById("warning-lights-toggle");
+warningLightsToggle.addEventListener("click", function(e) {
+    let checked = warningLightsToggle.checked;
+    socket.send(JSON.stringify({type: "lighting", element: "warning_lights", enabled: checked}));
 });
 
 setInterval(function() {

@@ -15,10 +15,14 @@
 	
 		<div id="controls">
 			<b>Speed:</b> <input id="speed-input" type="number" min="1" max="1000" value="300">
+			
 			<b class="controls-header">Power Controls:</b>
 			<button id="shutdown-btn">Shutdown</button>
 			<button id="reboot-btn">Reboot</button>
-			<button id="motherboard-toggle">Toggle Motherboard</button>
+			
+			<b class="controls-header">Lighting Controls:</b>
+			<input type="checkbox" id="headlights-toggle"> Headlights
+			<input type="checkbox" id="warning-lights-toggle"> Warning Lights
 		</div>
 
 		<img class="image-centered" width="1080" height="720" onerror="onImgError(this)" id="camera-stream">
