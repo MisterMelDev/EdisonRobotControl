@@ -27,6 +27,12 @@ document.getElementById("shutdown-btn").addEventListener("click", function(e) {
     });
 });
 
+document.getElementById("reboot-btn").addEventListener("click", function(e) {
+    showConfirmationModal("Are you sure you want to reboot?", function() {
+        socket.send(JSON.stringify({"type": "reboot"}));
+    });
+});
+
 setInterval(function() {
     if(socket.readyState == WebSocket.OPEN) {
         socket.send(JSON.stringify({"type": "heartbeat"}));
