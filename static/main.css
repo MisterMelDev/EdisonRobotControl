@@ -63,7 +63,11 @@ body {
 #controls {
     width: 90%;
     margin: auto;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+#controls button, input {
+    padding: 5px;
 }
 
 #telemetry {
@@ -72,4 +76,8 @@ body {
 
 #motherboard-connection-state {
     margin-bottom: 0px;
+}
+
+.controls-header {
+    margin-left: 15px;
 }
