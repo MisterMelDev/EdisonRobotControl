@@ -35,6 +35,10 @@ body {
     text-align: center;
 }
 
+.text-red {
+    color: red;
+}
+
 .image-centered {
     display: block;
     margin-left: auto;
@@ -60,4 +64,12 @@ body {
     width: 90%;
     margin: auto;
     margin-bottom: 10px;
+}
+
+#telemetry {
+    margin-top: 0px;
+}
+
+#motherboard-connection-state {
+    margin-bottom: 0px;
 }

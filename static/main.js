@@ -15,6 +15,26 @@ const boardTemperatureElement = document.getElementById("board-temperature");
 
 const speedInput = document.getElementById("speed-input");
 
+const motherboardStateElement = document.getElementById("motherboard-connection-state");
+let lastMotherboardState = false;
+
+function setMotherboardState(motherboardState) {
+    if(motherboardState == lastMotherboardState) {
+        return;
+    }
+    lastMotherboardState = motherboardState;
+
+    console.log("Motherboard state changed, new state is " + motherboardState);
+
+    motherboardStateElement.innerHTML = "Motherboard " + (motherboardState ? "connected" : "disconnected");
+    
+    if(!motherboardState) {
+        motherboardStateElement.classList.add("text-red");
+    } else {
+        motherboardStateElement.classList.remove("text-red");
+    }
+}
+
 document.getElementById("confirmation-modal-cancel").addEventListener("click", hideConfirmationModal);
 document.getElementById("confirmation-modal-confirm").addEventListener("click", function(e) {
     confirmationModalCallback();
@@ -23,19 +43,23 @@ document.getElementById("confirmation-modal-confirm").addEventListener("click", 
 
 document.getElementById("shutdown-btn").addEventListener("click", function(e) {
     showConfirmationModal("Are you sure you want to shut down?", function() {
-        socket.send(JSON.stringify({"type": "shutdown"}));
+        socket.send(JSON.stringify({type: "shutdown"}));
     });
 });
 
 document.getElementById("reboot-btn").addEventListener("click", function(e) {
     showConfirmationModal("Are you sure you want to reboot?", function() {
-        socket.send(JSON.stringify({"type": "reboot"}));
+        socket.send(JSON.stringify({type: "reboot"}));
     });
+});
+
+document.getElementById("motherboard-toggle").addEventListener("click", function(e) {
+    socket.send(JSON.stringify({type: "mobo_toggle"}));
 });
 
 setInterval(function() {
     if(socket.readyState == WebSocket.OPEN) {
-        socket.send(JSON.stringify({"type": "heartbeat"}));
+        socket.send(JSON.stringify({type: "heartbeat"}));
     }
 }, 3000);
 
@@ -49,11 +73,7 @@ socket.addEventListener("message", function(event) {
     let msgType = json.type;
 
     if(msgType == "telemetry") {
-        if(!json.isConnected) {
-            setConnectionError("Unable to communicate with motherboard, is it turned on?");
-        } else {
-            hideConnectionError();
-        }
+        setMotherboardState(json.isConnected);
 
         batteryVoltageElement.innerHTML = json.battVoltage.toFixed(2) + "v";
         boardTemperatureElement.innerHTML = json.boardTemp.toFixed(1) + " &#8451;";
