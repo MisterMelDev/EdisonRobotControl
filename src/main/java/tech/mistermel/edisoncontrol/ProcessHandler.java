@@ -60,4 +60,13 @@ public class ProcessHandler {
 		}
 	}
 	
+	public void reboot() {
+		try {
+			logger.info("Rebooting RPi");
+			Runtime.getRuntime().exec("sudo reboot").waitFor();
+		} catch (InterruptedException | IOException e) {
+			logger.error("Error while attempting to reboot RPi", e);
+		}
+	}
+	
 }
