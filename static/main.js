@@ -18,6 +18,8 @@ const speedInput = document.getElementById("speed-input");
 const motherboardStateElement = document.getElementById("motherboard-connection-state");
 let lastMotherboardState = false;
 
+let webSocketOpened = false;
+
 function setMotherboardState(motherboardState) {
     if(motherboardState == lastMotherboardState) {
         return;
@@ -74,6 +76,7 @@ setInterval(function() {
 socket.addEventListener("open", function(event) {
     console.log("WebSocket opened");
     hideConnectionError();
+    webSocketOpened = true;
 });
 
 socket.addEventListener("message", function(event) {
@@ -90,7 +93,13 @@ socket.addEventListener("message", function(event) {
 
 socket.addEventListener("close", function(event) {
     console.log("WebSocket closed");
-    setConnectionError("WebSocket connection was interrupted");
+
+    if(!webSocketOpened) {
+        setConnectionError("Failed to connect to server");
+        return;
+    }
+
+    setConnectionError("Connection to server was interrupted");
 });
 
 socket.addEventListener("error", function(event) {
