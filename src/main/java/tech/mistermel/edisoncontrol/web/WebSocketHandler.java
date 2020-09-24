@@ -24,7 +24,7 @@ public class WebSocketHandler extends WebSocket {
 
 	@Override
 	protected void onOpen() {
-		//logger.info("Websocket connected from {}", this.getHandshakeRequest().);
+		logger.info("Websocket connected");
 	}
 
 	@Override
