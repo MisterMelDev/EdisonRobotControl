@@ -19,7 +19,7 @@ public class ProcessHandler {
 	private Map<String, Process> lightingProcesses = new HashMap<>();
 	
 	public ProcessHandler() {
-		this.scriptsFolder = new File("lightingScripts");
+		this.scriptsFolder = new File("lighting-scripts");
 		if(!scriptsFolder.isDirectory()) {
 			scriptsFolder.mkdir();
 		}
@@ -40,12 +40,16 @@ public class ProcessHandler {
 		int fps = streamJson.optInt("fps", 20);
 		
 		try {
-			this.streamProcess = new ProcessBuilder("./mjpg_streamer", "-o", "output_http.so -w ./www", "-i", "input_raspicam.so -x " + resolutionX + " -y " + resolutionY + " -fps " + fps)
-					.directory(folder)
-					.inheritIO()
-					.start();
+			ProcessBuilder builder = new ProcessBuilder("./mjpg_streamer", "-o", "output_http.so -w ./www", "-i", "input_raspicam.so -x " + resolutionX + " -y " + resolutionY + " -fps " + fps)
+					.directory(folder);
 			
+			if(logger.isDebugEnabled()) {
+				builder.inheritIO();
+			}
+			
+			this.streamProcess = builder.start();
 			logger.info("Stream process started");
+			
 			return true;
 		} catch (IOException e) {
 			logger.error("Error while attempting to start streaming process", e);
