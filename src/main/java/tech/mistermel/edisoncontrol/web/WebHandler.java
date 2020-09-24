@@ -75,6 +75,14 @@ public class WebHandler extends NanoWSD {
 			return;
 		}
 		
+		if(packetType.equals("lighting")) {
+			String id = json.optString("element");
+			boolean enabled = json.optBoolean("enabled");
+			
+			EdisonControl.getInstance().getProcessHandler().setLightingStatus(id, enabled);
+			return;
+		}
+		
 		if(packetType.equals("heartbeat")) {
 			webSocketHandler.onHeartbeatReceived();
 			return;
