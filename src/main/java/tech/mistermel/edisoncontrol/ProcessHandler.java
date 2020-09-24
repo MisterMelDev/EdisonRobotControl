@@ -20,9 +20,6 @@ public class ProcessHandler {
 	
 	public ProcessHandler() {
 		this.scriptsFolder = new File("lighting-scripts");
-		if(!scriptsFolder.isDirectory()) {
-			scriptsFolder.mkdir();
-		}
 	}
 	
 	public boolean startStreamProcess() {
