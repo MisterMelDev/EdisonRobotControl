@@ -53,7 +53,7 @@ public class ProcessHandler {
 	
 	public void stopStreamingProcess() {
 		if(streamProcess != null) {
-			streamProcess.destroyForcibly();
+			streamProcess.destroy();
 			streamProcess = null;
 		}
 	}
@@ -91,7 +91,7 @@ public class ProcessHandler {
 	
 	public void stopLightingProcess() {
 		if(lightingProcess != null) {
-			lightingProcess.destroyForcibly();
+			lightingProcess.destroy();
 			lightingProcess = null;
 		}
 	}
