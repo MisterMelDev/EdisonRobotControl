@@ -1,9 +1,8 @@
 package tech.mistermel.edisoncontrol.web;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +21,7 @@ public class WebHandler extends NanoWSD {
 	
 	private static final Map<String, String> MIME_TYPES = new HashMap<>();
 	private static final String DEFAULT_MIME_TYPE = "text/plain";
-	private static final String INDEX_FILE = "index.html";
+	private static final String INDEX_FILE = "/index.html";
 	private static final byte[] PING_PAYLOAD = "1889BEJANDJKM859".getBytes();
 	
 	static {
@@ -170,29 +169,30 @@ public class WebHandler extends NanoWSD {
 	
 	@Override
 	public Response serveHttp(IHTTPSession session) {
-		String uri = session.getUri().equals("/") ? INDEX_FILE : session.getUri();
-		File file = new File(staticFolder, uri);
+		if(session.getUri().startsWith(".")) {
+			return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Requests cannot start with .");
+		}
 		
-		if(!file.exists()) {
+		String uri = session.getUri().equals("/") ? INDEX_FILE : session.getUri();
+		String mimeType = this.getMimeType(uri);
+		
+		InputStream in = this.getClass().getClassLoader().getResourceAsStream("static" + uri);
+		if(in == null) {
 			return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "The specified file could not be found");
 		}
 		
 		try {
-			String mimeType = this.getMimeType(file);
-			return newFixedLengthResponse(Response.Status.OK, mimeType, new FileInputStream(file), file.length());
-		} catch (FileNotFoundException e) {
-			// This will never happen
-			e.printStackTrace();
-			
+			return newFixedLengthResponse(Response.Status.OK, mimeType, in, in.available());
+		} catch (IOException e) {
+			logger.error("Error occurred while attempting to return file", e);
 			return null;
 		}
 	}
 	
-	private String getMimeType(File file) {
-		String fileName = file.getName();
+	private String getMimeType(String fileName) {
 		String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 		
-		String mimeType = MIME_TYPES.get(extension);
+		String mimeType = MIME_TYPES.get(extension.toLowerCase());
 		if(mimeType != null) {
 			return mimeType;
 		}
