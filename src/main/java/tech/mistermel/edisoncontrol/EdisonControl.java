@@ -13,6 +13,7 @@ public class EdisonControl {
 	private WebHandler webHandler;
 	private ConfigHandler configHandler;
 	private ProcessHandler processHandler;
+	private WiFiHandler wifiHandler;
 	
 	public EdisonControl() {
 		this.configHandler = new ConfigHandler();
@@ -21,6 +22,7 @@ public class EdisonControl {
 		this.serialInterface = new SerialInterface();
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
+		this.wifiHandler = new WiFiHandler();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
@@ -56,6 +58,10 @@ public class EdisonControl {
 	
 	public ProcessHandler getProcessHandler() {
 		return processHandler;
+	}
+	
+	public WiFiHandler getWifiHandler() {
+		return wifiHandler;
 	}
 	
 	private static EdisonControl instance;

@@ -55,6 +55,27 @@ document.getElementById("reboot-btn").addEventListener("click", function(e) {
     });
 });
 
+const wifiModal = document.getElementById("wifi-modal");
+document.getElementById("wifi-btn").addEventListener("click", function(e) {
+    modalActive = true;
+    wifiModal.style.display = "block";
+});
+
+document.getElementById("wifi-modal-cancel").addEventListener("click", function(e) {
+    modalActive = false;
+    wifiModal.style.display = "none";
+});
+
+document.getElementById("wifi-modal-confirm").addEventListener("click", function(e) {
+    modalActive = false;
+    wifiModal.style.display = "none";
+    socket.send(JSON.stringify({
+        type: "wifi",
+        ssid: document.getElementById("wifi-modal-ssid").value,
+        password: document.getElementById("wifi-modal-password").value
+    }));
+});
+
 const lightsToggle = document.getElementById("lights-toggle");
 lightsToggle.addEventListener("click", function(e) {
     let checked = lightsToggle.checked;

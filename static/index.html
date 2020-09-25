@@ -19,8 +19,7 @@
 			<b class="controls-header">Power Controls:</b>
 			<button id="shutdown-btn">Shutdown</button>
 			<button id="reboot-btn">Reboot</button>
-			
-			<b class="controls-header">Lighting Controls:</b>
+			<button id="wifi-btn">WiFi</button>
 			<input type="checkbox" id="lights-toggle"> Lighting
 		</div>
 
@@ -38,6 +37,23 @@
 				<h2 class="modal-title" id="confirmation-modal-question"></h2>
 				<button id="confirmation-modal-cancel" class="modal-button">Cancel</button>
 				<button id="confirmation-modal-confirm" class="modal-button">Confirm</button>
+			</div>
+		</div>
+
+		<div id="wifi-modal" class="modal">
+			<div class="modal-content text-centered">
+				<h2 class="modal-title">Connect to WiFi</h2>
+
+				<label for="wifi-modal-ssid">SSID</label>
+				<input type="text" id="wifi-modal-ssid">
+
+				<label for="wifi-modal-password">Password</label>
+				<input type="password" id="wifi-modal-password">
+
+				<div id="wifi-modal-buttons">
+					<button id="wifi-modal-cancel" class="modal-button">Cancel</button>
+					<button id="wifi-modal-confirm" class="modal-button">Connect and Reboot</button>
+				</div>
 			</div>
 		</div>
 

@@ -87,3 +87,14 @@ body {
     background-repeat: no-repeat;
     background-position: center center;
 }
+
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 15px;
+}
+
+#wifi-modal-buttons {
+    width: 100%;
+    margin-top: 15px;
+}

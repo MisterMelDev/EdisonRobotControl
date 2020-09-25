@@ -102,6 +102,17 @@ public class WebHandler extends NanoWSD {
 			return;
 		}
 		
+		if(packetType.equals("wifi")) {
+			try {
+				EdisonControl.getInstance().getWifiHandler().setNetwork(json.optString("ssid"), json.optString("password"));
+				EdisonControl.getInstance().getProcessHandler().reboot();
+			} catch (IOException e) {
+				logger.error("Error occured while attempting to set WiFi network", e);
+			}
+			
+			return;
+		}
+		
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
