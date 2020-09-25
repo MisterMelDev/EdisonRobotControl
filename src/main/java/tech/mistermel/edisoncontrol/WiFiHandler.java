@@ -24,8 +24,7 @@ public class WiFiHandler {
 				.replace("{{SSID}}", ssid)
 				.replace("{{PASS}}", password);
 		
-		// TODO: Output to actual directory, instead of application dir
-		File outputFile = new File("wpa_supplicant.conf");
+		File outputFile = new File("/etc/wpa_supplicant/wpa_supplicant.conf");
 		outputFile.createNewFile();
 		
 		FileWriter writer = new FileWriter(outputFile);

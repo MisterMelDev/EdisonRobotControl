@@ -21,6 +21,11 @@ public class ProcessHandler {
 			return false;
 		}
 		
+		if(streamProcess != null) {
+			logger.warn("Cannot start stream process, already started");
+			return false;
+		}
+		
 		JSONObject streamJson = EdisonControl.getInstance().getConfigHandler().getJson().getJSONObject("stream");
 		JSONObject resolutionJson = streamJson.getJSONObject("resolution");
 		
@@ -49,6 +54,7 @@ public class ProcessHandler {
 	public void stopStreamingProcess() {
 		if(streamProcess != null) {
 			streamProcess.destroyForcibly();
+			streamProcess = null;
 		}
 	}
 	
@@ -56,28 +62,37 @@ public class ProcessHandler {
 		return streamProcess;
 	}
 	
-	public void startLightingProcess() {
+	public boolean startLightingProcess() {
 		File file = new File("lighting-script.py");
 		if(!file.exists()) {
 			logger.warn("Cannot enable lighting, lighting-script.py does not exist");
-			return;
+			return false;
 		}
 		
-		ProcessBuilder builder = new ProcessBuilder("sudo", "python3", file.getAbsolutePath());
+		if(lightingProcess != null) {
+			logger.warn("Cannot start stream process, already started");
+			return false;
+		}
+		
+		ProcessBuilder builder = new ProcessBuilder("python3", file.getAbsolutePath());
 		if(logger.isDebugEnabled()) {
 			builder.inheritIO();
 		}
 		
 		try {
 			this.lightingProcess = builder.start();
+			
+			return true;
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to start lighting process");
+			return false;
 		}
 	}
 	
 	public void stopLightingProcess() {
 		if(lightingProcess != null) {
 			lightingProcess.destroyForcibly();
+			lightingProcess = null;
 		}
 	}
 	
