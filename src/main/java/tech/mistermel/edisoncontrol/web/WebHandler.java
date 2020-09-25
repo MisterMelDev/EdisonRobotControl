@@ -176,6 +176,8 @@ public class WebHandler extends NanoWSD {
 		String uri = session.getUri().equals("/") ? INDEX_FILE : session.getUri();
 		String mimeType = this.getMimeType(uri);
 		
+		logger.debug("Received {} request for {}", session.getMethod().name(), uri);
+		
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("static" + uri);
 		if(in == null) {
 			return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "The specified file could not be found");
