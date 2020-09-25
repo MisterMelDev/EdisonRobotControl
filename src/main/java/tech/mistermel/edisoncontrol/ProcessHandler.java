@@ -2,8 +2,6 @@ package tech.mistermel.edisoncontrol;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -14,13 +12,7 @@ public class ProcessHandler {
 	private static Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
 	
 	private Process streamProcess;
-	
-	private File scriptsFolder;
-	private Map<String, Process> lightingProcesses = new HashMap<>();
-	
-	public ProcessHandler() {
-		this.scriptsFolder = new File("lighting-scripts");
-	}
+	private Process lightingProcess;
 	
 	public boolean startStreamProcess() {
 		File folder = new File("mjpg-streamer");
@@ -64,43 +56,33 @@ public class ProcessHandler {
 		return streamProcess;
 	}
 	
-	public void setLightingStatus(String id, boolean enabled) {
-		id = id.toLowerCase();
+	public void startLightingProcess() {
+		File file = new File("lighting-script.py");
+		if(!file.exists()) {
+			logger.warn("Cannot enable lighting, lighting-script.py does not exist");
+			return;
+		}
 		
-		if(enabled) {
-			if(lightingProcesses.get(id) != null) {
-				logger.warn("Cannot enable lighting '{}', already enabled", id);
-				return;
-			}
-			
-			File scriptFile = new File(scriptsFolder, id + ".py");
-			if(!scriptFile.exists()) {
-				logger.warn("Cannot enable lighting '{}', file 'lightingScripts/{}.py' does not exist", id, id);
-				return;
-			}
-			
-			try {
-				Process process = Runtime.getRuntime().exec("sudo python3 " + scriptFile.getName());
-				lightingProcesses.put(id, process);
-				
-				logger.debug("Lighting '{}' started", id);
-			} catch (IOException e) {
-				logger.error("Error while attempting to start lighting", e);
-			}
-		} else {
-			Process process = lightingProcesses.get(id);
-			if(process == null) {
-				logger.warn("Cannot disable lighting '{}', not enabled", id);
-				return;
-			}
-			
-			process.destroyForcibly();
-			logger.debug("Lighting '{}' stopped", id);
+		ProcessBuilder builder = new ProcessBuilder("sudo", "python3", file.getAbsolutePath());
+		if(logger.isDebugEnabled()) {
+			builder.inheritIO();
+		}
+		
+		try {
+			this.lightingProcess = builder.start();
+		} catch (IOException e) {
+			logger.error("Error occurred while attempting to start lighting process");
 		}
 	}
 	
-	public boolean isLightingEnabled(String id) {
-		return lightingProcesses.get(id) != null;
+	public void stopLightingProcess() {
+		if(lightingProcess != null) {
+			lightingProcess.destroyForcibly();
+		}
+	}
+	
+	public Process getLightingProcess() {
+		return lightingProcess;
 	}
 
 	public void shutdown() {

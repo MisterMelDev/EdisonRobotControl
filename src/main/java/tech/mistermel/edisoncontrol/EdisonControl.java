@@ -27,6 +27,7 @@ public class EdisonControl {
 			public void run() {
 				logger.info("Shutting down");
 				processHandler.stopStreamingProcess();
+				processHandler.stopLightingProcess();
 			}
 		});
 	}

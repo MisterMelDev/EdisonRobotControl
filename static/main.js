@@ -55,16 +55,10 @@ document.getElementById("reboot-btn").addEventListener("click", function(e) {
     });
 });
 
-const headlightsToggle = document.getElementById("headlights-toggle");
-headlightsToggle.addEventListener("click", function(e) {
-    let checked = headlightsToggle.checked;
-    socket.send(JSON.stringify({type: "lighting", element: "headlights", enabled: checked}));
-})
-
-const warningLightsToggle = document.getElementById("warning-lights-toggle");
-warningLightsToggle.addEventListener("click", function(e) {
-    let checked = warningLightsToggle.checked;
-    socket.send(JSON.stringify({type: "lighting", element: "warning_lights", enabled: checked}));
+const lightsToggle = document.getElementById("lights-toggle");
+lightsToggle.addEventListener("click", function(e) {
+    let checked = lightsToggle.checked;
+    socket.send(JSON.stringify({type: "lighting", enabled: checked}));
 });
 
 setInterval(function() {
