@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.ProcessHandler;
 import tech.mistermel.edisoncontrol.SerialInterface;
 
 public class WebHandler extends NanoWSD {
@@ -77,12 +78,28 @@ public class WebHandler extends NanoWSD {
 		if(packetType.equals("lighting")) {
 			boolean enabled = json.optBoolean("enabled");
 			
+			ProcessHandler processHandler = EdisonControl.getInstance().getProcessHandler();
 			if(enabled) {
-				EdisonControl.getInstance().getProcessHandler().startLightingProcess();
+				processHandler.startLightingProcess();
 			} else {
-				EdisonControl.getInstance().getProcessHandler().stopLightingProcess();
+				processHandler.stopLightingProcess();
 			}
 			
+			this.sendCheckboxes();
+			return;
+		}
+		
+		if(packetType.equals("stream")) {
+			boolean enabled = json.optBoolean("enabled");
+			
+			ProcessHandler processHandler = EdisonControl.getInstance().getProcessHandler();
+			if(enabled) {
+				processHandler.startStreamProcess();
+			} else {
+				processHandler.stopStreamProcess();
+			}
+			
+			this.sendCheckboxes();
 			return;
 		}
 		
@@ -122,7 +139,10 @@ public class WebHandler extends NanoWSD {
 		}
 		
 		try {
-			webSocketHandler.send(json.toString());
+			String jsonStr = json.toString();
+			logger.debug("Sending packet: {}", jsonStr);
+			
+			webSocketHandler.send(jsonStr);
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to send packet", e);
 		}
@@ -135,6 +155,10 @@ public class WebHandler extends NanoWSD {
 			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
 			while(true) {
 				if(webSocketHandler != null) {
+					if(!webSocketHandler.isCheckboxesSent()) {
+						webSocketHandler.sendCheckboxes();
+					}
+					
 					JSONObject json = new JSONObject();
 					json.put("type", "telemetry");
 					json.put("isConnected", serialInterface.isCommunicationWorking());
@@ -165,6 +189,15 @@ public class WebHandler extends NanoWSD {
 			logger.warn("Telemetry packet send loop exited");
 		}
 		
+	}
+	
+	public void sendCheckboxes() {
+		if(webSocketHandler == null) {
+			logger.warn("Could not send checkbox update because no websocket client is connected");
+			return;
+		}
+		
+		webSocketHandler.sendCheckboxes();
 	}
 	
 	@Override
@@ -210,6 +243,7 @@ public class WebHandler extends NanoWSD {
 		
 		WebSocketHandler webSocketHandler = new WebSocketHandler(handshake);
 		this.webSocketHandler = webSocketHandler;
+		
 		return webSocketHandler;
 	}
 	

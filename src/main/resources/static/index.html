@@ -14,16 +14,25 @@
 		</p>
 	
 		<div id="controls">
-			<b>Speed:</b> <input id="speed-input" type="number" min="1" max="1000" value="300">
+			<div class="controls-section">
+				<b>Speed:</b> <input id="speed-input" type="number" min="1" max="1000" value="300">
+			</div>
 			
-			<b class="controls-header">Power Controls:</b>
-			<button id="shutdown-btn">Shutdown</button>
-			<button id="reboot-btn">Reboot</button>
-			<button id="wifi-btn">WiFi</button>
-			<input type="checkbox" id="lights-toggle"> Lighting
+			<div class="controls-section">
+				<button id="shutdown-btn">Shutdown</button>
+				<button id="reboot-btn">Reboot</button>
+				<button id="wifi-btn">WiFi</button>
+			</div>
+
+			<div class="controls-section">
+				<input type="checkbox" id="lights-toggle">Lighting
+				<input type="checkbox" id="stream-toggle">Stream
+			</div>
 		</div>
 
 		<img class="image-centered" width="1080" height="720" onerror="onImgError(this)" id="camera-stream">
+
+		<p id="speed"></p>
 
 		<div id="connection-error-modal" class="modal">
 			<div class="modal-content text-centered">

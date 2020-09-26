@@ -51,10 +51,12 @@ public class ProcessHandler {
 		}
 	}
 	
-	public void stopStreamingProcess() {
+	public void stopStreamProcess() {
 		if(streamProcess != null) {
 			streamProcess.destroy();
 			streamProcess = null;
+			
+			logger.info("Stopped stream process");
 		}
 	}
 	
@@ -81,6 +83,7 @@ public class ProcessHandler {
 		
 		try {
 			this.lightingProcess = builder.start();
+			logger.info("Started lighting process");
 			
 			return true;
 		} catch (IOException e) {
@@ -93,6 +96,8 @@ public class ProcessHandler {
 		if(lightingProcess != null) {
 			lightingProcess.destroy();
 			lightingProcess = null;
+			
+			logger.info("Stopped lighting process");
 		}
 	}
 	

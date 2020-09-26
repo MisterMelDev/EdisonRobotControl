@@ -78,10 +78,6 @@ body {
     margin-bottom: 0px;
 }
 
-.controls-header {
-    margin-left: 15px;
-}
-
 #camera-stream {
     background-image: url('loading.gif');
     background-repeat: no-repeat;
@@ -97,4 +93,15 @@ label {
 #wifi-modal-buttons {
     width: 100%;
     margin-top: 15px;
+}
+
+
+.controls-section {
+    margin-left: 15px;
+    margin-right: 15px;
+    display: inline-block;
+}
+
+.controls-section input[type="checkbox"] {
+    margin-right: 5px;
 }

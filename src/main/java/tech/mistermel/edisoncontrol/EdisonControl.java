@@ -28,7 +28,7 @@ public class EdisonControl {
 			@Override
 			public void run() {
 				logger.info("Shutting down");
-				processHandler.stopStreamingProcess();
+				processHandler.stopStreamProcess();
 				processHandler.stopLightingProcess();
 			}
 		});

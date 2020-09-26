@@ -82,6 +82,14 @@ lightsToggle.addEventListener("click", function(e) {
     socket.send(JSON.stringify({type: "lighting", enabled: checked}));
 });
 
+const streamToggle = document.getElementById("stream-toggle");
+streamToggle.addEventListener("click", function(e) {
+    let checked = streamToggle.checked;
+    socket.send(JSON.stringify({type: "stream", enabled: checked}));
+
+    document.getElementById("camera-stream").src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
+});
+
 setInterval(function() {
     if(socket.readyState == WebSocket.OPEN) {
         socket.send(JSON.stringify({type: "heartbeat"}));
@@ -101,8 +109,17 @@ socket.addEventListener("message", function(event) {
     if(msgType == "telemetry") {
         setMotherboardState(json.isConnected);
 
+        document.getElementById("speed").innerHTML = json.speed.left + " " + json.speed.right;
+
         batteryVoltageElement.innerHTML = json.battVoltage.toFixed(2) + "v";
         boardTemperatureElement.innerHTML = json.boardTemp.toFixed(1) + " &#8451;";
+        return;
+    }
+
+    if(msgType == "checkboxes") {
+        lightsToggle.checked = json.isLightingEnabled;
+        streamToggle.checked = json.isStreamEnabled;
+        return;
     }
 });
 

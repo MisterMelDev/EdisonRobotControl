@@ -11,15 +11,37 @@ import fi.iki.elonen.NanoWSD.WebSocket;
 import fi.iki.elonen.NanoWSD.WebSocketFrame;
 import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode;
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.ProcessHandler;
 
 public class WebSocketHandler extends WebSocket {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebSocketHandler.class);
 	
 	private long lastHeartbeat;
+	private boolean checkboxesSent;
 	
 	public WebSocketHandler(IHTTPSession handshakeRequest) {
 		super(handshakeRequest);
+	}
+	
+	public void sendCheckboxes() {
+		ProcessHandler processHandler = EdisonControl.getInstance().getProcessHandler();
+		JSONObject json = new JSONObject();
+		json.put("type", "checkboxes");
+		json.put("isLightingEnabled", processHandler.getLightingProcess() != null);
+		json.put("isStreamEnabled", processHandler.getStreamProcess() != null);
+		
+		try {
+			this.send(json.toString());
+		} catch (IOException e) {
+			logger.error("Error occurred while attempting to send packet", e);
+		}
+		
+		this.checkboxesSent = true;
+	}
+	
+	public boolean isCheckboxesSent() {
+		return checkboxesSent;
 	}
 
 	@Override
