@@ -25,8 +25,8 @@ public class WiFiHandler {
 		}
 	}
 	
-	public JSONArray getDefaultConfigurations() {
-		JSONArray array = configSection.optJSONArray("default_configurations");
+	public JSONArray getConfigurations() {
+		JSONArray array = configSection.optJSONArray("configurations");
 		return array == null ? new JSONArray() : array;
 	}
 	

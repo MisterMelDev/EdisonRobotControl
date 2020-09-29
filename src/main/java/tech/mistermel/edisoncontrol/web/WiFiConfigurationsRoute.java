@@ -12,7 +12,7 @@ public class WiFiConfigurationsRoute implements WebRoute {
 	@Override
 	public Response serve(IHTTPSession session) {
 		JSONObject json = new JSONObject();
-		json.put("default_configurations", EdisonControl.getInstance().getWifiHandler().getDefaultConfigurations());
+		json.put("configurations", EdisonControl.getInstance().getWifiHandler().getConfigurations());
 		
 		return WebHandler.newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
 	}

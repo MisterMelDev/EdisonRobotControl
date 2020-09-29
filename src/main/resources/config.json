@@ -13,7 +13,7 @@
 	},
 	"wifi": {
 		"country_code": "NL",
-		"default_configurations": [
+		"configurations": [
 			{
 				"name": "Example Configuration",
 				"ssid": "example-ssid",
