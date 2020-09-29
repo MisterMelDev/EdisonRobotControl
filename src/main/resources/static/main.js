@@ -56,10 +56,41 @@ document.getElementById("reboot-btn").addEventListener("click", function(e) {
 });
 
 const wifiModal = document.getElementById("wifi-modal");
+const wifiModalConfigSelect = document.getElementById("wifi-modal-configuration-select");
+const wifiModalSsid = document.getElementById("wifi-modal-ssid");
+const wifiModalPassword = document.getElementById("wifi-modal-password");
+
+let wifiConfigurations = null;
+
 document.getElementById("wifi-btn").addEventListener("click", function(e) {
     modalActive = true;
     wifiModal.style.display = "block";
 });
+
+fetch("/wifiConfigs").then(r => r.json()).then(response => {
+    wifiConfigurations = response.configurations;
+    for(let i = 0; i < wifiConfigurations.length; i++) {
+        let option = document.createElement("option");
+        option.text = wifiConfigurations[i].name;
+        option.value = i.toString();
+        wifiModalConfigSelect.add(option);
+    }
+});
+
+wifiModalConfigSelect.addEventListener("change", function(e) {
+    let value = wifiModalConfigSelect.value;
+    if(value == "none") {
+        wifiModalSsid.value = "";
+        wifiModalPassword.value = "";
+        return;
+    }
+
+    wifiModalSsid.value = wifiConfigurations[value].ssid;
+    wifiModalPassword.value = wifiConfigurations[value].password;
+});
+
+wifiModalSsid.addEventListener("input", (e) => wifiModalConfigSelect.value = "none");
+wifiModalPassword.addEventListener("input", (e) => wifiModalConfigSelect.value = "none");
 
 document.getElementById("wifi-modal-cancel").addEventListener("click", function(e) {
     modalActive = false;
@@ -71,8 +102,8 @@ document.getElementById("wifi-modal-confirm").addEventListener("click", function
     wifiModal.style.display = "none";
     socket.send(JSON.stringify({
         type: "wifi",
-        ssid: document.getElementById("wifi-modal-ssid").value,
-        password: document.getElementById("wifi-modal-password").value
+        ssid: wifiModalSsid.value,
+        password: wifiModalPassword.value
     }));
 });
 

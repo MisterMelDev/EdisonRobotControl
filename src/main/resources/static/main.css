@@ -66,7 +66,7 @@ body {
     margin-bottom: 15px;
 }
 
-#controls button, input {
+#controls button, #controls input {
     padding: 5px;
 }
 
@@ -95,7 +95,6 @@ label {
     margin-top: 15px;
 }
 
-
 .controls-section {
     margin-left: 15px;
     margin-right: 15px;
@@ -104,4 +103,9 @@ label {
 
 .controls-section input[type="checkbox"] {
     margin-right: 5px;
+}
+
+.modal-content input, .modal-content select {
+    width: 200px;
+    padding: 5px;
 }
