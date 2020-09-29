@@ -14,7 +14,7 @@ public class WiFiConfigurationsRoute implements WebRoute {
 		JSONObject json = new JSONObject();
 		json.put("default_configurations", EdisonControl.getInstance().getWifiHandler().getDefaultConfigurations());
 		
-		return WebHandler.newFixedLengthResponse(json.toString());
+		return WebHandler.newFixedLengthResponse(Response.Status.OK, "application/json", json.toString());
 	}
 
 }
