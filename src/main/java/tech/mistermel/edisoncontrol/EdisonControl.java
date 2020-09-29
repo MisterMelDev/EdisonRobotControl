@@ -35,6 +35,8 @@ public class EdisonControl {
 	}
 	
 	public void start() {
+		wifiHandler.load();
+		
 		serialInterface.start();
 		webHandler.start();
 

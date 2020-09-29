@@ -18,7 +18,7 @@ public class WiFiHandler {
 	
 	private JSONObject configSection;
 	
-	public WiFiHandler() {
+	public void load() {
 		this.configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("wifi");
 		if(configSection == null) {
 			logger.warn("No 'wifi' configuration section present in config.json - this will cause errors!");
