@@ -34,6 +34,12 @@ public class WebHandler extends NanoWSD {
 	private File staticFolder;
 	private WebSocketHandler webSocketHandler;
 	
+	private Map<String, WebRoute> routes = new HashMap<>();
+	
+	public static interface WebRoute {
+		public Response serve(IHTTPSession session);
+	}
+	
 	public WebHandler(int port) {
 		super(port);
 		
@@ -41,6 +47,11 @@ public class WebHandler extends NanoWSD {
 		if(!staticFolder.isDirectory()) {
 			staticFolder.mkdirs();
 		}
+	}
+	
+	public void registerRoute(String uri, WebRoute route) {
+		routes.put(uri, route);
+		logger.debug("Route registered: {} to {}", uri, route.getClass().getName());
 	}
 	
 	public void start() {
@@ -207,16 +218,24 @@ public class WebHandler extends NanoWSD {
 		}
 		
 		String uri = session.getUri().equals("/") ? INDEX_FILE : session.getUri();
-		String mimeType = this.getMimeType(uri);
-		
 		logger.debug("Received {} request for {}", session.getMethod().name(), uri);
 		
+		WebRoute route = routes.get(uri);
+		if(route != null) {
+			return route.serve(session);
+		}
+		
+		return this.serveStatic(uri);
+	}
+	
+	private Response serveStatic(String uri) {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("static" + uri);
 		if(in == null) {
 			return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "The specified file could not be found");
 		}
 		
 		try {
+			String mimeType = this.getMimeType(uri);
 			return newFixedLengthResponse(Response.Status.OK, mimeType, in, in.available());
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to return file", e);
