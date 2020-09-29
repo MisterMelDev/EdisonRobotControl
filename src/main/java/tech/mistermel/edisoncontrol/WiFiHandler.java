@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +16,22 @@ public class WiFiHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(WiFiHandler.class);
 	
+	private JSONObject configSection;
+	
+	public WiFiHandler() {
+		this.configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("wifi");
+		if(configSection == null) {
+			logger.warn("No 'wifi' configuration section present in config.json - this will cause errors!");
+		}
+	}
+	
+	public JSONArray getDefaultConfigurations() {
+		JSONArray array = configSection.optJSONArray("default_configurations");
+		return array == null ? new JSONArray() : array;
+	}
+	
 	public void setNetwork(String ssid, String password) throws IOException {
-		this.setNetwork(ssid, password, EdisonControl.getInstance().getConfigHandler().getJson().getString("wifi_country_code"));
+		this.setNetwork(ssid, password, configSection.getString("country_code"));
 	}
 	
 	public void setNetwork(String ssid, String password, String countryCode) throws IOException {

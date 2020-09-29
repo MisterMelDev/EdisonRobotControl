@@ -11,5 +11,14 @@
 		},
 		"fps": 20
 	},
-	"wifi_country_code": "NL"
+	"wifi": {
+		"country_code": "NL",
+		"default_configurations": [
+			{
+				"name": "Example Configuration",
+				"ssid": "example-ssid",
+				"password": "example-password"
+			}
+		]
+	}
 }
