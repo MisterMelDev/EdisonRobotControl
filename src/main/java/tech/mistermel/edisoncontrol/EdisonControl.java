@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.web.WebHandler;
+import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 
 public class EdisonControl {
 
@@ -23,6 +24,8 @@ public class EdisonControl {
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
 		this.wifiHandler = new WiFiHandler();
+		
+		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
