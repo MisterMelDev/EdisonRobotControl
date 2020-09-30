@@ -109,3 +109,7 @@ label {
     width: 200px;
     padding: 5px;
 }
+
+#map-canvas {
+    border: 1px solid black;
+}

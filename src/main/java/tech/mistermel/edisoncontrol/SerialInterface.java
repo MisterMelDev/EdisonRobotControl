@@ -35,7 +35,7 @@ public class SerialInterface extends Thread {
 	public void run() {
 		JSONObject configJson = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("motherboard_serial");
 		if(configJson == null) {
-			logger.warn("Serial port initialization failed, no 'motherboard_serial' config section");
+			logger.warn("Motherboard serial port initialization failed, no 'motherboard_serial' config section");
 			return;
 		}
 		
@@ -46,10 +46,10 @@ public class SerialInterface extends Thread {
 		port.setBaudRate(baudrate);
 		
 		if(!port.openPort()) {
-			logger.warn("Failed to open serial port ({} at {} baud)", serialPortName, baudrate);
+			logger.warn("Failed to open motherboard serial port ({} at {} baud)", serialPortName, baudrate);
 			return;
 		}
-		logger.info("Serial port opened ({} at {} baud)", serialPortName, baudrate);
+		logger.info("Motherboard serial port opened ({} at {} baud)", serialPortName, baudrate);
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 			

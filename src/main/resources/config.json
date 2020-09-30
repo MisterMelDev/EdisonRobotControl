@@ -3,6 +3,10 @@
 		"port_name": "/dev/ttyS0",
 		"baudrate": 38400
 	},
+	"dwm_serial": {
+		"port_name": "/dev/ttyACM0",
+		"baudrate": 115200
+	},
 	"web_port": 8888,
 	"stream": {
 		"resolution": {
