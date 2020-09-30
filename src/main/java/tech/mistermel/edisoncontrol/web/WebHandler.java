@@ -269,5 +269,19 @@ public class WebHandler extends NanoWSD {
 	public void onWebSocketClose() {
 		this.webSocketHandler = null;
 	}
+
+	public void sendPosition(float x, float y, float z) {
+		if(webSocketHandler == null) {
+			return;
+		}
+		
+		JSONObject webPacket = new JSONObject();
+		webPacket.put("type", "pos");
+		webPacket.put("x", x);
+		webPacket.put("y", y);
+		webPacket.put("z", z);
+		
+		this.sendPacket(webPacket);
+	}
 	
 }

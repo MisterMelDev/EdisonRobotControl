@@ -11,6 +11,7 @@ public class EdisonControl {
 	private static final Logger logger = LoggerFactory.getLogger(EdisonControl.class);
 	
 	private SerialInterface serialInterface;
+	private DWMSerialInterface dwmSerialInterface;
 	private WebHandler webHandler;
 	private ConfigHandler configHandler;
 	private ProcessHandler processHandler;
@@ -21,6 +22,8 @@ public class EdisonControl {
 		configHandler.load();
 		
 		this.serialInterface = new SerialInterface();
+		this.dwmSerialInterface = new DWMSerialInterface();
+		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
 		this.wifiHandler = new WiFiHandler();
@@ -38,9 +41,10 @@ public class EdisonControl {
 	}
 	
 	public void start() {
-		wifiHandler.load();
-		
 		serialInterface.start();
+		dwmSerialInterface.setup();
+		
+		wifiHandler.load();
 		webHandler.start();
 
 		processHandler.startStreamProcess();
@@ -51,6 +55,10 @@ public class EdisonControl {
 	
 	public SerialInterface getSerialInterface() {
 		return serialInterface;
+	}
+	
+	public DWMSerialInterface getDWMSerialInterface() {
+		return dwmSerialInterface;
 	}
 	
 	public WebHandler getWebHandler() {
