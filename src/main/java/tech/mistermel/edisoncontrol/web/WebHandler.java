@@ -167,6 +167,10 @@ public class WebHandler extends NanoWSD {
 	
 	private class TelemetryThread extends Thread {
 		
+		public TelemetryThread() {
+			super("TelemetryThread");
+		}
+		
 		@Override
 		public void run() {
 			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
@@ -174,6 +178,7 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					if(!webSocketHandler.isCheckboxesSent()) {
 						webSocketHandler.sendCheckboxes();
+						sendPosition(0, 0, 0);
 					}
 					
 					JSONObject json = new JSONObject();

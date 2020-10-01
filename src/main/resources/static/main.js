@@ -154,7 +154,7 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "pos") {
-        drawLocation(json.x, json.y, json.z);
+        drawLocation(json.x, json.y);
         return;
     }
 });
@@ -261,16 +261,16 @@ function onImgError(e) {
 
 const mapCanvas = document.getElementById("map-canvas");
 const ctx = mapCanvas.getContext("2d");
-ctx.font = "30px Arial";
+ctx.font = "12px Arial";
+ctx.textAlign = "center";
 
-function drawLocation(x, y, z) {
-    drawPoint(x * 20 + mapCanvas.width / 2, y * 20 + mapCanvas.height / 2);
-    ctx.fillText(x + ", " + y + "," + z, 50, 50);
-}
-
-function drawPoint(x, y) {
+function drawLocation(x, y) {
+    let drawX = x * 20 + mapCanvas.width / 2;
+    let drawY = y * 20 + mapCanvas.height / 2;
+    
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
     ctx.beginPath();
-    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+    ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
     ctx.fill();
+    ctx.fillText(x + ", " + y, drawX, drawY + 15);
 }
