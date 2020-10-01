@@ -82,7 +82,13 @@ public class WebHandler extends NanoWSD {
 				return;
 			}
 			
+			if(EdisonControl.getInstance().getNavHandler().isActive()) {
+				logger.debug("Ignored controls because navigation handler is active");
+				return;
+			}
+			
 			EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
+			
 			return;
 		}
 		
@@ -270,7 +276,7 @@ public class WebHandler extends NanoWSD {
 		this.webSocketHandler = null;
 	}
 
-	public void sendPosition(float x, float y, float z) {
+	public void sendPosition(float x, float y, float heading) {
 		if(webSocketHandler == null) {
 			return;
 		}
@@ -279,7 +285,7 @@ public class WebHandler extends NanoWSD {
 		webPacket.put("type", "pos");
 		webPacket.put("x", x);
 		webPacket.put("y", y);
-		webPacket.put("z", z);
+		webPacket.put("h", heading);
 		
 		this.sendPacket(webPacket);
 	}

@@ -61,9 +61,7 @@ public class DWMSerialInterface {
 				
 				float x = Float.parseFloat(args[1]);
 				float y = Float.parseFloat(args[2]);
-				float z = Float.parseFloat(args[3]);
-				
-				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, z);
+				EdisonControl.getInstance().getNavHandler().onPositionReceived(x, y);
 			}
 			
 			@Override

@@ -3,6 +3,7 @@ package tech.mistermel.edisoncontrol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 
@@ -16,6 +17,7 @@ public class EdisonControl {
 	private ConfigHandler configHandler;
 	private ProcessHandler processHandler;
 	private WiFiHandler wifiHandler;
+	private NavigationHandler navHandler;
 	
 	public EdisonControl() {
 		this.configHandler = new ConfigHandler();
@@ -23,6 +25,8 @@ public class EdisonControl {
 		
 		this.serialInterface = new SerialInterface();
 		this.dwmSerialInterface = new DWMSerialInterface();
+		
+		this.navHandler = new NavigationHandler();
 		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
@@ -75,6 +79,10 @@ public class EdisonControl {
 	
 	public WiFiHandler getWifiHandler() {
 		return wifiHandler;
+	}
+	
+	public NavigationHandler getNavHandler() {
+		return navHandler;
 	}
 	
 	private static EdisonControl instance;
