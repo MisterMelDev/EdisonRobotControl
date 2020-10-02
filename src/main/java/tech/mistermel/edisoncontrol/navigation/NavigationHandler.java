@@ -9,15 +9,13 @@ import org.slf4j.LoggerFactory;
 import tech.mistermel.edisoncontrol.EdisonControl;
 
 public class NavigationHandler extends Thread {
-	
-	public static void main(String[] args) {
-		new NavigationHandler().setActive(true);
-	}
 
 	private static final Logger logger = LoggerFactory.getLogger(NavigationHandler.class);
 	private static final int UPDATES_PER_SECOND = 10;
 	private static final int ROTATE_IN_PLACE_TRESHOLD = 45;
 	private static final int SPEED = 200;
+	
+	private MagnetometerProvider magnetometerProvider;
 	
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
@@ -30,12 +28,14 @@ public class NavigationHandler extends Thread {
 	
 	public NavigationHandler() {
 		super("NavigationThread");
+		
+		this.magnetometerProvider = new MagnetometerProvider(new HMC5883LInterface());
+		magnetometerProvider.start();
 	}
 	
 	@Override
-	public void run() {
+	public void run() {		
 		int millisDelay = 1000 / UPDATES_PER_SECOND;
-		
 		while(isActive) {
 			long startTime = System.currentTimeMillis();
 			this.tick();
@@ -56,6 +56,8 @@ public class NavigationHandler extends Thread {
 	}
 	
 	private void tick() {
+		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, heading);
+		
 		float headingDistance = heading - targetHeading;
 		int steer = (int) headingDistance * 5;
 		
@@ -85,8 +87,6 @@ public class NavigationHandler extends Thread {
 		if(target != null) {
 			this.targetHeading = calculateHeading(x, y, target.getX(), target.getY());
 		}
-		
-		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, heading);
 	}
 	
 	public void onHeadingReceived(float heading) {
@@ -145,7 +145,8 @@ public class NavigationHandler extends Thread {
 			return;
 		}
 		
-		EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
+		// TODO
+		//EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
 	}
 	
 	public boolean isActive() {

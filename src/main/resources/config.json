@@ -24,5 +24,8 @@
 				"password": "example-password"
 			}
 		]
+	},
+	"compass": {
+		"declination_angle": 2
 	}
 }

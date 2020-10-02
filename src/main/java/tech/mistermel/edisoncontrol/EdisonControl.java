@@ -19,7 +19,7 @@ public class EdisonControl {
 	private WiFiHandler wifiHandler;
 	private NavigationHandler navHandler;
 	
-	public EdisonControl() {
+	public void start() {
 		this.configHandler = new ConfigHandler();
 		configHandler.load();
 		
@@ -42,9 +42,7 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
-	}
-	
-	public void start() {
+		
 		serialInterface.start();
 		dwmSerialInterface.setup();
 		

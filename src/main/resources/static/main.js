@@ -1,7 +1,9 @@
 const socket = new WebSocket("ws://" + window.location.hostname + (window.location.port ? ":" + window.location.port : ""));
 
 const streamPort = 8080;
-document.getElementById("camera-stream").src = "http://" + window.location.hostname + ":" + streamPort + "/?action=stream";
+
+const cameraStreamElement = document.getElementById("camera-stream");
+cameraStreamElement.src = "http://" + window.location.hostname + ":" + streamPort + "/?action=stream";
 
 const connectionErrorModal = document.getElementById("connection-error-modal");
 const connectionErrorMsg = document.getElementById("connection-error-msg");
@@ -118,7 +120,7 @@ streamToggle.addEventListener("click", function(e) {
     let checked = streamToggle.checked;
     socket.send(JSON.stringify({type: "stream", enabled: checked}));
 
-    document.getElementById("camera-stream").src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
+    cameraStreamElement.src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
 });
 
 setInterval(function() {
@@ -271,6 +273,9 @@ function setNavigationEnabled(enabled) {
     
     navigationEnabled = enabled;
     navToggleButton.innerHTML = enabled ? "Stop navigation" : "Start navigation";
+
+    cameraStreamElement.height = enabled ? 580 : 720;
+    mapCanvas.style.display = enabled ? "block" : "none";
 }
 
 navToggleButton.addEventListener("click", function(e) {

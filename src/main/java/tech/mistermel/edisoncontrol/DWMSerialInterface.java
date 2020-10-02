@@ -40,7 +40,6 @@ public class DWMSerialInterface {
 			@Override
 			public void serialEvent(SerialPortEvent event) {
 				String str = new String(event.getReceivedData()).trim();
-				logger.info(str);
 				
 				if(str.equals("dwm>")) {
 					sendString("lep\r");
