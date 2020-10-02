@@ -159,13 +159,14 @@ socket.addEventListener("message", function(event) {
 
 socket.addEventListener("close", function(event) {
     console.log("WebSocket closed");
+    console.log(event);
 
     if(!webSocketOpened) {
         setConnectionError("Failed to connect to server");
         return;
     }
 
-    setConnectionError("Connection to server was interrupted");
+    setConnectionError(event.reason == "" ? "Connection to server was interrupted" : "Connection to server was interrupted: " + event.reason);
 });
 
 socket.addEventListener("error", function(event) {
