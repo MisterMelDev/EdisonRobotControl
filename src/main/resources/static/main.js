@@ -140,8 +140,6 @@ socket.addEventListener("message", function(event) {
     if(msgType == "telemetry") {
         setMotherboardState(json.isConnected);
 
-        document.getElementById("speed").innerHTML = json.speed.left + " " + json.speed.right;
-
         batteryVoltageElement.innerHTML = json.battVoltage.toFixed(2) + "v";
         boardTemperatureElement.innerHTML = json.boardTemp.toFixed(1) + " &#8451;";
         return;
@@ -154,7 +152,7 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "pos") {
-        drawLocation(json.x, json.y);
+        draw(json.x, json.y, json.h);
         return;
     }
 });
@@ -211,6 +209,11 @@ window.onkeyup = function(e) {
 };
 
 window.onkeydown = function(e) {
+    if(e.keyCode == 32 && navigationEnabled) {
+        setNavigationEnabled(false);
+        return;
+    }
+
     if(!controlKeyCodes.includes(e.keyCode) || pressedKeys[e.keyCode]) {
         return;
     }
@@ -255,6 +258,24 @@ function onImgError(e) {
     e.src = "img-fail.png";
 }
 
+const navToggleButton = document.getElementById("nav-toggle");
+let navigationEnabled = false;
+
+function setNavigationEnabled(enabled) {
+    let json = {
+        type: "nav_toggle",
+        enabled: enabled
+    };
+    socket.send(JSON.stringify(json));
+    
+    navigationEnabled = enabled;
+    navToggleButton.innerHTML = enabled ? "Stop navigation" : "Start navigation";
+}
+
+navToggleButton.addEventListener("click", function(e) {
+    setNavigationEnabled(!navigationEnabled);
+});
+
 //
 // Start of canvas stuff
 //
@@ -264,13 +285,25 @@ const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
 ctx.textAlign = "center";
 
-function drawLocation(x, y) {
+function draw(x, y, h) {
+    ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+
     let drawX = x * 20 + mapCanvas.width / 2;
     let drawY = y * 20 + mapCanvas.height / 2;
-    
-    ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+    let hRadians = degToRad(h - 90);
+
+    ctx.fillText(x + ", " + y, drawX, drawY + 15);
+
     ctx.beginPath();
     ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
     ctx.fill();
-    ctx.fillText(x + ", " + y, drawX, drawY + 15);
+
+    ctx.beginPath();
+    ctx.moveTo(drawX, drawY);
+    ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
+    ctx.stroke();
+}
+
+function degToRad(degrees) {
+    return degrees * (Math.PI / 180);
 }

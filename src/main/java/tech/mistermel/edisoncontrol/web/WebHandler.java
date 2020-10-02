@@ -88,7 +88,11 @@ public class WebHandler extends NanoWSD {
 			}
 			
 			EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
-			
+			return;
+		}
+		
+		if(packetType.equals("nav_toggle")) {
+			EdisonControl.getInstance().getNavHandler().setActive(json.optBoolean("enabled"));
 			return;
 		}
 		
@@ -157,8 +161,6 @@ public class WebHandler extends NanoWSD {
 		
 		try {
 			String jsonStr = json.toString();
-			logger.debug("Sending packet: {}", jsonStr);
-			
 			webSocketHandler.send(jsonStr);
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to send packet", e);
