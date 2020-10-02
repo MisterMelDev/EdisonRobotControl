@@ -80,7 +80,7 @@ public class WebSocketHandler extends WebSocket {
 	
 	public void disconnectForNewConnection() {
 		try {
-			this.close(CloseCode.GoingAway, "Another conenction has been opened", false);
+			this.close(CloseCode.GoingAway, "Another connection has been opened", false);
 		} catch (IOException e) {
 			logger.error("Error occured while attempting to close connection", e);
 		}
