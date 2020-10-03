@@ -23,16 +23,20 @@ public class EdisonControl {
 		this.configHandler = new ConfigHandler();
 		configHandler.load();
 		
-		this.serialInterface = new SerialInterface();
-		this.dwmSerialInterface = new DWMSerialInterface();
-		
 		this.navHandler = new NavigationHandler();
-		
-		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		this.processHandler = new ProcessHandler();
 		this.wifiHandler = new WiFiHandler();
+		wifiHandler.load();
 		
+		this.serialInterface = new SerialInterface();
+		serialInterface.start();
+		
+		this.dwmSerialInterface = new DWMSerialInterface();
+		dwmSerialInterface.setup();
+		
+		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
+		webHandler.start();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
@@ -42,12 +46,6 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
-		
-		serialInterface.start();
-		dwmSerialInterface.setup();
-		
-		wifiHandler.load();
-		webHandler.start();
 
 		processHandler.startStreamProcess();
 		
