@@ -154,7 +154,7 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "pos") {
-        draw(json.x, json.y, json.h);
+        setCanvasInfo(json.x, json.y, json.h);
         return;
     }
 
@@ -300,16 +300,16 @@ ctx.textAlign = "center";
 
 const compassOffsetElement = document.getElementById("compass-offset");
 
-let x = 0, y = 0, h = 0;
+var x = 0, y = 0, h = 0;
 
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    let drawX = x * 20 + mapCanvas.width / 2;
-    let drawY = y * 20 + mapCanvas.height / 2;
+    let drawX = this.x * 20 + mapCanvas.width / 2;
+    let drawY = this.y * 20 + mapCanvas.height / 2;
     let hRadians = degToRad(h - 90);
 
-    ctx.fillText(x + ", " + y, drawX, drawY + 15);
+    ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
     ctx.beginPath();
     ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
@@ -322,10 +322,10 @@ function draw() {
 }
 setInterval(draw, 50);
 
-function setCanvasInfo(xNew, yNew, hNew) {
-    h = hNew + parseInt(compassOffsetElement.value);
-    x = xNew;
-    y = yNew;
+function setCanvasInfo(x, y, h) {
+    this.h = h + parseInt(compassOffsetElement.value);
+    this.x = x;
+    this.y = y;
 }
 
 function degToRad(degrees) {

@@ -1,6 +1,5 @@
 package tech.mistermel.edisoncontrol.navigation;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,8 +7,6 @@ import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
-
-import tech.mistermel.edisoncontrol.EdisonControl;
 
 public class HMC5883LInterface implements MagnetometerInterface {
 
@@ -19,15 +16,14 @@ public class HMC5883LInterface implements MagnetometerInterface {
 	private static final int MODE_REGISTER = 0x02, GAIN_REGISTER = 0x01, READ_REGISTER = 0x03;
 	
 	private static final byte GAIN_VALUE = (byte) 0x20;
-	private static final float GAUSS_XY = 100, GAUSS_Z = 980;
+	private static final float MG_PER_DIGIT = 0.92f;
 	
 	private I2CDevice device;
 	private double declinationAngle;
 
 	@Override
-	public void initialize() throws Exception {
-		JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
-		this.declinationAngle = Math.toRadians(config.optInt("declination_angle"));
+	public void initialize(float declinationAngle) throws Exception {
+		this.declinationAngle = Math.toRadians(declinationAngle);
 		
 		try {
 			this.device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(ADDR);
@@ -40,13 +36,9 @@ public class HMC5883LInterface implements MagnetometerInterface {
 			logger.warn("HMC5883L initialization failed");
 		}
 	}
-
+	
 	@Override
-	public float getHeading() throws Exception {
-		if(device == null) {
-			return 0;
-		}
-		
+	public float[] getRawData() throws Exception {
 		byte[] data = new byte[6];
 		device.read(READ_REGISTER, data, 0, 6);
 
@@ -65,27 +57,25 @@ public class HMC5883LInterface implements MagnetometerInterface {
 			yMag -= 65536;
 		}
 		
-		/*int xhi = data[0];
-		int xlo = data[1];
-		int zhi = data[2];
-		int zlo = data[3];
-		int yhi = data[4];
-		int ylo = data[5];
+		xMag *= MG_PER_DIGIT;
+		yMag *= MG_PER_DIGIT;
+		zMag *= MG_PER_DIGIT;
 		
-		int xMag = xlo | xhi << 8;
-		int yMag = ylo | yhi << 8;
-		int zMag = zlo | zhi << 8;*/
+		return new float[] {xMag, yMag, zMag};
+	}
+
+	@Override
+	public float getHeading() throws Exception {
+		if(device == null) {
+			return 0;
+		}
 		
-		logger.info("{} {} {}", xMag, yMag, zMag);
-		
-		xMag = (int) (xMag / GAUSS_XY * 100.0f);
-		yMag = (int) (yMag / GAUSS_XY * 100.0f);
-		zMag = (int) (zMag / GAUSS_Z * 100.0f);
-		
-		logger.info("{} {} {}", xMag, yMag, zMag);
+		float[] rawData = this.getRawData();
+		float xMag = rawData[0];
+		float yMag = rawData[1];
 		
 		float heading = (float) Math.atan2(yMag, xMag);
-		heading += declinationAngle;
+		heading += declinationAngle; // This was converted into radians above
 		
 		if(heading < 0)
 			heading += 2 * Math.PI;
@@ -93,7 +83,6 @@ public class HMC5883LInterface implements MagnetometerInterface {
 			heading -= 2 * Math.PI;
 		
 		float degrees = (float) Math.toDegrees(heading);
-		logger.info("Magnetometer reads {} degrees", degrees);
 		return degrees;
 	}
 

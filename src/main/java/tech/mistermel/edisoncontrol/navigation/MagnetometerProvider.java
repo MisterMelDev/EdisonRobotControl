@@ -1,5 +1,6 @@
 package tech.mistermel.edisoncontrol.navigation;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,10 @@ public class MagnetometerProvider extends Thread {
 	@Override
 	public void run() {
 		try {
-			intf.initialize();
+			JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
+			float declinationAngle = config.optInt("declination_angle");
+			
+			intf.initialize(declinationAngle);
 			while(true) {
 				float heading = intf.getHeading();
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(heading);
