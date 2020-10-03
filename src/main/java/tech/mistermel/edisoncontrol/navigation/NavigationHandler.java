@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
 
-public class NavigationHandler extends Thread {
+public class NavigationHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(NavigationHandler.class);
 	private static final int UPDATES_PER_SECOND = 10;
@@ -16,6 +16,7 @@ public class NavigationHandler extends Thread {
 	private static final int SPEED = 200;
 	
 	private MagnetometerProvider magnetometerProvider;
+	private NavigationThread thread;
 	
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
@@ -27,38 +28,43 @@ public class NavigationHandler extends Thread {
 	private float targetHeading;
 	
 	public NavigationHandler() {
-		super("NavigationThread");
-		
 		this.magnetometerProvider = new MagnetometerProvider(new HMC5883LInterface());
 		magnetometerProvider.start();
 	}
 	
-	@Override
-	public void run() {		
-		int millisDelay = 1000 / UPDATES_PER_SECOND;
-		while(isActive) {
-			long startTime = System.currentTimeMillis();
-			this.tick();
-			
-			try {
-				long timeLeft = (startTime + millisDelay) - System.currentTimeMillis();
-				if(timeLeft < 0) {
-					logger.warn("Navigation handler cannot keep up! This tick took {}ms, absolute maximum should be {}ms", (System.currentTimeMillis() - startTime), millisDelay);
-					timeLeft = 0;
-				}
-				
-				Thread.sleep(timeLeft);
-			} catch (InterruptedException e) {}
+	private class NavigationThread extends Thread {
+		
+		public NavigationThread() {
+			super("NavigationThread");
 		}
 		
-		logger.debug("Navigation handler loop exited");
-		
-		if(isActive) {
-			// This will only run if the loop exited because of an exception.
-			// In that case, we want to stop navigation to make sure the
-			// robot does not continue driving in the direction that was
-			// set previously
-			this.setActive(false);
+		@Override
+		public void run() {		
+			int millisDelay = 1000 / UPDATES_PER_SECOND;
+			while(isActive) {
+				long startTime = System.currentTimeMillis();
+				tick();
+				
+				try {
+					long timeLeft = (startTime + millisDelay) - System.currentTimeMillis();
+					if(timeLeft < 0) {
+						logger.warn("Navigation handler cannot keep up! This tick took {}ms, absolute maximum should be {}ms", (System.currentTimeMillis() - startTime), millisDelay);
+						timeLeft = 0;
+					}
+					
+					Thread.sleep(timeLeft);
+				} catch (InterruptedException e) {}
+			}
+			
+			logger.debug("Navigation handler loop exited");
+			
+			if(isActive) {
+				// This will only run if the loop exited because of an exception.
+				// In that case, we want to stop navigation to make sure the
+				// robot does not continue driving in the direction that was
+				// set previously
+				setActive(false);
+			}
 		}
 	}
 	
@@ -132,13 +138,17 @@ public class NavigationHandler extends Thread {
 	}
 	
 	private boolean startNavigation() {
-		this.start();
+		this.thread = new NavigationThread();
+		thread.start();
+		
 		return true;
 	}
 	
 	private boolean stopNavigation() {
 		try {
-			this.join();
+			if(thread != null) {
+				thread.join();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
