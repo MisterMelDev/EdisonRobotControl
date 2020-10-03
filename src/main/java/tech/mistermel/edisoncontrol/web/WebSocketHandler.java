@@ -57,7 +57,13 @@ public class WebSocketHandler extends WebSocket {
 
 	@Override
 	protected void onMessage(WebSocketFrame message) {
-		EdisonControl.getInstance().getWebHandler().onPacketReceive(new JSONObject(message.getTextPayload()));
+		try {
+			EdisonControl.getInstance().getWebHandler().onPacketReceive(new JSONObject(message.getTextPayload()));
+		} catch(Exception e) {
+			// When this is not used, the WebSocket connection is terminated whenever an exception occurs
+			// and the exception is not logged. Therefore we need to catch the exception and log it manually.
+			logger.error("Error occured while attempting to process packet", e);
+		}
 	}
 
 	@Override
