@@ -15,6 +15,7 @@ import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.ProcessHandler;
 import tech.mistermel.edisoncontrol.SerialInterface;
+import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
 
 public class WebHandler extends NanoWSD {
 
@@ -289,7 +290,12 @@ public class WebHandler extends NanoWSD {
 	
 	public void onWebSocketClose() {
 		this.webSocketHandler = null;
-		EdisonControl.getInstance().getNavHandler().setActive(false);
+		
+		NavigationHandler navHandler = EdisonControl.getInstance().getNavHandler();
+		if(navHandler.isActive()) {
+			logger.info("Disabling navigation handler because client disconnected");
+			navHandler.setActive(false);
+		}
 	}
 
 	public void sendPosition(float x, float y, float heading) {
