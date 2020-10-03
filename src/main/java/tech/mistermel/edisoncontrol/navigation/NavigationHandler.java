@@ -69,7 +69,7 @@ public class NavigationHandler {
 	}
 	
 	private void tick() {
-		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, heading);
+		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading);
 		
 		if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
 			logger.warn("DWM serial is not working! Exiting navigation mode.");
