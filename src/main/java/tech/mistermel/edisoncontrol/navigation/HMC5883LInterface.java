@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import com.pi4j.io.i2c.I2CBus;
 import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
+import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
 
@@ -28,15 +29,24 @@ public class HMC5883LInterface implements MagnetometerInterface {
 		JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
 		this.declinationAngle = Math.toRadians(config.optInt("declination_angle"));
 		
-		this.device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(ADDR);
-		device.write(MODE_REGISTER, (byte) 0x00);
-		device.write(GAIN_REGISTER, GAIN_VALUE);
-		
-		logger.debug("HMC5883L interface initialized");
+		try {
+			this.device = I2CFactory.getInstance(I2CBus.BUS_1).getDevice(ADDR);
+			device.write(MODE_REGISTER, (byte) 0x00);
+			device.write(GAIN_REGISTER, GAIN_VALUE);
+			
+			logger.debug("HMC5883L interface initialized");
+		} catch(UnsupportedBusNumberException e) {
+			logger.warn("Failed to get I2C bus #1, is I2C enabled in raspi-config?");
+			logger.warn("HMC5883L initialization failed");
+		}
 	}
 
 	@Override
 	public float getHeading() throws Exception {
+		if(device == null) {
+			return 0;
+		}
+		
 		byte[] data = new byte[6];
 		device.read(READ_REGISTER, data, 0, 6);
 
