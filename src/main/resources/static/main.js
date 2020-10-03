@@ -157,6 +157,11 @@ socket.addEventListener("message", function(event) {
         draw(json.x, json.y, json.h);
         return;
     }
+
+    if(msgType == "nav_toggle") {
+        setNavigationEnabled(json.enabled, false);
+        return;
+    }
 });
 
 socket.addEventListener("close", function(event) {
@@ -213,7 +218,7 @@ window.onkeyup = function(e) {
 
 window.onkeydown = function(e) {
     if(e.keyCode == 32 && navigationEnabled) {
-        setNavigationEnabled(false);
+        setNavigationEnabled(false, true);
         return;
     }
 
@@ -264,12 +269,14 @@ function onImgError(e) {
 const navToggleButton = document.getElementById("nav-toggle");
 let navigationEnabled = false;
 
-function setNavigationEnabled(enabled) {
-    let json = {
-        type: "nav_toggle",
-        enabled: enabled
-    };
-    socket.send(JSON.stringify(json));
+function setNavigationEnabled(enabled, sendPacket) {
+    if(sendPacket) {
+        let json = {
+            type: "nav_toggle",
+            enabled: enabled
+        };
+        socket.send(JSON.stringify(json));
+    }
     
     navigationEnabled = enabled;
     navToggleButton.innerHTML = enabled ? "Stop navigation" : "Start navigation";
@@ -279,7 +286,7 @@ function setNavigationEnabled(enabled) {
 }
 
 navToggleButton.addEventListener("click", function(e) {
-    setNavigationEnabled(!navigationEnabled);
+    setNavigationEnabled(!navigationEnabled, true);
 });
 
 //
