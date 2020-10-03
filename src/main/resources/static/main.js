@@ -298,7 +298,11 @@ const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
 ctx.textAlign = "center";
 
-function draw(x, y, h) {
+const compassOffsetElement = document.getElementById("compass-offset");
+
+let x = 0, y = 0, h = 0;
+
+function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
     let drawX = x * 20 + mapCanvas.width / 2;
@@ -315,6 +319,13 @@ function draw(x, y, h) {
     ctx.moveTo(drawX, drawY);
     ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
     ctx.stroke();
+}
+setInterval(draw, 50);
+
+function setCanvasInfo(xNew, yNew, hNew) {
+    h = hNew + parseInt(compassOffsetElement.value);
+    x = xNew;
+    y = yNew;
 }
 
 function degToRad(degrees) {
