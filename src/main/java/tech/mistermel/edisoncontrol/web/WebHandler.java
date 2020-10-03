@@ -154,6 +154,13 @@ public class WebHandler extends NanoWSD {
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
+	public void updateNavigationState() {
+		JSONObject json = new JSONObject();
+		json.put("type", "nav_toggle");
+		json.put("enabled", EdisonControl.getInstance().getNavHandler().isActive());
+		this.sendPacket(json);
+	}
+	
 	public void sendPacket(JSONObject json) {
 		if(webSocketHandler == null) {
 			logger.warn("Did not send packet (type: {}) because no websocket handler is connected", json.optString("type"));

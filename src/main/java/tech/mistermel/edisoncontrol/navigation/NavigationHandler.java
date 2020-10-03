@@ -54,11 +54,11 @@ public class NavigationHandler extends Thread {
 		logger.debug("Navigation handler loop exited");
 		
 		if(isActive) {
-			// This will only run if the loop exited because of an exception
-			// In that case, we want to call stopNavigation to make sure the
-			// robot does not continue driving in the direction the navigation
-			// handler set previously
-			this.stopNavigation();
+			// This will only run if the loop exited because of an exception.
+			// In that case, we want to stop navigation to make sure the
+			// robot does not continue driving in the direction that was
+			// set previously
+			this.setActive(false);
 		}
 	}
 	
@@ -122,23 +122,21 @@ public class NavigationHandler extends Thread {
 	}
 	
 	public boolean setActive(boolean isActive) {
+		logger.info("{} navigation handler", isActive ? "Starting" : "Stopping");
+		this.isActive = isActive;
+		this.setControls(0, 0, true);
+		
+		EdisonControl.getInstance().getWebHandler().updateNavigationState();
+		
 		return isActive ? startNavigation() : stopNavigation();
 	}
 	
 	private boolean startNavigation() {
-		logger.info("Starting navigation handler");
-		this.isActive = true;
-		this.setControls(0, 0, true);
-		
 		this.start();
 		return true;
 	}
 	
 	private boolean stopNavigation() {
-		logger.info("Stopping navigation handler");
-		this.isActive = false;
-		this.setControls(0, 0, true);
-		
 		try {
 			this.join();
 		} catch (InterruptedException e) {
