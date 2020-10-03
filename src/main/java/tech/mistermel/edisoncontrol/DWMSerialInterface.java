@@ -8,13 +8,21 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
-public class DWMSerialInterface {
+public class DWMSerialInterface extends Thread {
 
 	private static final Logger logger = LoggerFactory.getLogger(DWMSerialInterface.class);
 	
-	private SerialPort port;
+	private static final int MAX_RECEIVE_INTERVAL = 400;
 	
-	public void setup() {
+	private SerialPort port;
+	private long lastMessage;
+	
+	public DWMSerialInterface() {
+		super("DWMSerialThread");
+	}
+	
+	@Override
+	public void run() {
 		JSONObject configJson = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("dwm_serial");
 		if(configJson == null) {
 			logger.warn("DWM serial port initialization failed, no 'dwm_serial' config section");
@@ -32,8 +40,6 @@ public class DWMSerialInterface {
 			return;
 		}
 		logger.info("DWM serial port opened ({} at {} baud)", serialPortName, baudrate);
-		
-		this.initialize();
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 
@@ -57,6 +63,8 @@ public class DWMSerialInterface {
 					logger.warn("Received invalid message type: {}", msgType);
 					return;
 				}
+				
+				lastMessage = System.currentTimeMillis();
 				
 				float x = Float.parseFloat(args[1]);
 				float y = Float.parseFloat(args[2]);
@@ -84,16 +92,30 @@ public class DWMSerialInterface {
 			}
 			
 		});
+		
+		try {
+			this.initialize();
+			logger.info("DWM communication initialized");
+		} catch (InterruptedException e) {
+			logger.error("Error occurred while attempting to initialize DWM serial port", e);
+			return;
+		}
 	}
 	
-	private void initialize() {
+	private void initialize() throws InterruptedException {
 		port.writeBytes(new byte[] { 0x0D, 0x0D }, 2);
+		Thread.sleep(1000); // This is quite hacky and should be changed, but eh, it works
+		port.writeBytes(new byte[] { 0x0D }, 1);
 	}
 	
 	private void sendString(String str) {
-		logger.debug("Sending: {}", str);
+		logger.debug("Sending: {}", str.trim());
 		byte[] bytes = str.getBytes();
 		port.writeBytes(bytes, bytes.length);
+	}
+	
+	public boolean isCommunicationWorking() {
+		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL; 
 	}
 	
 }

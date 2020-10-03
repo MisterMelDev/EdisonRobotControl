@@ -58,6 +58,12 @@ public class NavigationHandler extends Thread {
 	private void tick() {
 		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, heading);
 		
+		if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
+			logger.warn("DWM serial is not working! Exiting navigation mode.");
+			this.setActive(false);
+			return;
+		}
+		
 		float headingDistance = heading - targetHeading;
 		int steer = (int) headingDistance * 5;
 		

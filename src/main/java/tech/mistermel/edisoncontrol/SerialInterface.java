@@ -126,8 +126,7 @@ public class SerialInterface extends Thread {
 	}
 	
 	public boolean isCommunicationWorking() {
-		long timePassed = System.currentTimeMillis() - lastMessage;
-		return timePassed < MAX_RECEIVE_INTERVAL;
+		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL;
 	}
 	
 	private int toSigned(int unsigned) {

@@ -32,7 +32,7 @@ public class EdisonControl {
 		serialInterface.start();
 		
 		this.dwmSerialInterface = new DWMSerialInterface();
-		dwmSerialInterface.setup();
+		dwmSerialInterface.start();
 		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
