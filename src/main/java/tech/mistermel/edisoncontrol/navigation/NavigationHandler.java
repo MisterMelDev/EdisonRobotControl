@@ -52,7 +52,14 @@ public class NavigationHandler extends Thread {
 		}
 		
 		logger.debug("Navigation handler loop exited");
-		this.stopNavigation();
+		
+		if(isActive) {
+			// This will only run if the loop exited because of an exception
+			// In that case, we want to call stopNavigation to make sure the
+			// robot does not continue driving in the direction the navigation
+			// handler set previously
+			this.stopNavigation();
+		}
 	}
 	
 	private void tick() {
