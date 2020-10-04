@@ -28,7 +28,7 @@ public class NavigationHandler {
 	private float targetHeading;
 	
 	public NavigationHandler() {
-		this.magnetometerProvider = new MagnetometerProvider(new HMC5883LInterface());
+		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
 	}
 	

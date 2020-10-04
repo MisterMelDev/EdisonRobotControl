@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
-import tech.mistermel.edisoncontrol.navigation.calibrate.CalibrateLauncher;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 
@@ -86,12 +85,6 @@ public class EdisonControl {
 	private static long startupTime;
 	
 	public static void main(String[] args) {
-		if(args.length == 1 && args[0].equals("calibrate")) {
-			logger.info("Detected calibrate argument, starting calibration");
-			CalibrateLauncher.calibrate();
-			return;
-		}
-		
 		startupTime = System.currentTimeMillis();
 		instance = new EdisonControl();
 		instance.start();
