@@ -1,5 +1,14 @@
-# EdisonRobotControl
-Can be used on a RPi to control a hoverboard motherboard running [hacked firmware](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC).
+# Edison Robot Control
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MisterMelDev_EdisonRobotControl&metric=alert_status)](https://sonarcloud.io/dashboard?id=MisterMelDev_EdisonRobotControl)
+
+Control system for a robot built on components from an old hoverboard
+
+## Features
+- Web interface
+- Camera stream
+- Lighting system
+- Manual control
+- Autonomous control
 
 ## Peripherals
 The system is built around a Raspberry Pi 3B+ with the following peripherals:
