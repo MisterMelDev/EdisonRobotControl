@@ -40,14 +40,16 @@ public class WiFiHandler {
 				.replace("{{SSID}}", ssid)
 				.replace("{{PASS}}", password);
 		
-		File outputFile = new File("/etc/wpa_supplicant/wpa_supplicant.conf");
-		outputFile.createNewFile();
+		File outputFile = new File(configSection.getString("file_path"));
+		if(!outputFile.exists() && !outputFile.createNewFile()) {
+			logger.warn("Could not create wpa_supplicant.conf file");
+			return;
+		}
 		
-		FileWriter writer = new FileWriter(outputFile);
-		writer.write(text);
-		writer.close();
-		
-		logger.info("WiFi info updated (countryCode: {}, ssid: {}, password: {})", countryCode, ssid, password);
+		try(FileWriter writer = new FileWriter(outputFile)) {
+			writer.write(text);
+			logger.info("WiFi info updated (countryCode: {}, ssid: {}, password: {})", countryCode, ssid, password);
+		}
 	}
 	
 	private String readInternalFile() throws IOException {

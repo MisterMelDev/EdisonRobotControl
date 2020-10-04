@@ -70,22 +70,11 @@ public class SerialInterface extends Thread {
 				
 				SerialInterface.this.lastMessage = System.currentTimeMillis();
 				
-				//int cmd1 = (int) buffer.getShort();
-				//int cmd2 = (int) buffer.getShort();
 				buffer.position(buffer.position() + 4);
-				
-				int speedR = (int) buffer.getShort();
-				int speedL = (int) buffer.getShort();
-				int battVoltage = (int) buffer.getShort();
-				int boardTemp = (int) buffer.getShort();
-				//int cmdLed = toSigned(buffer.getShort());
-				
-				SerialInterface.this.speedR = speedR;
-				SerialInterface.this.speedL = speedL;
-				SerialInterface.this.battVoltage = (double) battVoltage / 100;
-				SerialInterface.this.boardTemp = (double) boardTemp / 10;
-				
-				//logger.debug("cmd1: {} cmd2: {} speedR: {} speedL: {} battVoltage: {} boardTemp: {} cmdLed: {}", cmd1, cmd2, speedR, speedL, battVoltage, boardTemp, cmdLed);
+				speedR = (int) buffer.getShort();
+				speedL = (int) buffer.getShort();
+				battVoltage = ((double) buffer.getShort()) / 100;
+				boardTemp = ((double) buffer.getShort()) / 10;
 			}
 			
 			@Override
@@ -118,6 +107,7 @@ public class SerialInterface extends Thread {
 			try {
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				break;
 			}
 		}

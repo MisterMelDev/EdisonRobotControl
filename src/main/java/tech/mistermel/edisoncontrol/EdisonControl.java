@@ -36,7 +36,7 @@ public class EdisonControl {
 		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
-		webHandler.start();
+		webHandler.startWeb();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
@@ -46,11 +46,6 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
-
-		processHandler.startStreamProcess();
-		
-		long timePassed = System.currentTimeMillis() - startupTime;
-		logger.info("Startup completed (took {}ms)", timePassed);
 	}
 	
 	public SerialInterface getSerialInterface() {

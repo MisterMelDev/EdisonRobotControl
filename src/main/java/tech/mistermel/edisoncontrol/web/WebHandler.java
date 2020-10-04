@@ -55,7 +55,7 @@ public class WebHandler extends NanoWSD {
 		logger.debug("Route registered: {} to {}", uri, route.getClass().getName());
 	}
 	
-	public void start() {
+	public void startWeb() {
 		try {
 			this.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
 			new TelemetryThread().start();
@@ -216,6 +216,7 @@ public class WebHandler extends NanoWSD {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 					break;
 				}
 			}
@@ -237,7 +238,7 @@ public class WebHandler extends NanoWSD {
 	@Override
 	public Response serveHttp(IHTTPSession session) {
 		if(session.getUri().startsWith(".")) {
-			return newFixedLengthResponse(Response.Status.BAD_REQUEST, "text/plain", "Requests cannot start with .");
+			return newFixedLengthResponse(Response.Status.BAD_REQUEST, DEFAULT_MIME_TYPE, "Requests cannot start with .");
 		}
 		
 		String uri = session.getUri().equals("/") ? INDEX_FILE : session.getUri();
@@ -254,7 +255,7 @@ public class WebHandler extends NanoWSD {
 	private Response serveStatic(String uri) {
 		InputStream in = this.getClass().getClassLoader().getResourceAsStream("static" + uri);
 		if(in == null) {
-			return newFixedLengthResponse(Response.Status.NOT_FOUND, "text/plain", "The specified file could not be found");
+			return newFixedLengthResponse(Response.Status.NOT_FOUND, DEFAULT_MIME_TYPE, "The specified file could not be found");
 		}
 		
 		try {
@@ -283,9 +284,7 @@ public class WebHandler extends NanoWSD {
 			webSocketHandler.disconnectForNewConnection();
 		}
 		
-		WebSocketHandler webSocketHandler = new WebSocketHandler(handshake);
-		this.webSocketHandler = webSocketHandler;
-		
+		this.webSocketHandler = new WebSocketHandler(handshake);
 		return webSocketHandler;
 	}
 	

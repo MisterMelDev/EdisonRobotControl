@@ -109,7 +109,10 @@ public class ProcessHandler {
 		try {
 			logger.info("Shutting down RPi");
 			Runtime.getRuntime().exec("sudo shutdown now").waitFor();
-		} catch (InterruptedException | IOException e) {
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while attempting to shut down RPi", e);
+			Thread.currentThread().interrupt();
+		} catch(IOException e) {
 			logger.error("Error while attempting to shut down RPi", e);
 		}
 	}
@@ -118,7 +121,10 @@ public class ProcessHandler {
 		try {
 			logger.info("Rebooting RPi");
 			Runtime.getRuntime().exec("sudo reboot").waitFor();
-		} catch (InterruptedException | IOException e) {
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while attempting to reboot RPi", e);
+			Thread.currentThread().interrupt();
+		} catch(IOException e) {
 			logger.error("Error while attempting to reboot RPi", e);
 		}
 	}

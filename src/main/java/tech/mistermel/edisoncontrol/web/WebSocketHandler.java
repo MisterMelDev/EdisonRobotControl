@@ -68,7 +68,7 @@ public class WebSocketHandler extends WebSocket {
 
 	@Override
 	protected void onPong(WebSocketFrame pong) {
-		
+		// No need to implement anything here.
 	}
 
 	@Override
