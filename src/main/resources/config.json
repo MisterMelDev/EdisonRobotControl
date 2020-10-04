@@ -13,6 +13,7 @@
 	},
 	"wifi": {
 		"country_code": "NL",
+		"file_path": "/etc/wpa_supplicant/wpa_supplicant.conf"
 		"configurations": [
 			{
 				"name": "Example Configuration",

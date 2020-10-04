@@ -45,7 +45,7 @@ public class EdisonControl {
 		dwmSerialInterface.setup();
 		
 		wifiHandler.load();
-		webHandler.start();
+		webHandler.startWeb();
 
 		processHandler.startStreamProcess();
 		
