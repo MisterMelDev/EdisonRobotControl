@@ -193,6 +193,7 @@ public class WebHandler extends NanoWSD {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
 					break;
 				}
 			}

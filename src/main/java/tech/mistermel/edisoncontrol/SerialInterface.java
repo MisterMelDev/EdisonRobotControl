@@ -118,6 +118,7 @@ public class SerialInterface extends Thread {
 			try {
 				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				break;
 			}
 		}
