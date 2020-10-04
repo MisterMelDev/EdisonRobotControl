@@ -53,18 +53,13 @@ public class NavigationHandler {
 					}
 					
 					Thread.sleep(timeLeft);
-				} catch (InterruptedException e) {}
+				} catch (InterruptedException e) {
+					logger.error("Interrupted in navigation loop", e);
+					Thread.currentThread().interrupt();
+				}
 			}
 			
 			logger.debug("Navigation handler loop exited");
-			
-			if(isActive) {
-				// This will only run if the loop exited because of an exception.
-				// In that case, we want to stop navigation to make sure the
-				// robot does not continue driving in the direction that was
-				// set previously
-				setActive(false);
-			}
 		}
 	}
 	
@@ -133,7 +128,6 @@ public class NavigationHandler {
 		this.setControls(0, 0, true);
 		
 		EdisonControl.getInstance().getWebHandler().updateNavigationState();
-		
 		return isActive ? startNavigation() : stopNavigation();
 	}
 	
@@ -150,7 +144,8 @@ public class NavigationHandler {
 				thread.join();
 			}
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			logger.error("Interrupted while attempting to stop navigation thread", e);
+			Thread.currentThread().interrupt();
 		}
 		
 		return true;

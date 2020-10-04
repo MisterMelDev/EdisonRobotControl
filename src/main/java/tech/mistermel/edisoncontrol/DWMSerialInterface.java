@@ -97,8 +97,8 @@ public class DWMSerialInterface extends Thread {
 			this.initialize();
 			logger.info("DWM communication initialized");
 		} catch (InterruptedException e) {
-			logger.error("Error occurred while attempting to initialize DWM serial port", e);
-			return;
+			logger.error("Interrupted while attempting to initialize DWM serial port", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 	
