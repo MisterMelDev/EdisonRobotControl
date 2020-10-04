@@ -1,12 +1,13 @@
-package tech.mistermel.edisoncontrol;
+package tech.mistermel.edisoncontrol.serial;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
+
+import tech.mistermel.edisoncontrol.EdisonControl;
 
 public class DWMSerialInterface extends Thread {
 
@@ -23,23 +24,10 @@ public class DWMSerialInterface extends Thread {
 	
 	@Override
 	public void run() {
-		JSONObject configJson = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("dwm_serial");
-		if(configJson == null) {
-			logger.warn("DWM serial port initialization failed, no 'dwm_serial' config section");
+		this.port = SerialUtil.openSerial("dwm_serial", "/dev/ttyACM0", 115200);
+		if(port == null) {
 			return;
 		}
-		
-		String serialPortName = configJson.optString("port_name", "/dev/ttyACM0");
-		int baudrate = configJson.optInt("baudrate", 115200);
-		
-		this.port = SerialPort.getCommPort(serialPortName);
-		port.setBaudRate(baudrate);
-		
-		if(!port.openPort()) {
-			logger.warn("Failed to open DWM serial port ({} at {} baud)", serialPortName, baudrate);
-			return;
-		}
-		logger.info("DWM serial port opened ({} at {} baud)", serialPortName, baudrate);
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 

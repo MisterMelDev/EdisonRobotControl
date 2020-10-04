@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
+import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 

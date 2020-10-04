@@ -14,8 +14,8 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.ProcessHandler;
-import tech.mistermel.edisoncontrol.SerialInterface;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.serial.SerialInterface;
 
 public class WebHandler extends NanoWSD {
 
