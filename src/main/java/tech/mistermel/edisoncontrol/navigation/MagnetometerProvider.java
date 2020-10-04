@@ -21,9 +21,8 @@ public class MagnetometerProvider extends Thread {
 	public void run() {
 		try {
 			JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
-			float declinationAngle = config.optInt("declination_angle");
 			
-			intf.initialize(declinationAngle);
+			intf.initialize(config);
 			while(true) {
 				float heading = intf.getHeading();
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(heading);

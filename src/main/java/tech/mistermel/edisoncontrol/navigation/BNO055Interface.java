@@ -1,9 +1,11 @@
 package tech.mistermel.edisoncontrol.navigation;
 
+import org.json.JSONObject;
+
 public class BNO055Interface implements MagnetometerInterface {
 
 	@Override
-	public void initialize(float declinationAngle) throws Exception {
+	public void initialize(JSONObject settings) throws Exception {
 		
 	}
 
