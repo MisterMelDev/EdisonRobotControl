@@ -61,26 +61,26 @@ public class NavigationHandler {
 			
 			logger.debug("Navigation handler loop exited");
 		}
-	}
-	
-	private void tick() {
-		EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading);
 		
-		if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
-			logger.warn("DWM serial is not working! Exiting navigation mode.");
-			this.setActive(false);
-			return;
+		private void tick() {
+			EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading);
+			
+			if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
+				logger.warn("DWM serial is not working! Exiting navigation mode.");
+				setActive(false);
+				return;
+			}
+			
+			float headingDistance = heading - targetHeading;
+			int steer = (int) headingDistance * 5;
+			
+			if(Math.abs(headingDistance) >= ROTATE_IN_PLACE_TRESHOLD) {
+				setControls(0, steer);
+				return;
+			}
+			
+			setControls(SPEED, steer);
 		}
-		
-		float headingDistance = heading - targetHeading;
-		int steer = (int) headingDistance * 5;
-		
-		if(Math.abs(headingDistance) >= ROTATE_IN_PLACE_TRESHOLD) {
-			this.setControls(0, steer);
-			return;
-		}
-		
-		this.setControls(SPEED, steer);
 	}
 	
 	public void setTargetedWaypoint(Waypoint waypoint) {

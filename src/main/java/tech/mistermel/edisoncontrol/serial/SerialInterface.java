@@ -65,7 +65,7 @@ public class SerialInterface extends Thread {
 			
 			@Override
 			public void catchException(Exception e) {
-				e.printStackTrace();
+				logger.error("Error occurred in serial interface", e);
 			}
 			
 			@Override
