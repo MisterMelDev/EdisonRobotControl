@@ -1,7 +1,9 @@
 const socket = new WebSocket("ws://" + window.location.hostname + (window.location.port ? ":" + window.location.port : ""));
 
 const streamPort = 8080;
-document.getElementById("camera-stream").src = "http://" + window.location.hostname + ":" + streamPort + "/?action=stream";
+
+const cameraStreamElement = document.getElementById("camera-stream");
+cameraStreamElement.src = "http://" + window.location.hostname + ":" + streamPort + "/?action=stream";
 
 const connectionErrorModal = document.getElementById("connection-error-modal");
 const connectionErrorMsg = document.getElementById("connection-error-msg");
@@ -118,7 +120,7 @@ streamToggle.addEventListener("click", function(e) {
     let checked = streamToggle.checked;
     socket.send(JSON.stringify({type: "stream", enabled: checked}));
 
-    document.getElementById("camera-stream").src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
+    cameraStreamElement.src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
 });
 
 setInterval(function() {
@@ -140,8 +142,6 @@ socket.addEventListener("message", function(event) {
     if(msgType == "telemetry") {
         setMotherboardState(json.isConnected);
 
-        document.getElementById("speed").innerHTML = json.speed.left + " " + json.speed.right;
-
         batteryVoltageElement.innerHTML = json.battVoltage.toFixed(2) + "v";
         boardTemperatureElement.innerHTML = json.boardTemp.toFixed(1) + " &#8451;";
         return;
@@ -152,17 +152,28 @@ socket.addEventListener("message", function(event) {
         streamToggle.checked = json.isStreamEnabled;
         return;
     }
+
+    if(msgType == "pos") {
+        setCanvasInfo(json.x, json.y, json.h);
+        return;
+    }
+
+    if(msgType == "nav_toggle") {
+        setNavigationEnabled(json.enabled, false);
+        return;
+    }
 });
 
 socket.addEventListener("close", function(event) {
     console.log("WebSocket closed");
+    console.log(event);
 
     if(!webSocketOpened) {
         setConnectionError("Failed to connect to server");
         return;
     }
 
-    setConnectionError("Connection to server was interrupted");
+    setConnectionError(event.reason == "" ? "Connection to server was interrupted" : "Connection to server was interrupted: " + event.reason);
 });
 
 socket.addEventListener("error", function(event) {
@@ -206,6 +217,11 @@ window.onkeyup = function(e) {
 };
 
 window.onkeydown = function(e) {
+    if(e.keyCode == 32 && navigationEnabled) {
+        setNavigationEnabled(false, true);
+        return;
+    }
+
     if(!controlKeyCodes.includes(e.keyCode) || pressedKeys[e.keyCode]) {
         return;
     }
@@ -248,4 +264,70 @@ function sendControlPacket() {
 
 function onImgError(e) {
     e.src = "img-fail.png";
+}
+
+const navToggleButton = document.getElementById("nav-toggle");
+let navigationEnabled = false;
+
+function setNavigationEnabled(enabled, sendPacket) {
+    if(sendPacket) {
+        let json = {
+            type: "nav_toggle",
+            enabled: enabled
+        };
+        socket.send(JSON.stringify(json));
+    }
+    
+    navigationEnabled = enabled;
+    navToggleButton.innerHTML = enabled ? "Stop navigation" : "Start navigation";
+
+    cameraStreamElement.height = enabled ? 580 : 720;
+    mapCanvas.style.display = enabled ? "block" : "none";
+}
+
+navToggleButton.addEventListener("click", function(e) {
+    setNavigationEnabled(!navigationEnabled, true);
+});
+
+//
+// Start of canvas stuff
+//
+
+const mapCanvas = document.getElementById("map-canvas");
+const ctx = mapCanvas.getContext("2d");
+ctx.font = "12px Arial";
+ctx.textAlign = "center";
+
+const compassOffsetElement = document.getElementById("compass-offset");
+
+var x = 0, y = 0, h = 0;
+
+function draw() {
+    ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+
+    let drawX = this.x * 20 + mapCanvas.width / 2;
+    let drawY = this.y * 20 + mapCanvas.height / 2;
+    let hRadians = degToRad(h - 90);
+
+    ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
+
+    ctx.beginPath();
+    ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(drawX, drawY);
+    ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
+    ctx.stroke();
+}
+setInterval(draw, 50);
+
+function setCanvasInfo(x, y, h) {
+    this.h = h + parseInt(compassOffsetElement.value);
+    this.x = x;
+    this.y = y;
+}
+
+function degToRad(degrees) {
+    return degrees * (Math.PI / 180);
 }

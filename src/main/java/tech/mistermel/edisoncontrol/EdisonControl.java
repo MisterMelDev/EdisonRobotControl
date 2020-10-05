@@ -3,6 +3,9 @@ package tech.mistermel.edisoncontrol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
+import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 
@@ -16,19 +19,26 @@ public class EdisonControl {
 	private ConfigHandler configHandler;
 	private ProcessHandler processHandler;
 	private WiFiHandler wifiHandler;
+	private NavigationHandler navHandler;
 	
-	public EdisonControl() {
+	public void start() {
 		this.configHandler = new ConfigHandler();
 		configHandler.load();
 		
-		this.serialInterface = new SerialInterface();
-		this.dwmSerialInterface = new DWMSerialInterface();
-		
-		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
+		this.navHandler = new NavigationHandler();
 		this.processHandler = new ProcessHandler();
 		this.wifiHandler = new WiFiHandler();
+		wifiHandler.load();
 		
+		this.serialInterface = new SerialInterface();
+		serialInterface.start();
+		
+		this.dwmSerialInterface = new DWMSerialInterface();
+		dwmSerialInterface.start();
+		
+		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
+		webHandler.startWeb();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override
@@ -38,18 +48,8 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
-	}
-	
-	public void start() {
-		serialInterface.start();
-		dwmSerialInterface.setup();
 		
-		wifiHandler.load();
-		webHandler.startWeb();
-
-		processHandler.startStreamProcess();
-		
-		long timePassed = System.currentTimeMillis() - startupTime;
+		long timePassed = System.currentTimeMillis() - startupTime;	
 		logger.info("Startup completed (took {}ms)", timePassed);
 	}
 	
@@ -75,6 +75,10 @@ public class EdisonControl {
 	
 	public WiFiHandler getWifiHandler() {
 		return wifiHandler;
+	}
+	
+	public NavigationHandler getNavHandler() {
+		return navHandler;
 	}
 	
 	private static EdisonControl instance;

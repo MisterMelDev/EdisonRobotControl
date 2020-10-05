@@ -1,9 +1,8 @@
-package tech.mistermel.edisoncontrol;
+package tech.mistermel.edisoncontrol.serial;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,23 +32,10 @@ public class SerialInterface extends Thread {
 	
 	@Override
 	public void run() {
-		JSONObject configJson = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("motherboard_serial");
-		if(configJson == null) {
-			logger.warn("Serial port initialization failed, no 'motherboard_serial' config section");
+		this.port = SerialUtil.openSerial("motherboard_serial", "/dev/ttyS0", 38400);
+		if(port == null) {
 			return;
 		}
-		
-		String serialPortName = configJson.optString("port_name", "/dev/ttyS0");
-		int baudrate = configJson.optInt("baudrate", 38400);
-		
-		this.port = SerialPort.getCommPort(serialPortName);
-		port.setBaudRate(baudrate);
-		
-		if(!port.openPort()) {
-			logger.warn("Failed to open serial port ({} at {} baud)", serialPortName, baudrate);
-			return;
-		}
-		logger.info("Serial port opened ({} at {} baud)", serialPortName, baudrate);
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 			
@@ -79,7 +65,7 @@ public class SerialInterface extends Thread {
 			
 			@Override
 			public void catchException(Exception e) {
-				e.printStackTrace();
+				logger.error("Error occurred in serial interface", e);
 			}
 			
 			@Override
@@ -116,8 +102,7 @@ public class SerialInterface extends Thread {
 	}
 	
 	public boolean isCommunicationWorking() {
-		long timePassed = System.currentTimeMillis() - lastMessage;
-		return timePassed < MAX_RECEIVE_INTERVAL;
+		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL;
 	}
 	
 	private int toSigned(int unsigned) {

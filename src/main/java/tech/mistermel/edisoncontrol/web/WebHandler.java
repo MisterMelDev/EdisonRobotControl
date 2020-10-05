@@ -14,7 +14,8 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.ProcessHandler;
-import tech.mistermel.edisoncontrol.SerialInterface;
+import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.serial.SerialInterface;
 
 public class WebHandler extends NanoWSD {
 
@@ -82,7 +83,18 @@ public class WebHandler extends NanoWSD {
 				return;
 			}
 			
+			// TODO
+			/*if(EdisonControl.getInstance().getNavHandler().isActive()) {
+				logger.debug("Ignored controls because navigation handler is active");
+				return;
+			}*/
+			
 			EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
+			return;
+		}
+		
+		if(packetType.equals("nav_toggle")) {
+			EdisonControl.getInstance().getNavHandler().setActive(json.optBoolean("enabled"));
 			return;
 		}
 		
@@ -143,6 +155,13 @@ public class WebHandler extends NanoWSD {
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
+	public void updateNavigationState() {
+		JSONObject json = new JSONObject();
+		json.put("type", "nav_toggle");
+		json.put("enabled", EdisonControl.getInstance().getNavHandler().isActive());
+		this.sendPacket(json);
+	}
+	
 	public void sendPacket(JSONObject json) {
 		if(webSocketHandler == null) {
 			logger.warn("Did not send packet (type: {}) because no websocket handler is connected", json.optString("type"));
@@ -152,7 +171,6 @@ public class WebHandler extends NanoWSD {
 		try {
 			String jsonStr = json.toString();
 			logger.debug("Sending packet: {}", jsonStr);
-			
 			webSocketHandler.send(jsonStr);
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to send packet", e);
@@ -161,6 +179,10 @@ public class WebHandler extends NanoWSD {
 	
 	private class TelemetryThread extends Thread {
 		
+		public TelemetryThread() {
+			super("TelemetryThread");
+		}
+		
 		@Override
 		public void run() {
 			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
@@ -168,6 +190,7 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					if(!webSocketHandler.isCheckboxesSent()) {
 						webSocketHandler.sendCheckboxes();
+						sendPosition(0, 0, 0);
 					}
 					
 					JSONObject json = new JSONObject();
@@ -267,9 +290,15 @@ public class WebHandler extends NanoWSD {
 	
 	public void onWebSocketClose() {
 		this.webSocketHandler = null;
+		
+		NavigationHandler navHandler = EdisonControl.getInstance().getNavHandler();
+		if(navHandler.isActive()) {
+			logger.info("Disabling navigation handler because client disconnected");
+			navHandler.setActive(false);
+		}
 	}
 
-	public void sendPosition(float x, float y, float z) {
+	public void sendPosition(float x, float y, float heading) {
 		if(webSocketHandler == null) {
 			return;
 		}
@@ -278,7 +307,7 @@ public class WebHandler extends NanoWSD {
 		webPacket.put("type", "pos");
 		webPacket.put("x", x);
 		webPacket.put("y", y);
-		webPacket.put("z", z);
+		webPacket.put("h", heading);
 		
 		this.sendPacket(webPacket);
 	}

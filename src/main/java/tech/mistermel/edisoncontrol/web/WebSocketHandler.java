@@ -57,7 +57,13 @@ public class WebSocketHandler extends WebSocket {
 
 	@Override
 	protected void onMessage(WebSocketFrame message) {
-		EdisonControl.getInstance().getWebHandler().onPacketReceive(new JSONObject(message.getTextPayload()));
+		try {
+			EdisonControl.getInstance().getWebHandler().onPacketReceive(new JSONObject(message.getTextPayload()));
+		} catch(Exception e) {
+			// When this is not used, the WebSocket connection is terminated whenever an exception occurs
+			// and the exception is not logged. Therefore we need to catch the exception and log it manually.
+			logger.error("Error occured while attempting to process packet", e);
+		}
 	}
 
 	@Override
@@ -80,7 +86,7 @@ public class WebSocketHandler extends WebSocket {
 	
 	public void disconnectForNewConnection() {
 		try {
-			this.close(CloseCode.GoingAway, "Another conenction has been opened", false);
+			this.close(CloseCode.GoingAway, "Another connection has been opened", false);
 		} catch (IOException e) {
 			logger.error("Error occured while attempting to close connection", e);
 		}

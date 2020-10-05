@@ -28,11 +28,15 @@
 				<input type="checkbox" id="lights-toggle">Lighting
 				<input type="checkbox" id="stream-toggle">Stream
 			</div>
+
+			<div class="controls-section">
+				<button id="nav-toggle">Start navigation</button>
+				<input type="number" id="compass-offset" value="0">
+			</div>
 		</div>
 
-		<img class="image-centered" width="1080" height="720" onerror="onImgError(this)" id="camera-stream">
-
-		<p id="speed"></p>
+		<canvas class="canvas-centered" id="map-canvas" width="250" height="250" style="display: none;"></canvas>
+		<img class="image-centered" height="720" onerror="onImgError(this)" id="camera-stream">
 
 		<div id="connection-error-modal" class="modal">
 			<div class="modal-content text-centered">

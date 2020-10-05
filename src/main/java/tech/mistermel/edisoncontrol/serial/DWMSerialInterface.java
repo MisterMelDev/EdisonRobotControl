@@ -1,4 +1,4 @@
-package tech.mistermel.edisoncontrol;
+package tech.mistermel.edisoncontrol.serial;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,31 +7,40 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
-public class DWMSerialInterface {
+import tech.mistermel.edisoncontrol.EdisonControl;
+
+public class DWMSerialInterface extends Thread {
 
 	private static final Logger logger = LoggerFactory.getLogger(DWMSerialInterface.class);
 	
-	private SerialPort port;
+	private static final int MAX_RECEIVE_INTERVAL = 400;
 	
-	public void setup() {
-		this.port = SerialPort.getCommPort("COM12");
-		port.setBaudRate(115200);
-		
-		if(!port.openPort()) {
-			logger.warn("Failed to open port");
+	private SerialPort port;
+	private long lastMessage;
+	
+	public DWMSerialInterface() {
+		super("DWMSerialThread");
+	}
+	
+	@Override
+	public void run() {
+		this.port = SerialUtil.openSerial("dwm_serial", "/dev/ttyACM0", 115200);
+		if(port == null) {
 			return;
 		}
-		this.initialize();
-		
-		logger.info("Port opened");
 		
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 
 			@Override
 			public void serialEvent(SerialPortEvent event) {
 				String str = new String(event.getReceivedData()).trim();
-				String[] args = str.split(",");
 				
+				if(str.equals("dwm>")) {
+					sendString("lep\r");
+					return;
+				}
+				
+				String[] args = str.split(",");
 				if(args.length != 5) {
 					logger.debug("Received invalid message: {}", str);
 					return;
@@ -43,11 +52,11 @@ public class DWMSerialInterface {
 					return;
 				}
 				
+				lastMessage = System.currentTimeMillis();
+				
 				float x = Float.parseFloat(args[1]);
 				float y = Float.parseFloat(args[2]);
-				float z = Float.parseFloat(args[3]);
-				
-				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, z);
+				EdisonControl.getInstance().getNavHandler().onPositionReceived(x, y);
 			}
 			
 			@Override
@@ -71,16 +80,30 @@ public class DWMSerialInterface {
 			}
 			
 		});
+		
+		try {
+			this.initialize();
+			logger.info("DWM communication initialized");
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while attempting to initialize DWM serial port", e);
+			Thread.currentThread().interrupt();
+		}
 	}
 	
-	private void initialize() {
-		port.writeBytes(new byte[] { '\r', '\r' }, 2);
-		this.sendString("lep");
+	private void initialize() throws InterruptedException {
+		port.writeBytes(new byte[] { 0x0D, 0x0D }, 2);
+		Thread.sleep(1000); // This is quite hacky and should be changed, but eh, it works
+		port.writeBytes(new byte[] { 0x0D }, 1);
 	}
 	
 	private void sendString(String str) {
+		logger.debug("Sending: {}", str.trim());
 		byte[] bytes = str.getBytes();
 		port.writeBytes(bytes, bytes.length);
+	}
+	
+	public boolean isCommunicationWorking() {
+		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL; 
 	}
 	
 }
