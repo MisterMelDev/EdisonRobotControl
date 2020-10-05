@@ -1,4 +1,5 @@
 # Edison Robot Control
+[![Build Status](https://github.com/MisterMelDev/EdisonRobotControl/workflows/Build/badge.svg)](https://github.com/MisterMelDev/EdisonRobotControl/actions)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=MisterMelDev_EdisonRobotControl&metric=alert_status)](https://sonarcloud.io/dashboard?id=MisterMelDev_EdisonRobotControl)
 
 Control system for a robot built on components from an old hoverboard
