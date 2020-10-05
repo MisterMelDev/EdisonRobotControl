@@ -10,6 +10,11 @@ buildNumber.properties
 # https://github.com/takari/maven-wrapper#usage-without-binary-jar
 .mvn/wrapper/maven-wrapper.jar
 
+# Eclipse Files
 .classpath
+.settings/
+.project
+
+# EdisonRobotControl-specific files
 logs/
 /config.json
