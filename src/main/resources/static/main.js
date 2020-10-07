@@ -159,7 +159,7 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "nav_toggle") {
-        setMovementEnabled(json.enabled);
+        setMovementEnabled(json.enabled, false);
         return;
     }
 });
@@ -218,7 +218,7 @@ window.onkeyup = function(e) {
 
 window.onkeydown = function(e) {
     if(e.keyCode == 32 && navigationEnabled) {
-        setNavigationEnabled(false);
+        setMovementEnabled(false, true);
         return;
     }
 
@@ -285,27 +285,34 @@ function setNavigationEnabled(enabled) {
 navToggleButton.addEventListener("click", function(e) {
     setNavigationEnabled(!navigationEnabled);
     if(!navigationEnabled) {
-        setMovementEnabled(false);
+        setMovementEnabled(false, true);
     }
 });
 
-function setMovementEnabled(enabled) {
+function setMovementEnabled(enabled, sendPacket) {
     movementEnabled = enabled;
     movementToggleButton.innerHTML = enabled ? "Disable movement" : "Enable movement";
 
-    let json = {
-        type: "nav_toggle",
-        enabled: movementEnabled
-    };
-    socket.send(JSON.stringify(json));
+    if(sendPacket) {
+        let json = {
+            type: "nav_toggle",
+            enabled: movementEnabled
+        };
+        socket.send(JSON.stringify(json));
+    }
 }
 
 movementToggleButton.addEventListener("click", function(e) {
-    setMovementEnabled(!movementEnabled);
+    setMovementEnabled(!movementEnabled, true);
 });
 
 waypointBtn.addEventListener("click", function(e) {
-    
+    let json = {
+        type: "create_waypoint",
+        x: x,
+        y: y
+    };
+    socket.send(JSOn.stringify(json));
 });
 
 //
