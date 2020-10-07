@@ -26,9 +26,12 @@ public class BNO055Interface implements MagnetometerInterface {
 	private static final byte EULER_REGISTER_ADDR = 0x1A;
 	
 	private I2CDevice device;
+	private float offset;
 	
 	@Override
 	public void initialize(JSONObject settings) {
+		this.offset = settings.optFloat("offset", 0);
+		
 		try {
 			I2CBus bus = I2CFactory.getInstance(BUS_NUM);
 			this.device = bus.getDevice(DEVICE_ADDR);
@@ -65,7 +68,7 @@ public class BNO055Interface implements MagnetometerInterface {
 			device.read(EULER_REGISTER_ADDR, buffer, 0, buffer.length);
 			
 			float x = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0f;
-			return x;
+			return x + offset;
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to read heading from BNO055", e);
 			return -1;
