@@ -29,7 +29,7 @@ public class BNO055Interface implements MagnetometerInterface {
 	private float offset;
 	
 	@Override
-	public void initialize(JSONObject settings) {
+	public boolean initialize(JSONObject settings) {
 		this.offset = settings.optFloat("offset", 0);
 		
 		try {
@@ -41,8 +41,10 @@ public class BNO055Interface implements MagnetometerInterface {
 			device.write(SYS_TRIGGER_ADDR, (byte) 0x80);
 			
 			logger.info("BNO055 initialized");
+			return true;
 		} catch(UnsupportedBusNumberException | IOException e) {
 			logger.error("Error while attempting to initialize BNO055 - is I2C enabled in raspi-config?");
+			return false;
 		}
 	}
 	

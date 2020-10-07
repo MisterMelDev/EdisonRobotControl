@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 public interface MagnetometerInterface {
 
-	public void initialize(JSONObject settings);
+	public boolean initialize(JSONObject settings);
 	public float getHeading();
 	
 }

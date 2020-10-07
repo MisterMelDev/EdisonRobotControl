@@ -22,7 +22,12 @@ public class MagnetometerProvider extends Thread {
 		try {
 			JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
 			
-			intf.initialize(config);
+			if(!intf.initialize(config)) {
+				logger.warn("Magnetometer initialization failed, magnetometer provider thread exiting");
+				EdisonControl.getInstance().getNavHandler().onHeadingReceived(0);
+				return;
+			}
+			
 			while(true) {
 				float heading = intf.getHeading();
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(heading);
