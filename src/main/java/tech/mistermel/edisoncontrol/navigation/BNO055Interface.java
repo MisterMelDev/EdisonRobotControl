@@ -21,10 +21,11 @@ public class BNO055Interface implements MagnetometerInterface {
 	private static final byte DEVICE_ADDR = 0x28;
 	
 	private static final byte CHIP_ID_ADDR = 0x00;
+	private static final byte OPR_MODE_ADDR = 0x3D;
+	private static final byte SYS_TRIGGER_ADDR = 0x3F;
 	private static final byte EULER_REGISTER_ADDR = 0x1A;
 	
 	private I2CDevice device;
-	private boolean isSensorPresent;
 	
 	@Override
 	public void initialize(JSONObject settings) {
@@ -32,54 +33,42 @@ public class BNO055Interface implements MagnetometerInterface {
 			I2CBus bus = I2CFactory.getInstance(BUS_NUM);
 			this.device = bus.getDevice(DEVICE_ADDR);
 			
+			this.waitForSensor();
+			device.write(OPR_MODE_ADDR, (byte) 0X08);
+			device.write(SYS_TRIGGER_ADDR, (byte) 0x80);
+			
 			logger.info("BNO055 initialized");
 		} catch(UnsupportedBusNumberException | IOException e) {
 			logger.error("Error while attempting to initialize BNO055 - is I2C enabled in raspi-config?");
+		}
+	}
+	
+	private void waitForSensor() throws IOException {
+		try {
+			logger.debug("Waiting for sensor...");
+			
+			while(device.read(CHIP_ID_ADDR) != CHIP_ID) {
+				Thread.sleep(100);
+			}
+			
+			logger.debug("Sensor is present");
+		} catch (InterruptedException e) {
+			logger.error("Interrupted while waiting for sensor", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 
 	@Override
 	public float getHeading() {
 		try {
-			if(!isSensorPresent) {
-				if(device.read(CHIP_ID_ADDR) == CHIP_ID) {
-					this.isSensorPresent = true;
-					logger.info("BNO055 connected");
-				} else {
-					logger.debug("Sensor is not present");
-					return 0;
-				}
-			}
-			
 			byte[] buffer = new byte[6];
 			device.read(EULER_REGISTER_ADDR, buffer, 0, buffer.length);
 			
-			double x = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0;
-			double y = ((buffer[2] & 0xFF) | ((buffer[3] << 8) & 0xFF00)) / 16.0;
-			double z = ((buffer[4] & 0xFF) | ((buffer[5] << 8) & 0xFF00)) / 16.0;
-			
-			logger.info("x: {}  y: {}  z: {}", x, y, z);
-			
-			// To be implemented
-			return 0;
+			float x = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0f;
+			return x;
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to read heading from BNO055", e);
 			return -1;
-		}
-	}
-	
-	public static void test() {
-		BNO055Interface intf = new BNO055Interface();
-		intf.initialize(null);
-		
-		while(true) {
-			intf.getHeading();
-			
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 
