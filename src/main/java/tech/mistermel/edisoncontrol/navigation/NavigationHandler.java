@@ -95,6 +95,7 @@ public class NavigationHandler {
 		
 		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
 		this.target = waypoint;
+		this.sendWaypoints();
 	}
 	
 	public void onPositionReceived(float x, float y) {
@@ -121,8 +122,17 @@ public class NavigationHandler {
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
 		
-		EdisonControl.getInstance().getWebHandler().sendWaypoints(waypoints);
+		this.sendWaypoints();
 		return waypoint;
+	}
+	
+	public void sendWaypoints() {
+		EdisonControl.getInstance().getWebHandler().sendWaypoints(waypoints, target);
+	}
+	
+	public void clearWaypoints() {
+		waypoints.clear();
+		target = null;
 	}
 	
 	public List<Waypoint> getWaypoints() {
@@ -130,9 +140,18 @@ public class NavigationHandler {
 	}
 	
 	public boolean setActive(boolean isActive) {
+		if(isActive && waypoints.size() == 0) {
+			logger.warn("Cannot start navigation handler, no waypoints set");
+			return false;
+		}
+		
 		logger.info("{} navigation handler", isActive ? "Starting" : "Stopping");
 		this.isActive = isActive;
 		this.setControls(0, 0, true);
+		
+		if(isActive) {
+			this.setTargetedWaypoint(waypoints.get(0));
+		}
 		
 		EdisonControl.getInstance().getWebHandler().updateNavigationState();
 		return true;

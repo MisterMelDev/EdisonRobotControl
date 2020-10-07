@@ -169,7 +169,7 @@ public class WebHandler extends NanoWSD {
 		this.sendPacket(json);
 	}
 	
-	public void sendWaypoints(List<Waypoint> waypoints) {
+	public void sendWaypoints(List<Waypoint> waypoints, Waypoint targetedWaypoint) {
 		JSONObject json = new JSONObject();
 		json.put("type", "waypoints");
 		
@@ -185,6 +185,7 @@ public class WebHandler extends NanoWSD {
 			
 			waypointJson.put("x", waypoint.getX());
 			waypointJson.put("y", waypoint.getY());
+			waypointJson.put("targeted", waypoint == targetedWaypoint);
 		}
 		
 		this.sendPacket(json);
@@ -323,6 +324,7 @@ public class WebHandler extends NanoWSD {
 			logger.info("Disabling navigation handler because client disconnected");
 			navHandler.setActive(false);
 		}
+		navHandler.clearWaypoints();
 	}
 
 	public void sendPosition(float x, float y, int heading, int targetHeading) {
