@@ -47,7 +47,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, isActive ? (int) targetHeading : 0);
+				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, (int) targetHeading);
 				if(isActive) {
 					tick();
 				}
@@ -123,6 +123,10 @@ public class NavigationHandler {
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
 		
+		if(waypoints.size() == 1) {
+			this.setTargetedWaypoint(waypoint);
+		}
+		
 		this.sendWaypoints();
 		return waypoint;
 	}
@@ -149,10 +153,6 @@ public class NavigationHandler {
 		logger.info("{} navigation handler", isActive ? "Starting" : "Stopping");
 		this.isActive = isActive;
 		this.setControls(0, 0, true);
-		
-		if(isActive) {
-			this.setTargetedWaypoint(waypoints.get(0));
-		}
 		
 		EdisonControl.getInstance().getWebHandler().updateNavigationState();
 		return true;
