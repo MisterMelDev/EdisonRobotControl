@@ -27,6 +27,6 @@
 		]
 	},
 	"compass": {
-		"declination_angle": 2.7
+		"offset": 32
 	}
 }
