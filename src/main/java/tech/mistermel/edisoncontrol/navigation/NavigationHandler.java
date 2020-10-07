@@ -93,8 +93,14 @@ public class NavigationHandler {
 				setTargetedWaypoint(waypoints.get(0));
 			}
 			
-			float headingDistance = heading - targetHeading;
-			int steer = (int) headingDistance * -5;
+			double headingDistance = getHeadingDistance(heading, targetHeading);
+			int steer = (int) headingDistance * 5;
+			
+			if(steer > SPEED) {
+				steer = SPEED;
+			} else if(steer < -SPEED) {
+				steer = -SPEED;
+			}
 			
 			if(Math.abs(headingDistance) >= ROTATE_IN_PLACE_TRESHOLD) {
 				setControls(0, steer);
@@ -139,6 +145,14 @@ public class NavigationHandler {
 	private float calculateHeading(float originX, float originY, float targetX, float targetY) {
 		double radians = Math.atan2(targetY - originY, targetX - originX);
 		return (float) Math.toDegrees(radians) + 90;
+	}
+	
+	private double getHeadingDistance(float a, float b) {
+		double left = a - b;
+		double right = b - a;
+		if(left < 0) left += 360;
+		if(right < 0) right += 360;
+		return left < right ? -left : right;
 	}
 	
 	private float calculateWaypointDistance() {
@@ -200,6 +214,7 @@ public class NavigationHandler {
 			return;
 		}
 		
+		logger.debug("Controlling! {} {}", speed, steer);
 		EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
 	}
 	
