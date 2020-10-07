@@ -93,8 +93,9 @@ public class NavigationHandler {
 			return;
 		}
 		
-		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
 		this.target = waypoint;
+		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
+		
 		this.sendWaypoints();
 	}
 	
