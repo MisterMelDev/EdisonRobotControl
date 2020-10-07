@@ -154,12 +154,12 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "pos") {
-        setCanvasInfo(json.x, json.y, json.h);
+        setCanvasInfo(json.x, json.y, json.h, json.th);
         return;
     }
 
     if(msgType == "nav_toggle") {
-        setNavigationEnabled(json.enabled, false);
+        setMovementEnabled(json.enabled);
         return;
     }
 });
@@ -218,7 +218,7 @@ window.onkeyup = function(e) {
 
 window.onkeydown = function(e) {
     if(e.keyCode == 32 && navigationEnabled) {
-        setNavigationEnabled(false, true);
+        setNavigationEnabled(false);
         return;
     }
 
@@ -267,26 +267,45 @@ function onImgError(e) {
 }
 
 const navToggleButton = document.getElementById("nav-toggle");
+const waypointBtn = document.getElementById("waypoint-btn");
+const movementToggleButton = document.getElementById("movement-toggle");
 let navigationEnabled = false;
+let movementEnabled = false;
 
-function setNavigationEnabled(enabled, sendPacket) {
-    if(sendPacket) {
-        let json = {
-            type: "nav_toggle",
-            enabled: enabled
-        };
-        socket.send(JSON.stringify(json));
-    }
-    
+function setNavigationEnabled(enabled) {
     navigationEnabled = enabled;
-    navToggleButton.innerHTML = enabled ? "Stop navigation" : "Start navigation";
+    navToggleButton.innerHTML = enabled ? "Hide map" : "Show map";
 
     cameraStreamElement.height = enabled ? 580 : 720;
     mapCanvas.style.display = enabled ? "block" : "none";
+    waypointBtn.style.display = enabled ? "inline-block" : "none";
+    movementToggleButton.style.display = enabled ? "inline-block" : "none";
 }
 
 navToggleButton.addEventListener("click", function(e) {
-    setNavigationEnabled(!navigationEnabled, true);
+    setNavigationEnabled(!navigationEnabled);
+    if(!navigationEnabled) {
+        setMovementEnabled(false);
+    }
+});
+
+function setMovementEnabled(enabled) {
+    movementEnabled = enabled;
+    movementToggleButton.innerHTML = enabled ? "Disable movement" : "Enable movement";
+
+    let json = {
+        type: "nav_toggle",
+        enabled: movementEnabled
+    };
+    socket.send(JSON.stringify(json));
+}
+
+movementToggleButton.addEventListener("click", function(e) {
+    setMovementEnabled(!movementEnabled);
+});
+
+waypointBtn.addEventListener("click", function(e) {
+    
 });
 
 //
@@ -298,9 +317,7 @@ const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
 ctx.textAlign = "center";
 
-const compassOffsetElement = document.getElementById("compass-offset");
-
-var x = 0, y = 0, h = 0;
+var x = 0, y = 0, h = 0, th = 0;
 
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
@@ -308,6 +325,7 @@ function draw() {
     let drawX = this.x * 20 + mapCanvas.width / 2;
     let drawY = this.y * 20 + mapCanvas.height / 2;
     let hRadians = degToRad(h - 90);
+    let thRadians = degToRad(th - 90);
 
     ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
@@ -318,12 +336,20 @@ function draw() {
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
     ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
+    ctx.strokeStyle = "#000000";
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(drawX, drawY);
+    ctx.lineTo(drawX + Math.cos(thRadians) * 15, drawY + Math.sin(thRadians) * 15);
+    ctx.strokeStyle = "#ff0000";
     ctx.stroke();
 }
 setInterval(draw, 50);
 
-function setCanvasInfo(x, y, h) {
-    this.h = h + parseInt(compassOffsetElement.value);
+function setCanvasInfo(x, y, h, th) {
+    this.h = h;
+    this.th = th;
     this.x = x;
     this.y = y;
 }

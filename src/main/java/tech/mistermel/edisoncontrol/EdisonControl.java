@@ -25,7 +25,6 @@ public class EdisonControl {
 		this.configHandler = new ConfigHandler();
 		configHandler.load();
 		
-		this.navHandler = new NavigationHandler();
 		this.processHandler = new ProcessHandler();
 		this.wifiHandler = new WiFiHandler();
 		wifiHandler.load();
@@ -39,6 +38,8 @@ public class EdisonControl {
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
 		webHandler.startWeb();
+		
+		this.navHandler = new NavigationHandler();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread("ShutdownThread") {
 			@Override

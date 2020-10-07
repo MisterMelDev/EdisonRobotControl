@@ -30,6 +30,9 @@ public class NavigationHandler {
 	public NavigationHandler() {
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
+		
+		this.thread = new NavigationThread();
+		thread.start();
 	}
 	
 	private class NavigationThread extends Thread {
@@ -41,9 +44,13 @@ public class NavigationHandler {
 		@Override
 		public void run() {		
 			int millisDelay = 1000 / UPDATES_PER_SECOND;
-			while(isActive) {
+			while(true) {
 				long startTime = System.currentTimeMillis();
-				tick();
+				
+				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, isActive ? (int) targetHeading : 0);
+				if(isActive) {
+					tick();
+				}
 				
 				try {
 					long timeLeft = (startTime + millisDelay) - System.currentTimeMillis();
@@ -58,13 +65,9 @@ public class NavigationHandler {
 					Thread.currentThread().interrupt();
 				}
 			}
-			
-			logger.debug("Navigation handler loop exited");
 		}
 		
 		private void tick() {
-			EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading);
-			
 			if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
 				logger.warn("DWM serial is not working! Exiting navigation mode.");
 				setActive(false);
@@ -128,26 +131,6 @@ public class NavigationHandler {
 		this.setControls(0, 0, true);
 		
 		EdisonControl.getInstance().getWebHandler().updateNavigationState();
-		return isActive ? startNavigation() : stopNavigation();
-	}
-	
-	private boolean startNavigation() {
-		this.thread = new NavigationThread();
-		thread.start();
-		
-		return true;
-	}
-	
-	private boolean stopNavigation() {
-		try {
-			if(thread != null) {
-				thread.join();
-			}
-		} catch (InterruptedException e) {
-			logger.error("Interrupted while attempting to stop navigation thread", e);
-			Thread.currentThread().interrupt();
-		}
-		
 		return true;
 	}
 	
@@ -161,8 +144,7 @@ public class NavigationHandler {
 			return;
 		}
 		
-		// TODO
-		//EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
+		EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
 	}
 	
 	public boolean isActive() {
