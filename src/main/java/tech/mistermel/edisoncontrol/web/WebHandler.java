@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -15,6 +16,7 @@ import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.ProcessHandler;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.navigation.Waypoint;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
 
 public class WebHandler extends NanoWSD {
@@ -152,6 +154,11 @@ public class WebHandler extends NanoWSD {
 			return;
 		}
 		
+		if(packetType.equals("create_waypoint")) {
+			EdisonControl.getInstance().getNavHandler().createWaypoint(json.optFloat("x"), json.optFloat("y"));
+			return;
+		}
+		
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
@@ -159,6 +166,27 @@ public class WebHandler extends NanoWSD {
 		JSONObject json = new JSONObject();
 		json.put("type", "nav_toggle");
 		json.put("enabled", EdisonControl.getInstance().getNavHandler().isActive());
+		this.sendPacket(json);
+	}
+	
+	public void sendWaypoints(List<Waypoint> waypoints) {
+		JSONObject json = new JSONObject();
+		json.put("type", "waypoints");
+		
+		JSONObject waypointsJson = new JSONObject();
+		json.put("waypoints", waypointsJson);
+		waypointsJson.put("length", waypoints.size());
+		
+		for(int i = 0; i < waypoints.size(); i++) {
+			Waypoint waypoint = waypoints.get(i);
+			
+			JSONObject waypointJson = new JSONObject();
+			waypointsJson.put(Integer.toString(i), waypointJson);
+			
+			waypointJson.put("x", waypoint.getX());
+			waypointJson.put("y", waypoint.getY());
+		}
+		
 		this.sendPacket(json);
 	}
 	

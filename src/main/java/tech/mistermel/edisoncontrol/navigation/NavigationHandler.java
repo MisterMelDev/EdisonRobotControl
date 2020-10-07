@@ -116,8 +116,12 @@ public class NavigationHandler {
 	}
 	
 	public Waypoint createWaypoint(float x, float y) {
+		logger.info("Creating waypoint at x: {}, y: {}", x, y);
+		
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
+		
+		EdisonControl.getInstance().getWebHandler().sendWaypoints(waypoints);
 		return waypoint;
 	}
 	
