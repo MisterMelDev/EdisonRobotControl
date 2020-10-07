@@ -25,7 +25,7 @@ public class NavigationHandler {
 	private float heading;
 	
 	private Waypoint target;
-	private float targetHeading;
+	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
@@ -47,7 +47,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, (int) targetHeading);
+				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, (int) targetHeading, targetDistance);
 				if(isActive) {
 					tick();
 				}
@@ -74,8 +74,27 @@ public class NavigationHandler {
 				return;
 			}
 			
+			if(targetDistance < 0.3) {
+				logger.info("Waypoint reached");
+				waypoints.remove(target);
+				
+				if(waypoints.size() == 0) {
+					target = null;
+					targetHeading = 0;
+					targetDistance = 0;
+					
+					sendWaypoints();
+					setActive(false);
+					
+					logger.info("Navigation finished");
+					return;
+				}
+				
+				setTargetedWaypoint(waypoints.get(0));
+			}
+			
 			float headingDistance = heading - targetHeading;
-			int steer = (int) headingDistance * 5;
+			int steer = (int) headingDistance * -5;
 			
 			if(Math.abs(headingDistance) >= ROTATE_IN_PLACE_TRESHOLD) {
 				setControls(0, steer);
@@ -104,7 +123,8 @@ public class NavigationHandler {
 		this.y = y;
 		
 		if(target != null) {
-			this.targetHeading = calculateHeading(x, y, target.getX(), target.getY());
+			this.targetHeading = calculateWaypointHeading();
+			this.targetDistance = calculateWaypointDistance();
 		}
 	}
 	
@@ -112,9 +132,21 @@ public class NavigationHandler {
 		this.heading = heading;
 	}
 	
+	private float calculateWaypointHeading() {
+		return this.calculateHeading(x, y, target.getX(), target.getY());
+	}
+	
 	private float calculateHeading(float originX, float originY, float targetX, float targetY) {
 		double radians = Math.atan2(targetY - originY, targetX - originX);
-		return (float) Math.toDegrees(radians);
+		return (float) Math.toDegrees(radians) + 90;
+	}
+	
+	private float calculateWaypointDistance() {
+		return this.calculateDistance(x, y, target.getX(), target.getY());
+	}
+	
+	private float calculateDistance(float originX, float originY, float targetX, float targetY) {
+		return (float) Math.sqrt(Math.pow(originX - targetX, 2) + Math.pow(originY - targetY, 2));
 	}
 	
 	public Waypoint createWaypoint(float x, float y) {

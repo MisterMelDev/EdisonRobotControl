@@ -218,7 +218,7 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					if(!webSocketHandler.isCheckboxesSent()) {
 						webSocketHandler.sendCheckboxes();
-						sendPosition(0, 0, 0, 0);
+						sendPosition(0, 0, 0, 0, 0);
 					}
 					
 					JSONObject json = new JSONObject();
@@ -327,7 +327,7 @@ public class WebHandler extends NanoWSD {
 		navHandler.clearWaypoints();
 	}
 
-	public void sendPosition(float x, float y, int heading, int targetHeading) {
+	public void sendPosition(float x, float y, int heading, int targetHeading, float targetDistance) {
 		if(webSocketHandler == null) {
 			return;
 		}
@@ -338,6 +338,7 @@ public class WebHandler extends NanoWSD {
 		webPacket.put("y", y);
 		webPacket.put("h", heading);
 		webPacket.put("th", targetHeading);
+		webPacket.put("d", targetDistance);
 		
 		this.sendPacket(webPacket);
 	}
