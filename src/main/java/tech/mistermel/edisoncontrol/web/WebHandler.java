@@ -170,7 +170,6 @@ public class WebHandler extends NanoWSD {
 		
 		try {
 			String jsonStr = json.toString();
-			logger.debug("Sending packet: {}", jsonStr);
 			webSocketHandler.send(jsonStr);
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to send packet", e);
