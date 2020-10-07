@@ -155,6 +155,7 @@ socket.addEventListener("message", function(event) {
 
     if(msgType == "pos") {
         setCanvasInfo(json.x, json.y, json.h, json.th);
+        console.log(json.d);
         return;
     }
 
@@ -352,9 +353,10 @@ function draw() {
         
         ctx.beginPath();
         ctx.arc(waypoint.x * 20 + mapCanvas.width / 2, waypoint.y * 20 + mapCanvas.height / 2, 5, 0, 2 * Math.PI);
-        ctx.strokeStyle = waypoint.targeted ? "#ff0000" : "#000000";
+        ctx.fillStyle = waypoint.targeted ? "#ff0000" : "#000000";
         ctx.fill();
     }
+    ctx.fillStyle = "#000000";
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
