@@ -162,6 +162,12 @@ socket.addEventListener("message", function(event) {
         setMovementEnabled(json.enabled, false);
         return;
     }
+
+    if(msgType == "waypoints") {
+        waypoints = json.waypoints;
+        waypointLength = waypoints.length;
+        return;
+    }
 });
 
 socket.addEventListener("close", function(event) {
@@ -312,7 +318,7 @@ waypointBtn.addEventListener("click", function(e) {
         x: x,
         y: y
     };
-    socket.send(JSOn.stringify(json));
+    socket.send(JSON.stringify(json));
 });
 
 //
@@ -325,6 +331,7 @@ ctx.font = "12px Arial";
 ctx.textAlign = "center";
 
 var x = 0, y = 0, h = 0, th = 0;
+var waypoints = {}, waypointLength = 0;
 
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
@@ -339,6 +346,15 @@ function draw() {
     ctx.beginPath();
     ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
     ctx.fill();
+
+    for(let i = 0; i < waypointLength; i++) {
+        let waypoint = waypoints[i];
+        
+        ctx.beginPath();
+        ctx.arc(waypoint.x * 20 + mapCanvas.width / 2, waypoint.y * 20 + mapCanvas.height / 2, 5, 0, 2 * Math.PI);
+        ctx.strokeStyle = waypoint.targeted ? "#ff0000" : "#000000";
+        ctx.fill();
+    }
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
