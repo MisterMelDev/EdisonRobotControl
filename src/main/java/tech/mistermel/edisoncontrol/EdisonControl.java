@@ -3,6 +3,7 @@ package tech.mistermel.edisoncontrol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.navigation.BNO055Interface;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
 import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
@@ -85,9 +86,11 @@ public class EdisonControl {
 	private static long startupTime;
 	
 	public static void main(String[] args) {
-		startupTime = System.currentTimeMillis();
+		BNO055Interface.test();
+		
+		/*startupTime = System.currentTimeMillis();
 		instance = new EdisonControl();
-		instance.start();
+		instance.start();*/
 	}
 	
 	public static EdisonControl getInstance() {
