@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.navigation.filter.PositionFilter;
 
 public class NavigationHandler {
 
@@ -17,6 +18,7 @@ public class NavigationHandler {
 	
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
+	private PositionFilter positionFilter;
 	
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
@@ -30,6 +32,8 @@ public class NavigationHandler {
 	public NavigationHandler() {
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
+		
+		this.positionFilter = new PositionFilter();
 		
 		this.thread = new NavigationThread();
 		thread.start();
@@ -133,9 +137,12 @@ public class NavigationHandler {
 		this.sendWaypoints();
 	}
 	
-	public void onPositionReceived(float x, float y) {
-		this.x = x;
-		this.y = y;
+	public void onPositionReceived(float rawX, float rawY) {
+		positionFilter.inputPosition(rawX, rawY);
+		
+		float[] position = positionFilter.getPosition();
+		this.x = position[0];
+		this.y = position[1];
 		
 		if(target != null) {
 			this.targetHeading = calculateTargetHeading(x, y, target.getX(), target.getY());
