@@ -337,8 +337,8 @@ var waypoints = {}, waypointLength = 0;
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    let drawX = this.x * 20 + mapCanvas.width / 2;
-    let drawY = this.y * 20 + mapCanvas.height / 2;
+    let drawX = this.x * 40;
+    let drawY = this.y * 40;
     let hRadians = degToRad(h - 90);
     let thRadians = degToRad(th - 90);
 
@@ -352,7 +352,7 @@ function draw() {
         let waypoint = waypoints[i];
         
         ctx.beginPath();
-        ctx.arc(waypoint.x * 20 + mapCanvas.width / 2, waypoint.y * 20 + mapCanvas.height / 2, 5, 0, 2 * Math.PI);
+        ctx.arc(waypoint.x * 40, waypoint.y * 40, 5, 0, 2 * Math.PI);
         ctx.fillStyle = waypoint.targeted ? "#ff0000" : "#000000";
         ctx.fill();
     }
