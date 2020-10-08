@@ -89,10 +89,8 @@ public class EdisonControl {
 	}
 	
 	private static EdisonControl instance;
-	private static long startupTime;
 	
 	public static void main(String[] args) {
-		startupTime = System.currentTimeMillis();
 		instance = new EdisonControl();
 		instance.start();
 	}

@@ -78,7 +78,7 @@ public class NavigationHandler {
 				logger.info("Waypoint reached");
 				waypoints.remove(target);
 				
-				if(waypoints.size() == 0) {
+				if(waypoints.isEmpty()) {
 					target = null;
 					targetHeading = 0;
 					targetDistance = 0;
@@ -109,6 +109,15 @@ public class NavigationHandler {
 			
 			setControls(SPEED, steer);
 		}
+		
+		private double getHeadingDistance(float a, float b) {
+			double left = a - b;
+			double right = b - a;
+			if(left < 0) left += 360;
+			if(right < 0) right += 360;
+			return left < right ? -left : right;
+		}
+		
 	}
 	
 	public void setTargetedWaypoint(Waypoint waypoint) {
@@ -129,8 +138,8 @@ public class NavigationHandler {
 		this.y = y;
 		
 		if(target != null) {
-			this.targetHeading = calculateWaypointHeading();
-			this.targetDistance = calculateWaypointDistance();
+			this.targetHeading = calculateTargetHeading(x, y, target.getX(), target.getY());
+			this.targetDistance = calculateDistance(x, y, target.getX(), target.getY());
 		}
 	}
 	
@@ -138,25 +147,9 @@ public class NavigationHandler {
 		this.heading = heading;
 	}
 	
-	private float calculateWaypointHeading() {
-		return this.calculateHeading(x, y, target.getX(), target.getY());
-	}
-	
-	private float calculateHeading(float originX, float originY, float targetX, float targetY) {
+	private float calculateTargetHeading(float originX, float originY, float targetX, float targetY) {
 		double radians = Math.atan2(targetY - originY, targetX - originX);
 		return (float) Math.toDegrees(radians) + 90;
-	}
-	
-	private double getHeadingDistance(float a, float b) {
-		double left = a - b;
-		double right = b - a;
-		if(left < 0) left += 360;
-		if(right < 0) right += 360;
-		return left < right ? -left : right;
-	}
-	
-	private float calculateWaypointDistance() {
-		return this.calculateDistance(x, y, target.getX(), target.getY());
 	}
 	
 	private float calculateDistance(float originX, float originY, float targetX, float targetY) {
@@ -191,7 +184,7 @@ public class NavigationHandler {
 	}
 	
 	public boolean setActive(boolean isActive) {
-		if(isActive && waypoints.size() == 0) {
+		if(isActive && waypoints.isEmpty()) {
 			logger.warn("Cannot start navigation handler, no waypoints set");
 			return false;
 		}

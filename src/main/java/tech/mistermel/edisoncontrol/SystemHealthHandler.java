@@ -1,6 +1,6 @@
 package tech.mistermel.edisoncontrol;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -32,7 +32,7 @@ public class SystemHealthHandler {
 		}
 	}
 	
-	private Map<Service, HealthStatus> statuses = new HashMap<>();
+	private Map<Service, HealthStatus> statuses = new EnumMap<>(Service.class);
 	
 	public SystemHealthHandler() {
 		for(Service service : Service.values()) {
