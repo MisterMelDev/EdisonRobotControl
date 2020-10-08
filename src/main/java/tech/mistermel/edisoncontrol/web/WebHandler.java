@@ -192,7 +192,6 @@ public class WebHandler extends NanoWSD {
 	
 	public void sendPacket(JSONObject json) {
 		if(webSocketHandler == null) {
-			logger.warn("Did not send packet (type: {}) because no websocket handler is connected", json.optString("type"));
 			return;
 		}
 		

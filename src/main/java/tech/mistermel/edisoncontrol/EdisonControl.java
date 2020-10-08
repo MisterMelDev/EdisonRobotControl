@@ -3,6 +3,8 @@ package tech.mistermel.edisoncontrol;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
 import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
@@ -20,8 +22,11 @@ public class EdisonControl {
 	private ProcessHandler processHandler;
 	private WiFiHandler wifiHandler;
 	private NavigationHandler navHandler;
+	private SystemHealthHandler systemHealthHandler;
 	
 	public void start() {
+		this.systemHealthHandler = new SystemHealthHandler();
+		
 		this.configHandler = new ConfigHandler();
 		configHandler.load();
 		
@@ -82,6 +87,10 @@ public class EdisonControl {
 		return navHandler;
 	}
 	
+	public SystemHealthHandler getSystemHealthHandler() {
+		return systemHealthHandler;
+	}
+	
 	private static EdisonControl instance;
 	private static long startupTime;
 	
@@ -93,6 +102,10 @@ public class EdisonControl {
 	
 	public static EdisonControl getInstance() {
 		return instance;
+	}
+	
+	public static void setStatus(Service service, HealthStatus status) {
+		getInstance().getSystemHealthHandler().setStatus(service, status);
 	}
 	
 }

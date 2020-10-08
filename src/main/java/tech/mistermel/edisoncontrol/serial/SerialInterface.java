@@ -10,6 +10,10 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
+import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+
 public class SerialInterface extends Thread {
 
 	private static final int START_FRAME = 0xABCD;
@@ -32,8 +36,11 @@ public class SerialInterface extends Thread {
 	
 	@Override
 	public void run() {
+		EdisonControl.setStatus(Service.SERIAL_MOBO, HealthStatus.INITIALIZING);
+		
 		this.port = SerialUtil.openSerial("motherboard_serial", "/dev/ttyS0", 38400);
 		if(port == null) {
+			EdisonControl.setStatus(Service.SERIAL_MOBO, HealthStatus.FAULT);
 			return;
 		}
 		
@@ -83,6 +90,8 @@ public class SerialInterface extends Thread {
 				return false;
 			}
 		});
+		
+		EdisonControl.setStatus(Service.SERIAL_MOBO, HealthStatus.RUNNING);
 		
 		while(true) {
 			long nextRun = System.currentTimeMillis() + SEND_INTERVAL;
