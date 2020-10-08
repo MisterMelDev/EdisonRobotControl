@@ -54,9 +54,6 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
-		
-		long timePassed = System.currentTimeMillis() - startupTime;	
-		logger.info("Startup completed (took {}ms)", timePassed);
 	}
 	
 	public SerialInterface getSerialInterface() {
