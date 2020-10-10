@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -14,10 +13,10 @@ import org.slf4j.LoggerFactory;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoWSD;
 import tech.mistermel.edisoncontrol.EdisonControl;
-import tech.mistermel.edisoncontrol.ProcessHandler;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
-import tech.mistermel.edisoncontrol.navigation.Waypoint;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
+import tech.mistermel.edisoncontrol.web.packet.Packet;
+import tech.mistermel.edisoncontrol.web.packet.TelemetryPacket;
 
 public class WebHandler extends NanoWSD {
 
@@ -38,6 +37,7 @@ public class WebHandler extends NanoWSD {
 	private WebSocketHandler webSocketHandler;
 	
 	private Map<String, WebRoute> routes = new HashMap<>();
+	private Map<String, Class<? extends Packet>> packetTypes = new HashMap<>();
 	
 	public static interface WebRoute {
 		public Response serve(IHTTPSession session);
@@ -57,6 +57,11 @@ public class WebHandler extends NanoWSD {
 		logger.debug("Route registered: {} to {}", uri, route.getClass().getName());
 	}
 	
+	public void registerPacketType(String packetName, Class<? extends Packet> clazz) {
+		packetTypes.put(packetName, clazz);
+		logger.debug("Packet type registered: {} to {}", packetName, clazz.getClass().getName());
+	}
+	
 	public void startWeb() {
 		try {
 			this.start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -68,136 +73,28 @@ public class WebHandler extends NanoWSD {
 		}
 	}
 	
-	public void onPacketReceive(JSONObject json) {
+	protected void onPacketReceive(JSONObject json) {
 		String packetType = json.optString("type");
-		
-		if(packetType.equals("control")) {
-			int speed = json.optInt("speed");
-			int steer = json.optInt("steer");
-			
-			if(speed < -1000 || speed > 1000) {
-				logger.warn("Received a control packet with a speed value outside of the acceptable range ({})", speed);
-				return;
-			}
-			
-			if(steer < -1000 || steer > 1000) {
-				logger.warn("Received a control packet with a steer value outside of the acceptable range ({})", steer);
-				return;
-			}
-			
-			if(EdisonControl.getInstance().getNavHandler().isActive()) {
-				logger.debug("Ignored controls because navigation handler is active");
-				return;
-			}
-			
-			EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
-			return;
-		}
-		
-		if(packetType.equals("nav_toggle")) {
-			EdisonControl.getInstance().getNavHandler().setActive(json.optBoolean("enabled"));
-			return;
-		}
-		
-		if(packetType.equals("lighting")) {
-			boolean enabled = json.optBoolean("enabled");
-			
-			ProcessHandler processHandler = EdisonControl.getInstance().getProcessHandler();
-			if(enabled) {
-				processHandler.startLightingProcess();
-			} else {
-				processHandler.stopLightingProcess();
-			}
-			
-			this.sendCheckboxes();
-			return;
-		}
-		
-		if(packetType.equals("stream")) {
-			boolean enabled = json.optBoolean("enabled");
-			
-			ProcessHandler processHandler = EdisonControl.getInstance().getProcessHandler();
-			if(enabled) {
-				processHandler.startStreamProcess();
-			} else {
-				processHandler.stopStreamProcess();
-			}
-			
-			this.sendCheckboxes();
-			return;
-		}
 		
 		if(packetType.equals("heartbeat")) {
 			webSocketHandler.onHeartbeatReceived();
 			return;
 		}
 		
-		if(packetType.equals("shutdown")) {
-			EdisonControl.getInstance().getProcessHandler().shutdown();
-			return;
-		}
-		
-		if(packetType.equals("reboot")) {
-			EdisonControl.getInstance().getProcessHandler().reboot();
-			return;
-		}
-		
-		if(packetType.equals("wifi")) {
-			try {
-				EdisonControl.getInstance().getWifiHandler().setNetwork(json.optString("ssid"), json.optString("password"));
-				EdisonControl.getInstance().getProcessHandler().reboot();
-			} catch (IOException e) {
-				logger.error("Error occured while attempting to set WiFi network", e);
-			}
-			
-			return;
-		}
-		
-		if(packetType.equals("create_waypoint")) {
-			EdisonControl.getInstance().getNavHandler().createWaypoint(json.optFloat("x"), json.optFloat("y"));
-			return;
-		}
-		
 		logger.warn("Received packet with invalid type ('{}')", packetType);
 	}
 	
-	public void updateNavigationState() {
-		JSONObject json = new JSONObject();
-		json.put("type", "nav_toggle");
-		json.put("enabled", EdisonControl.getInstance().getNavHandler().isActive());
-		this.sendPacket(json);
-	}
-	
-	public void sendWaypoints(List<Waypoint> waypoints, Waypoint targetedWaypoint) {
-		JSONObject json = new JSONObject();
-		json.put("type", "waypoints");
-		
-		JSONObject waypointsJson = new JSONObject();
-		json.put("waypoints", waypointsJson);
-		waypointsJson.put("length", waypoints.size());
-		
-		for(int i = 0; i < waypoints.size(); i++) {
-			Waypoint waypoint = waypoints.get(i);
-			
-			JSONObject waypointJson = new JSONObject();
-			waypointsJson.put(Integer.toString(i), waypointJson);
-			
-			waypointJson.put("x", waypoint.getX());
-			waypointJson.put("y", waypoint.getY());
-			waypointJson.put("targeted", waypoint == targetedWaypoint);
-		}
-		
-		this.sendPacket(json);
-	}
-	
-	public void sendPacket(JSONObject json) {
+	public void sendPacket(Packet packet) {
 		if(webSocketHandler == null) {
 			return;
 		}
 		
+		JSONObject json = new JSONObject();
+		json.put("type", packet.getPacketName());
+		packet.send(json);
+		
 		try {
-			String jsonStr = json.toString();
-			webSocketHandler.send(jsonStr);
+			webSocketHandler.send(json.toString());
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to send packet", e);
 		}
@@ -216,21 +113,10 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					if(!webSocketHandler.isCheckboxesSent()) {
 						webSocketHandler.sendCheckboxes();
-						sendPosition(0, 0, 0, 0, 0);
 					}
 					
-					JSONObject json = new JSONObject();
-					json.put("type", "telemetry");
-					json.put("isConnected", serialInterface.isCommunicationWorking());
-					json.put("battVoltage", serialInterface.getBattVoltage());
-					json.put("boardTemp", serialInterface.getBoardTemp());
-					
-					JSONObject speedJson = new JSONObject();
-					json.put("speed", speedJson);
-					speedJson.put("right", serialInterface.getSpeedR());
-					speedJson.put("left", serialInterface.getSpeedL());
-					
-					sendPacket(json);
+					TelemetryPacket packet = new TelemetryPacket(serialInterface.getBattVoltage(), serialInterface.getBoardTemp());
+					sendPacket(packet);
 					
 					try {
 						webSocketHandler.ping(PING_PAYLOAD);
@@ -250,15 +136,6 @@ public class WebHandler extends NanoWSD {
 			logger.warn("Telemetry packet send loop exited");
 		}
 		
-	}
-	
-	public void sendCheckboxes() {
-		if(webSocketHandler == null) {
-			logger.warn("Could not send checkbox update because no websocket client is connected");
-			return;
-		}
-		
-		webSocketHandler.sendCheckboxes();
 	}
 	
 	@Override
@@ -324,21 +201,9 @@ public class WebHandler extends NanoWSD {
 		}
 		navHandler.clearWaypoints();
 	}
-
-	public void sendPosition(float x, float y, int heading, int targetHeading, float targetDistance) {
-		if(webSocketHandler == null) {
-			return;
-		}
-		
-		JSONObject webPacket = new JSONObject();
-		webPacket.put("type", "pos");
-		webPacket.put("x", x);
-		webPacket.put("y", y);
-		webPacket.put("h", heading);
-		webPacket.put("th", targetHeading);
-		webPacket.put("d", targetDistance);
-		
-		this.sendPacket(webPacket);
+	
+	public void onHeartbeatReceive() {
+		webSocketHandler.onHeartbeatReceived();
 	}
 	
 }

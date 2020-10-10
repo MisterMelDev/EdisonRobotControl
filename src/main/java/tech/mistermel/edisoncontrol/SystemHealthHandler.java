@@ -2,13 +2,11 @@ package tech.mistermel.edisoncontrol;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tech.mistermel.edisoncontrol.web.WebHandler;
+import tech.mistermel.edisoncontrol.web.packet.SystemHealthPacket;
 
 public class SystemHealthHandler {
 
@@ -41,24 +39,8 @@ public class SystemHealthHandler {
 	}
 	
 	private void sendPacket() {
-		JSONObject json = new JSONObject();
-		json.put("type", "system_health");
-		
-		JSONObject servicesJson = new JSONObject();
-		json.put("services", servicesJson);
-		
-		for(Entry<Service, HealthStatus> entry : statuses.entrySet()) {
-			JSONObject serviceJson = new JSONObject();
-			serviceJson.put("name", entry.getKey().getDisplayName());
-			serviceJson.put("status", entry.getValue().name());
-			
-			servicesJson.put(entry.getKey().name(), serviceJson);
-		}
-		
-		WebHandler webHandler = EdisonControl.getInstance().getWebHandler();
-		if(webHandler != null) {
-			webHandler.sendPacket(json);
-		}
+		SystemHealthPacket packet = new SystemHealthPacket(statuses);
+		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 	}
 	
 	public void setStatus(Service service, HealthStatus status) {

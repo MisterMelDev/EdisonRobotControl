@@ -10,6 +10,17 @@ import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
+import tech.mistermel.edisoncontrol.web.packet.ControlPacket;
+import tech.mistermel.edisoncontrol.web.packet.HeartbeatPacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationCreateWaypointPacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationWaypointsPacket;
+import tech.mistermel.edisoncontrol.web.packet.ProcessTogglePacket;
+import tech.mistermel.edisoncontrol.web.packet.SystemCommandPacket;
+import tech.mistermel.edisoncontrol.web.packet.SystemHealthPacket;
+import tech.mistermel.edisoncontrol.web.packet.TelemetryPacket;
+import tech.mistermel.edisoncontrol.web.packet.WiFiPacket;
 
 public class EdisonControl {
 
@@ -42,6 +53,17 @@ public class EdisonControl {
 		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
+		webHandler.registerPacketType(ControlPacket.PACKET_NAME, ControlPacket.class);
+		webHandler.registerPacketType(HeartbeatPacket.PACKET_NAME, HeartbeatPacket.class);
+		webHandler.registerPacketType(NavigationCreateWaypointPacket.PACKET_NAME, NavigationCreateWaypointPacket.class);
+		webHandler.registerPacketType(NavigationTelemetryPacket.PACKET_NAME, NavigationTelemetryPacket.class);
+		webHandler.registerPacketType(NavigationTogglePacket.PACKET_NAME, NavigationTogglePacket.class);
+		webHandler.registerPacketType(NavigationWaypointsPacket.PACKET_NAME, NavigationWaypointsPacket.class);
+		webHandler.registerPacketType(ProcessTogglePacket.PACKET_NAME, ProcessTogglePacket.class);
+		webHandler.registerPacketType(SystemCommandPacket.PACKET_NAME, SystemCommandPacket.class);
+		webHandler.registerPacketType(SystemHealthPacket.PACKET_NAME, SystemHealthPacket.class);
+		webHandler.registerPacketType(TelemetryPacket.PACKET_NAME, TelemetryPacket.class);
+		webHandler.registerPacketType(WiFiPacket.PACKET_NAME, WiFiPacket.class);
 		webHandler.startWeb();
 		
 		this.navHandler = new NavigationHandler();
