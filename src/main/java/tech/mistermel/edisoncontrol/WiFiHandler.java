@@ -40,7 +40,7 @@ public class WiFiHandler {
 				.replace("{{SSID}}", ssid)
 				.replace("{{PASS}}", password);
 		
-		File outputFile = new File(configSection.getString("file_path"));
+		File outputFile = new File(configSection.optString("file_path", "/etc/wpa_supplicant/wpa_supplicant.conf"));
 		if(!outputFile.exists() && !outputFile.createNewFile()) {
 			logger.warn("Could not create wpa_supplicant.conf file");
 			return;
