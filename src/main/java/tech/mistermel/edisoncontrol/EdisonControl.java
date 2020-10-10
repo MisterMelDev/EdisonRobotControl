@@ -76,6 +76,8 @@ public class EdisonControl {
 				processHandler.stopLightingProcess();
 			}
 		});
+		
+		systemHealthHandler.onStartupComplete();
 	}
 	
 	public SerialInterface getSerialInterface() {
