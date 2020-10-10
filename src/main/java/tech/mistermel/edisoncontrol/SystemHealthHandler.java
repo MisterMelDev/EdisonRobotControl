@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.packet.SystemHealthPacket;
 
 public class SystemHealthHandler {
@@ -39,8 +40,13 @@ public class SystemHealthHandler {
 	}
 	
 	private void sendPacket() {
+		WebHandler webHandler = EdisonControl.getInstance().getWebHandler();
+		if(webHandler == null) {
+			return;
+		}
+		
 		SystemHealthPacket packet = new SystemHealthPacket(statuses);
-		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
+		webHandler.sendPacket(packet);
 	}
 	
 	public void setStatus(Service service, HealthStatus status) {
