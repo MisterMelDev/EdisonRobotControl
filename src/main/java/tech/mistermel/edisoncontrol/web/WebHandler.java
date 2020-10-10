@@ -76,12 +76,18 @@ public class WebHandler extends NanoWSD {
 	protected void onPacketReceive(JSONObject json) {
 		String packetType = json.optString("type");
 		
-		if(packetType.equals("heartbeat")) {
-			webSocketHandler.onHeartbeatReceived();
+		Class<? extends Packet> packetClass = packetTypes.get(packetType);
+		if(packetClass == null) {
+			logger.warn("Received packet with invalid type ('{}')", packetType);
 			return;
 		}
 		
-		logger.warn("Received packet with invalid type ('{}')", packetType);
+		try {
+			Packet packet = packetClass.newInstance();
+			packet.receive(json);
+		} catch (InstantiationException | IllegalAccessException e) {
+			logger.error("Error occurred while attempting to instantiate packet", e);
+		}
 	}
 	
 	public void sendPacket(Packet packet) {
