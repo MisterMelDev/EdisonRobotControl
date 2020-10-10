@@ -23,7 +23,10 @@ public class NavigationTogglePacket implements Packet {
 
 	@Override
 	public void receive(JSONObject json) {
-		EdisonControl.getInstance().getNavHandler().setActive(json.optBoolean("enabled"));
+		if(!EdisonControl.getInstance().getNavHandler().setActive(json.optBoolean("enabled"))) {
+			this.enabled = false;
+			EdisonControl.getInstance().getWebHandler().sendPacket(this);
+		}
 	}
 
 	@Override

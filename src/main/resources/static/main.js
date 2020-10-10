@@ -152,18 +152,18 @@ socket.addEventListener("message", function(event) {
         let systemStateElement = document.getElementById("system-state");
         systemStateElement.innerHTML = "";
 
-        for(let serviceName in json.services) {
-            let serviceState = json.services[serviceName];
-            console.log(serviceName + " is " + serviceState);
+        let length = json.services.length;
+        for(let i = 0; i < length; i++) {
+            let service = json.services[i];
 
             let spanElement = document.createElement("span");
-            spanElement.innerHTML = serviceName;
+            spanElement.innerHTML = service.name;
             spanElement.classList.add("service");
             
             let iconElement = document.createElement("i");
             iconElement.classList.add("fas");
-            iconElement.classList.add("fa-" + healthIcons[serviceState]);
-            iconElement.classList.add("service-color-" + healthColors[serviceState]);
+            iconElement.classList.add("fa-" + healthIcons[service.status]);
+            iconElement.classList.add("service-color-" + healthColors[service.status]);
             spanElement.prepend(iconElement);
 
             systemStateElement.appendChild(spanElement);

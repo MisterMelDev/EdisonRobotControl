@@ -22,9 +22,16 @@ public class SystemHealthPacket implements Packet {
 	public void send(JSONObject json) {
 		JSONObject servicesJson = new JSONObject();
 		json.put("services", servicesJson);
+		servicesJson.put("length", statuses.size());
 		
+		int index = 0;
 		for(Entry<Service, HealthStatus> entry : statuses.entrySet()) {
-			servicesJson.put(entry.getKey().getDisplayName(), entry.getValue().name());
+			JSONObject serviceJson = new JSONObject();
+			serviceJson.put("name", entry.getKey().getDisplayName());
+			serviceJson.put("status", entry.getValue().name());
+			
+			servicesJson.put(Integer.toString(index), serviceJson);
+			index++;
 		}
 	}
 	
