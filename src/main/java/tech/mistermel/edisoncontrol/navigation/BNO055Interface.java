@@ -43,7 +43,7 @@ public class BNO055Interface implements MagnetometerInterface {
 			logger.info("BNO055 initialized");
 			return true;
 		} catch(UnsupportedBusNumberException | IOException e) {
-			logger.error("Error while attempting to initialize BNO055 - is I2C enabled in raspi-config?");
+			logger.error("Error while attempting to initialize BNO055 - is I2C enabled in raspi-config?", e);
 			return false;
 		}
 	}
