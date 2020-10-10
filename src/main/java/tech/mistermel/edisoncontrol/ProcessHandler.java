@@ -60,6 +60,14 @@ public class ProcessHandler {
 		}
 	}
 	
+	public void setStreamProcess(boolean isEnabled) {
+		if(isEnabled) {
+			this.startStreamProcess();
+		} else {
+			this.stopStreamProcess();
+		}
+	}
+	
 	public Process getStreamProcess() {
 		return streamProcess;
 	}
@@ -98,6 +106,14 @@ public class ProcessHandler {
 			lightingProcess = null;
 			
 			logger.info("Stopped lighting process");
+		}
+	}
+	
+	public void setLightingProcess(boolean isEnabled) {
+		if(isEnabled) {
+			this.startLightingProcess();
+		} else {
+			this.stopLightingProcess();
 		}
 	}
 	

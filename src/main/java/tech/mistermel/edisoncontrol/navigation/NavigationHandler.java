@@ -7,6 +7,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
+import tech.mistermel.edisoncontrol.web.packet.NavigationWaypointsPacket;
 
 public class NavigationHandler {
 
@@ -47,7 +50,9 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				EdisonControl.getInstance().getWebHandler().sendPosition(x, y, (int) heading, (int) targetHeading, targetDistance);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(x, y, targetDistance, (int) heading, (int) targetHeading);
+				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
+				
 				if(isActive) {
 					tick();
 				}
@@ -171,7 +176,8 @@ public class NavigationHandler {
 	}
 	
 	public void sendWaypoints() {
-		EdisonControl.getInstance().getWebHandler().sendWaypoints(waypoints, target);
+		NavigationWaypointsPacket packet = new NavigationWaypointsPacket(waypoints, target);
+		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 	}
 	
 	public void clearWaypoints() {
@@ -193,7 +199,9 @@ public class NavigationHandler {
 		this.isActive = isActive;
 		this.setControls(0, 0, true);
 		
-		EdisonControl.getInstance().getWebHandler().updateNavigationState();
+		NavigationTogglePacket packet = new NavigationTogglePacket(isActive);
+		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
+		
 		return true;
 	}
 	
