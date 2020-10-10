@@ -19,12 +19,8 @@ public class SystemCommandPacket implements Packet {
 		
 		if(action.equals("shutdown")) {
 			EdisonControl.getInstance().getProcessHandler().shutdown();
-			return;
-		}
-		
-		if(action.equals("reboot")) {
+		} else if(action.equals("reboot")) {
 			EdisonControl.getInstance().getProcessHandler().reboot();
-			return;
 		}
 	}
 

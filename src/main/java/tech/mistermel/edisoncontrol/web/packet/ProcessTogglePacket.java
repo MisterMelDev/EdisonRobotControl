@@ -23,12 +23,8 @@ public class ProcessTogglePacket implements Packet {
 		
 		if(processType.equals("stream")) {
 			EdisonControl.getInstance().getProcessHandler().setStreamProcess(enabled);
-			return;
-		}
-		
-		if(processType.equals("lighting")) {
+		} else if(processType.equals("lighting")) {
 			EdisonControl.getInstance().getProcessHandler().setLightingProcess(enabled);
-			return;
 		}
 	}
 
