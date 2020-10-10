@@ -17,27 +17,7 @@ const boardTemperatureElement = document.getElementById("board-temperature");
 
 const speedInput = document.getElementById("speed-input");
 
-const motherboardStateElement = document.getElementById("motherboard-connection-state");
-let lastMotherboardState = false;
-
 let webSocketOpened = false;
-
-function setMotherboardState(motherboardState) {
-    if(motherboardState == lastMotherboardState) {
-        return;
-    }
-    lastMotherboardState = motherboardState;
-
-    console.log("Motherboard state changed, new state is " + motherboardState);
-
-    motherboardStateElement.innerHTML = "Motherboard " + (motherboardState ? "connected" : "disconnected");
-    
-    if(!motherboardState) {
-        motherboardStateElement.classList.add("text-red");
-    } else {
-        motherboardStateElement.classList.remove("text-red");
-    }
-}
 
 document.getElementById("confirmation-modal-cancel").addEventListener("click", hideConfirmationModal);
 document.getElementById("confirmation-modal-confirm").addEventListener("click", function(e) {
@@ -167,7 +147,49 @@ socket.addEventListener("message", function(event) {
         waypointLength = waypoints.size;
         return;
     }
+
+    if(msgType == "health") {
+        let systemStateElement = document.getElementById("system-state");
+        systemStateElement.innerHTML = "";
+
+        for(let serviceName in json.services) {
+            let serviceState = json.services[serviceName];
+            console.log(serviceName + " is " + serviceState);
+
+            let spanElement = document.createElement("span");
+            spanElement.innerHTML = serviceName;
+            spanElement.classList.add("service");
+            
+            let iconElement = document.createElement("i");
+            iconElement.classList.add("fas");
+            iconElement.classList.add("fa-" + healthIcons[serviceState]);
+            iconElement.classList.add("service-color-" + healthColors[serviceState]);
+            spanElement.prepend(iconElement);
+
+            systemStateElement.appendChild(spanElement);
+        }
+
+        return;
+    }
 });
+
+const healthIcons = {
+    "UNKNOWN": "question",
+    "DISABLED": "circle",
+    "INITIALIZING": "sync",
+    "RUNNING": "check",
+    "STOPPING": "sync",
+    "FAULT": "times"
+};
+
+const healthColors = {
+    "UNKNOWN": "gray",
+    "DISABLED": "gray",
+    "INITIALIZING": "green",
+    "RUNNING": "green",
+    "STOPPING": "orange",
+    "FAULT": "red"
+};
 
 socket.addEventListener("close", function(event) {
     console.log("WebSocket closed");

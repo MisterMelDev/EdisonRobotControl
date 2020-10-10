@@ -39,7 +39,7 @@ public class SystemHealthHandler {
 		}
 	}
 	
-	private void sendPacket() {
+	public void sendPacket() {
 		WebHandler webHandler = EdisonControl.getInstance().getWebHandler();
 		if(webHandler == null) {
 			return;

@@ -79,10 +79,6 @@ body {
     margin-top: 0px;
 }
 
-#motherboard-connection-state {
-    margin-bottom: 0px;
-}
-
 #camera-stream {
     background-image: url('loading.gif');
     background-repeat: no-repeat;
@@ -118,4 +114,33 @@ label {
 #map-canvas {
     border: 1px solid black;
     margin-bottom: 10px;
+}
+
+#system-state {
+    margin-bottom: 3px;
+}
+
+.service {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.service i {
+    margin-right: 3px;
+}
+
+.service-color-red {
+    color: red;
+}
+
+.service-color-green {
+    color: lime;
+}
+
+.service-color-orange {
+    color: orange;
+}
+
+.service-color-gray {
+    color: gray;
 }

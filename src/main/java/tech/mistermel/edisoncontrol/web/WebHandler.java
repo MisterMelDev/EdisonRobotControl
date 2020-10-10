@@ -119,6 +119,7 @@ public class WebHandler extends NanoWSD {
 				if(webSocketHandler != null) {
 					if(!webSocketHandler.isCheckboxesSent()) {
 						webSocketHandler.sendCheckboxes();
+						EdisonControl.getInstance().getSystemHealthHandler().sendPacket();
 					}
 					
 					TelemetryPacket packet = new TelemetryPacket(serialInterface.getBattVoltage(), serialInterface.getBoardTemp());
