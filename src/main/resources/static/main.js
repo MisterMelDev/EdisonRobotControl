@@ -47,13 +47,13 @@ document.getElementById("confirmation-modal-confirm").addEventListener("click", 
 
 document.getElementById("shutdown-btn").addEventListener("click", function(e) {
     showConfirmationModal("Are you sure you want to shut down?", function() {
-        socket.send(JSON.stringify({type: "shutdown"}));
+        socket.send(JSON.stringify({type: "system_cmd", action: "shutdown"}));
     });
 });
 
 document.getElementById("reboot-btn").addEventListener("click", function(e) {
     showConfirmationModal("Are you sure you want to reboot?", function() {
-        socket.send(JSON.stringify({type: "reboot"}));
+        socket.send(JSON.stringify({type: "system_cmd", action: "reboot"}));
     });
 });
 
@@ -112,13 +112,13 @@ document.getElementById("wifi-modal-confirm").addEventListener("click", function
 const lightsToggle = document.getElementById("lights-toggle");
 lightsToggle.addEventListener("click", function(e) {
     let checked = lightsToggle.checked;
-    socket.send(JSON.stringify({type: "lighting", enabled: checked}));
+    socket.send(JSON.stringify({type: "process_toggle", processType: "lighting", enabled: checked}));
 });
 
 const streamToggle = document.getElementById("stream-toggle");
 streamToggle.addEventListener("click", function(e) {
     let checked = streamToggle.checked;
-    socket.send(JSON.stringify({type: "stream", enabled: checked}));
+    socket.send(JSON.stringify({type: "process_toggle", processType: "stream", enabled: checked}));
 
     cameraStreamElement.src = checked ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
 });
@@ -140,10 +140,8 @@ socket.addEventListener("message", function(event) {
     let msgType = json.type;
 
     if(msgType == "telemetry") {
-        setMotherboardState(json.isConnected);
-
-        batteryVoltageElement.innerHTML = json.battVoltage.toFixed(2) + "v";
-        boardTemperatureElement.innerHTML = json.boardTemp.toFixed(1) + " &#8451;";
+        batteryVoltageElement.innerHTML = json.voltage.toFixed(2) + "v";
+        boardTemperatureElement.innerHTML = json.temp.toFixed(1) + " &#8451;";
         return;
     }
 
@@ -153,7 +151,7 @@ socket.addEventListener("message", function(event) {
         return;
     }
 
-    if(msgType == "pos") {
+    if(msgType == "nav") {
         setCanvasInfo(json.x, json.y, json.h, json.th);
         console.log(json.d);
         return;
@@ -164,9 +162,9 @@ socket.addEventListener("message", function(event) {
         return;
     }
 
-    if(msgType == "waypoints") {
+    if(msgType == "nav_waypoints") {
         waypoints = json.waypoints;
-        waypointLength = waypoints.length;
+        waypointLength = waypoints.size;
         return;
     }
 });
@@ -315,7 +313,7 @@ movementToggleButton.addEventListener("click", function(e) {
 
 waypointBtn.addEventListener("click", function(e) {
     let json = {
-        type: "create_waypoint",
+        type: "nav_createwaypoint",
         x: x,
         y: y
     };

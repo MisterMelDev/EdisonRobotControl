@@ -18,7 +18,7 @@ public class ProcessTogglePacket implements Packet {
 
 	@Override
 	public void receive(JSONObject json) {
-		String processType = json.optString("type");
+		String processType = json.optString("processType");
 		boolean enabled = json.optBoolean("enabled");
 		
 		if(processType.equals("stream")) {
