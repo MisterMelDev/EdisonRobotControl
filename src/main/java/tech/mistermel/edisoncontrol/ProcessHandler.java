@@ -7,6 +7,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+
 public class ProcessHandler {
 
 	private static Logger logger = LoggerFactory.getLogger(ProcessHandler.class);
@@ -18,6 +21,7 @@ public class ProcessHandler {
 		File folder = new File("mjpg-streamer");
 		if(!folder.isDirectory()) {
 			logger.warn("Cannot start stream process, folder 'mjpg-streamer' does not exist");
+			EdisonControl.setStatus(Service.STREAM, HealthStatus.FAULT);
 			return false;
 		}
 		
@@ -25,6 +29,8 @@ public class ProcessHandler {
 			logger.warn("Cannot start stream process, already started");
 			return false;
 		}
+		
+		EdisonControl.setStatus(Service.STREAM, HealthStatus.INITIALIZING);
 		
 		JSONObject streamJson = EdisonControl.getInstance().getConfigHandler().getJson().getJSONObject("stream");
 		JSONObject resolutionJson = streamJson.getJSONObject("resolution");
@@ -43,10 +49,12 @@ public class ProcessHandler {
 			
 			this.streamProcess = builder.start();
 			logger.info("Stream process started");
+			EdisonControl.setStatus(Service.STREAM, HealthStatus.RUNNING);
 			
 			return true;
 		} catch (IOException e) {
 			logger.error("Error while attempting to start streaming process", e);
+			EdisonControl.setStatus(Service.STREAM, HealthStatus.FAULT);
 			return false;
 		}
 	}
@@ -57,6 +65,7 @@ public class ProcessHandler {
 			streamProcess = null;
 			
 			logger.info("Stopped stream process");
+			EdisonControl.setStatus(Service.STREAM, HealthStatus.DISABLED);
 		}
 	}
 	

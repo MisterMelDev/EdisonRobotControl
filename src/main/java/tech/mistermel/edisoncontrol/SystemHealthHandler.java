@@ -20,16 +20,28 @@ public class SystemHealthHandler {
 	}
 	
 	public enum Service {
-		SERIAL_MOBO("Motherboard Serial"), SERIAL_DWM("DWM1001 Serial"), BNO055("BNO055 IMU");
+		SERIAL_MOBO("Motherboard Serial"), SERIAL_DWM("DWM1001 Serial"), BNO055("BNO055 IMU"),
+		STREAM("Stream", HealthStatus.DISABLED), NAVIGATION("Navigation", HealthStatus.DISABLED);
 		
 		private String displayName;
+		private HealthStatus defaultStatus;
 		
 		private Service(String displayName) {
 			this.displayName = displayName;
+			this.defaultStatus = HealthStatus.UNKNOWN;
+		}
+		
+		private Service(String displayName, HealthStatus defaultStatus) {
+			this.displayName = displayName;
+			this.defaultStatus = defaultStatus;
 		}
 		
 		public String getDisplayName() {
 			return displayName;
+		}
+		
+		public HealthStatus getDefaultStatus() {
+			return defaultStatus;
 		}
 	}
 	
@@ -37,7 +49,7 @@ public class SystemHealthHandler {
 	
 	public SystemHealthHandler() {
 		for(Service service : Service.values()) {
-			statuses.put(service, HealthStatus.UNKNOWN);
+			statuses.put(service, service.getDefaultStatus());
 		}
 	}
 	
