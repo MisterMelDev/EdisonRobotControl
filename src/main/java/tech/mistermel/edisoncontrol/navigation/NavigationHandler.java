@@ -26,7 +26,7 @@ public class NavigationHandler {
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
 	
-	private float x, y;
+	private Location currentLoc = new Location();
 	private float heading;
 	
 	private Waypoint target;
@@ -52,7 +52,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(x, y, targetDistance, (int) heading, (int) targetHeading);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), targetDistance, (int) heading, (int) targetHeading);
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -135,19 +135,21 @@ public class NavigationHandler {
 			return;
 		}
 		
-		this.target = waypoint;
-		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
+		Location targetLoc = target.getLocation();
+		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, targetLoc.getX(), targetLoc.getY());
 		
+		this.target = waypoint;
 		this.sendWaypoints();
 	}
 	
 	public void onPositionReceived(float x, float y) {
-		this.x = x;
-		this.y = y;
+		currentLoc.setX(x);
+		currentLoc.setY(y);
 		
 		if(target != null) {
-			this.targetHeading = calculateTargetHeading(x, y, target.getX(), target.getY());
-			this.targetDistance = calculateDistance(x, y, target.getX(), target.getY());
+			Location targetLoc = target.getLocation();
+			this.targetHeading = calculateTargetHeading(x, y, targetLoc.getX(), targetLoc.getY());
+			this.targetDistance = calculateDistance(x, y, targetLoc.getX(), targetLoc.getY());
 		}
 	}
 	

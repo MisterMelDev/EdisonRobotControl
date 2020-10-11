@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+import tech.mistermel.edisoncontrol.navigation.Location;
 import tech.mistermel.edisoncontrol.navigation.Waypoint;
 
 public class NavigationWaypointsPacket implements Packet {
@@ -26,12 +27,13 @@ public class NavigationWaypointsPacket implements Packet {
 		waypointsJson.put("size", waypoints.size());
 		for(int i = 0; i < waypoints.size(); i++) {
 			Waypoint waypoint = waypoints.get(i);
+			Location waypointLoc = waypoint.getLocation();
 			
 			JSONObject waypointJson = new JSONObject();
 			waypointsJson.put(Integer.toString(i), waypointJson);
 			
-			waypointJson.put("x", waypoint.getX());
-			waypointJson.put("y", waypoint.getY());
+			waypointJson.put("x", waypointLoc.getX());
+			waypointJson.put("y", waypointLoc.getY());
 			waypointJson.put("isTarget", waypoint == targetWaypoint);
 		}
 	}
