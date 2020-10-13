@@ -7,10 +7,7 @@ public class CardinalSpline {
 
 	private List<Location> controlPoints = new ArrayList<>();
 	
-	public Location calculatePoint(float globalTime) {
-		int index = (int) globalTime;
-		float t = globalTime - index;
-		
+	public Location calculatePoint(int index, float t) {
 		Location p0 = controlPoints.get(index - 1);
 		Location p1 = controlPoints.get(index);
 		Location p2 = controlPoints.get(index + 1);
@@ -27,6 +24,19 @@ public class CardinalSpline {
 		float tx = 0.5f * (p0.getX() * q1 + p1.getX() * q2 + p2.getX() * q3 + p3.getX() * q4);
 		float ty = 0.5f * (p0.getY() * q1 + p1.getY() * q2 + p2.getY() * q3 + p3.getY() * q4);
 		return new Location(tx, ty);
+	}
+	
+	public List<Location> calculatePoints(int pointsPerSegment) {
+		List<Location> locations = new ArrayList<>();
+		float timeInterval = 1.0f / (float) pointsPerSegment;
+		
+		for(int index = 1; index < controlPoints.size() - 1; index++) {
+			for(float time = 0; time <= 1.0f; time += timeInterval) {
+				locations.add(this.calculatePoint(index, time));
+			}
+		}
+		
+		return locations;
 	}
 	
 	public void importWaypoints(List<Waypoint> waypoints) {
