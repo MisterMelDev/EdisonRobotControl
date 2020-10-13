@@ -22,6 +22,7 @@ public class NavigationHandler {
 	
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
+	private CardinalSpline cardinalSpline;
 	
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
@@ -33,6 +34,8 @@ public class NavigationHandler {
 	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
+		this.cardinalSpline = new CardinalSpline();
+		
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
 		
@@ -128,6 +131,10 @@ public class NavigationHandler {
 		
 	}
 	
+	private void initialize() {
+		cardinalSpline.importWaypoints(waypoints);
+	}
+	
 	public void setTargetedWaypoint(Waypoint waypoint) {
 		int waypointIndex = waypoints.indexOf(waypoint);
 		if(waypointIndex == -1) {
@@ -199,8 +206,12 @@ public class NavigationHandler {
 			logger.warn("Cannot start navigation handler, no waypoints set");
 			return false;
 		}
-		
 		logger.info("{} navigation handler", isActive ? "Starting" : "Stopping");
+		
+		if(isActive) {
+			this.initialize();
+		}
+		
 		this.isActive = isActive;
 		this.setControls(0, 0, true);
 		
@@ -208,7 +219,6 @@ public class NavigationHandler {
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 		
 		EdisonControl.setStatus(Service.STREAM, isActive ? HealthStatus.RUNNING : HealthStatus.DISABLED);
-		
 		return true;
 	}
 	
