@@ -406,6 +406,58 @@ function draw() {
 }
 setInterval(draw, 50);
 
+var draggingWaypoint = null, draggingWaypointIndex = -1;
+
+function handleMouseMove(e) {
+    if(!draggingWaypoint) {
+        return;
+    }
+
+    let mousePos = getCursorPosition(mapCanvas, e);
+    draggingWaypoint.x = mousePos.x / 40;
+    draggingWaypoint.y = mousePos.y / 40;
+}
+mapCanvas.onmousemove = handleMouseMove;
+
+function handleMouseDown(e) {
+    let mousePos = getCursorPosition(mapCanvas, e);
+    for(let i = 0; i < waypointLength; i++) {
+        let waypoint = waypoints[i];
+        let waypointX = waypoint.x * 40;
+        let waypointY = waypoint.y * 40;
+
+        console.log(Math.abs(waypointX - mousePos.x) + " " + Math.abs(waypointY - mousePos.y));
+
+        if(Math.abs(waypointX - mousePos.x) < 5 && Math.abs(waypointY - mousePos.y) < 5) {
+            draggingWaypoint = waypoint;
+            draggingWaypointIndex = i;
+            break;
+        }
+    }
+    console.log("Clicked waypoint not found");
+}
+mapCanvas.onmousedown = handleMouseDown;
+
+function handleMouseUp(e) {
+    socket.send(JSON.stringify({
+        type: "nav_waypoints",
+        index: draggingWaypointIndex,
+        x: draggingWaypoint.x,
+        y: draggingWaypoint.y
+    }));
+
+    draggingWaypoint = null;
+}
+mapCanvas.onmouseup = handleMouseUp;
+mapCanvas.onmouseout = handleMouseUp;
+
+function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    return {x, y};
+}
+
 function setCanvasInfo(x, y, h, th) {
     this.h = h;
     this.th = th;

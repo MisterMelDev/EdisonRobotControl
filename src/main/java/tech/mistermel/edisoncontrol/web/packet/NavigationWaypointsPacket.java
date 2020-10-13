@@ -18,6 +18,8 @@ public class NavigationWaypointsPacket implements Packet {
 	private List<Waypoint> waypoints;
 	private Waypoint targetWaypoint;
 	
+	public NavigationWaypointsPacket() {}
+	
 	public NavigationWaypointsPacket(List<Waypoint> waypoints, Waypoint targetWaypoint) {
 		this.waypoints = waypoints;
 		this.targetWaypoint = targetWaypoint;
