@@ -30,11 +30,35 @@ public class CardinalSpline {
 	}
 	
 	public void importWaypoints(List<Waypoint> waypoints) {
+		if(waypoints.size() < 3) {
+			throw new IllegalArgumentException("Waypoints list must contain at least 3 waypoints");
+		}
+		
 		controlPoints.clear();
 		
+		// The Catmull-Rom spline requires two control points that the line will not go through
+		// in order to work. These two points are calculated here, based on the direction of the
+		// first 2 and last 2 actual points.
+		Location firstControlPoint = this.extrapolate(waypoints.get(0).getLocation(), waypoints.get(1).getLocation(), true);
+		int n = waypoints.size() - 1;
+		Location lastControlPoint = this.extrapolate(waypoints.get(n).getLocation(), waypoints.get(n - 1).getLocation(), false);
+		
+		controlPoints.add(firstControlPoint);
 		for(Waypoint waypoint : waypoints) {
 			controlPoints.add(waypoint.getLocation());
 		}
+		controlPoints.add(lastControlPoint);
+	}
+	
+	private Location extrapolate(Location first, Location second, boolean backwards) {
+		float dx = second.getX() - first.getX();
+		float dy = second.getY() - first.getY();
+		
+		if(backwards) {
+			return new Location(first.getX() - dx, first.getY() - dy);
+		}
+		
+		return new Location(first.getX() + dx, first.getY() + dy);
 	}
 	
 }

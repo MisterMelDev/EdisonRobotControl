@@ -132,6 +132,7 @@ public class NavigationHandler {
 	}
 	
 	private void initialize() {
+		// TODO: If there are less than 3 waypoints, use the old method of simply following a straight line.
 		cardinalSpline.importWaypoints(waypoints);
 	}
 	
