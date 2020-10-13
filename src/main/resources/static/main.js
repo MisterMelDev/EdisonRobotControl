@@ -372,13 +372,13 @@ function draw() {
     ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
     ctx.beginPath();
-    ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
+    ctx.arc(drawX, drawY, 3, 0, 2 * Math.PI);
     ctx.fill();
 
+    ctx.strokeStyle = "#808080";
     curvePoints.forEach((curvePoint) => {
         ctx.beginPath();
         ctx.arc(curvePoint[0] * 40, curvePoint[1] * 40, 0.5, 0, 2 * Math.PI);
-        ctx.fillStyle = "#000000";
         ctx.stroke();
     });
 
