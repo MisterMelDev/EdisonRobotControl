@@ -351,6 +351,10 @@ waypointBtn.addEventListener("click", function(e) {
 // Start of canvas stuff
 //
 
+const mapRatio = 40.0;
+const dotSize = 3.5;
+const headingIndicatorLength = 15.0;
+
 const mapCanvas = document.getElementById("map-canvas");
 const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
@@ -364,21 +368,21 @@ var curvePoints = [];
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    let drawX = this.x * 40;
-    let drawY = this.y * 40;
+    let drawX = this.x * mapRatio;
+    let drawY = this.y * mapRatio;
     let hRadians = degToRad(h - 90);
     let thRadians = degToRad(th - 90);
 
     ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
     ctx.beginPath();
-    ctx.arc(drawX, drawY, 3, 0, 2 * Math.PI);
+    ctx.arc(drawX, drawY, dotSize, 0, 2 * Math.PI);
     ctx.fill();
 
     ctx.strokeStyle = "#808080";
     curvePoints.forEach((curvePoint) => {
         ctx.beginPath();
-        ctx.arc(curvePoint[0] * 40, curvePoint[1] * 40, 0.5, 0, 2 * Math.PI);
+        ctx.arc(curvePoint[0] * mapRatio, curvePoint[1] * mapRatio, 0.5, 0, 2 * Math.PI);
         ctx.stroke();
     });
 
@@ -386,7 +390,7 @@ function draw() {
         let waypoint = waypoints[i];
         
         ctx.beginPath();
-        ctx.arc(waypoint.x * 40, waypoint.y * 40, 5, 0, 2 * Math.PI);
+        ctx.arc(waypoint.x * mapRatio, waypoint.y * mapRatio, dotSize, 0, 2 * Math.PI);
         ctx.fillStyle = waypoint.targeted ? "#ff0000" : "#000000";
         ctx.fill();
     }
@@ -394,13 +398,13 @@ function draw() {
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
-    ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
+    ctx.lineTo(drawX + Math.cos(hRadians) * headingIndicatorLength, drawY + Math.sin(hRadians) * headingIndicatorLength);
     ctx.strokeStyle = "#000000";
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
-    ctx.lineTo(drawX + Math.cos(thRadians) * 15, drawY + Math.sin(thRadians) * 15);
+    ctx.lineTo(drawX + Math.cos(thRadians) * headingIndicatorLength, drawY + Math.sin(thRadians) * headingIndicatorLength);
     ctx.strokeStyle = "#ff0000";
     ctx.stroke();
 }
@@ -414,8 +418,8 @@ function handleMouseMove(e) {
     }
 
     let mousePos = getCursorPosition(mapCanvas, e);
-    draggingWaypoint.x = mousePos.x / 40;
-    draggingWaypoint.y = mousePos.y / 40;
+    draggingWaypoint.x = mousePos.x / mapRatio;
+    draggingWaypoint.y = mousePos.y / mapRatio;
 }
 mapCanvas.onmousemove = handleMouseMove;
 
@@ -423,8 +427,8 @@ function handleMouseDown(e) {
     let mousePos = getCursorPosition(mapCanvas, e);
     for(let i = 0; i < waypointLength; i++) {
         let waypoint = waypoints[i];
-        let waypointX = waypoint.x * 40;
-        let waypointY = waypoint.y * 40;
+        let waypointX = waypoint.x * mapRatio;
+        let waypointY = waypoint.y * mapRatio;
 
         console.log(Math.abs(waypointX - mousePos.x) + " " + Math.abs(waypointY - mousePos.y));
 
