@@ -12,6 +12,7 @@ import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationWaypointsPacket;
+import tech.mistermel.edisoncontrol.web.packet.RoutePacket;
 
 public class NavigationHandler {
 
@@ -20,9 +21,13 @@ public class NavigationHandler {
 	private static final int ROTATE_IN_PLACE_TRESHOLD = 45;
 	private static final int SPEED = 200;
 	
+	private static final int POINTS_PER_SEGMENT = 100;
+	
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
+	
 	private CardinalSpline cardinalSpline;
+	private List<Location> splinePoints;
 	
 	private boolean isActive = false;
 	private List<Waypoint> waypoints = new ArrayList<>();
@@ -132,8 +137,25 @@ public class NavigationHandler {
 	}
 	
 	private void initialize() {
-		// TODO: If there are less than 3 waypoints, use the old method of simply following a straight line.
+		// Nothing implemented yet
+	}
+	
+	private void updateRoute() {
+		if(waypoints.size() >= 3) {
+			this.updateSpline();
+			return;
+		}
+		
+		// TODO: In this case (less than 3 waypoints), use the old method of simply following a straight line.
+		this.splinePoints = null;
+	}
+	
+	private void updateSpline() {
 		cardinalSpline.importWaypoints(waypoints);
+		this.splinePoints = cardinalSpline.calculatePoints(POINTS_PER_SEGMENT);
+		
+		RoutePacket routePacket = new RoutePacket(splinePoints);
+		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);
 	}
 	
 	public void setTargetedWaypoint(Waypoint waypoint) {
@@ -143,10 +165,11 @@ public class NavigationHandler {
 			return;
 		}
 		
+		this.target = waypoint;
+		
 		Location targetLoc = target.getLocation();
 		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, targetLoc.getX(), targetLoc.getY());
 		
-		this.target = waypoint;
 		this.sendWaypoints();
 	}
 	
@@ -180,6 +203,8 @@ public class NavigationHandler {
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
 		
+		this.updateRoute();
+		
 		if(waypoints.size() == 1) {
 			this.setTargetedWaypoint(waypoint);
 		}
@@ -203,10 +228,24 @@ public class NavigationHandler {
 	}
 	
 	public boolean setActive(boolean isActive) {
+		if(isActive) {
+			// TODO temp
+			this.createWaypoint(1f, 2f);
+			this.createWaypoint(2f, 1f);
+			this.createWaypoint(3f, 1f);
+			this.createWaypoint(5f, 0.8f);
+		}
+		
 		if(isActive && waypoints.isEmpty()) {
 			logger.warn("Cannot start navigation handler, no waypoints set");
 			return false;
 		}
+		
+		if(isActive && (splinePoints == null || splinePoints.isEmpty())) {
+			logger.warn("Cannot start navigation handler, spline points not calculated");
+			return false;
+		}
+		
 		logger.info("{} navigation handler", isActive ? "Starting" : "Stopping");
 		
 		if(isActive) {

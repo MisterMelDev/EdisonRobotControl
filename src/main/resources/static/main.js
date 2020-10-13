@@ -171,6 +171,11 @@ socket.addEventListener("message", function(event) {
 
         return;
     }
+
+    if(msgType == "route") {
+        curvePoints = json.curve_points;
+        return;
+    }
 });
 
 const healthIcons = {
@@ -354,6 +359,8 @@ ctx.textAlign = "center";
 var x = 0, y = 0, h = 0, th = 0;
 var waypoints = {}, waypointLength = 0;
 
+var curvePoints = [];
+
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
@@ -367,6 +374,13 @@ function draw() {
     ctx.beginPath();
     ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
     ctx.fill();
+
+    curvePoints.forEach((curvePoint) => {
+        ctx.beginPath();
+        ctx.arc(curvePoint[0] * 40, curvePoint[1] * 40, 0.5, 0, 2 * Math.PI);
+        ctx.fillStyle = "#000000";
+        ctx.stroke();
+    });
 
     for(let i = 0; i < waypointLength; i++) {
         let waypoint = waypoints[i];

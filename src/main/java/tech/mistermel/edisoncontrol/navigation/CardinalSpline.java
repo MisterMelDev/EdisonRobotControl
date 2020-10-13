@@ -3,8 +3,13 @@ package tech.mistermel.edisoncontrol.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CardinalSpline {
 
+	private static final Logger logger = LoggerFactory.getLogger(CardinalSpline.class);
+	
 	private List<Location> controlPoints = new ArrayList<>();
 	
 	public Location calculatePoint(int index, float t) {
@@ -30,7 +35,7 @@ public class CardinalSpline {
 		List<Location> locations = new ArrayList<>();
 		float timeInterval = 1.0f / (float) pointsPerSegment;
 		
-		for(int index = 1; index < controlPoints.size() - 1; index++) {
+		for(int index = 1; index < controlPoints.size() - 2; index++) {
 			for(float time = 0; time <= 1.0f; time += timeInterval) {
 				locations.add(this.calculatePoint(index, time));
 			}
@@ -58,6 +63,8 @@ public class CardinalSpline {
 			controlPoints.add(waypoint.getLocation());
 		}
 		controlPoints.add(lastControlPoint);
+		
+		logger.debug("Imported waypoints into cardinal spline ({} waypoints, {} control points)", waypoints.size(), controlPoints.size());
 	}
 	
 	private Location extrapolate(Location first, Location second, boolean backwards) {
