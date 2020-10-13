@@ -239,14 +239,6 @@ public class NavigationHandler {
 	}
 	
 	public boolean setActive(boolean isActive) {
-		if(isActive) {
-			// TODO temp
-			this.createWaypoint(1f, 2f);
-			this.createWaypoint(2f, 1f);
-			this.createWaypoint(3f, 1f);
-			this.createWaypoint(5f, 0.8f);
-		}
-		
 		if(isActive && waypoints.isEmpty()) {
 			logger.warn("Cannot start navigation handler, no waypoints set");
 			return false;
