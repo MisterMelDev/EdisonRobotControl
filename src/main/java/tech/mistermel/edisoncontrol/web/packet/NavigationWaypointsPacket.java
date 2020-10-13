@@ -3,13 +3,17 @@ package tech.mistermel.edisoncontrol.web.packet;
 import java.util.List;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.navigation.Location;
 import tech.mistermel.edisoncontrol.navigation.Waypoint;
 
 public class NavigationWaypointsPacket implements Packet {
 
 	public static final String PACKET_NAME = "nav_waypoints";
+	private static final Logger logger = LoggerFactory.getLogger(NavigationWaypointsPacket.class);
 	
 	private List<Waypoint> waypoints;
 	private Waypoint targetWaypoint;
@@ -40,7 +44,17 @@ public class NavigationWaypointsPacket implements Packet {
 
 	@Override
 	public void receive(JSONObject json) {
-		// This packet is outgoing only
+		int index = json.optInt("index");
+		float x = json.optFloat("x");
+		float y = json.optFloat("y");
+		
+		List<Waypoint> waypoints = EdisonControl.getInstance().getNavHandler().getWaypoints();
+		if(index > waypoints.size() - 1) {
+			logger.warn("Cannot move waypoint (index {}) because it does not exist", index);
+			return;
+		}
+		
+		EdisonControl.getInstance().getNavHandler().moveWaypoint(waypoints.get(index), x, y);
 	}
 
 	@Override

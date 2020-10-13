@@ -213,6 +213,17 @@ public class NavigationHandler {
 		return waypoint;
 	}
 	
+	public void moveWaypoint(Waypoint waypoint, float x, float y) {
+		logger.info("Moving waypoint #{} to x: {}, y {}", waypoints.indexOf(waypoint), x, y);
+		
+		Location loc = waypoint.getLocation();
+		loc.setX(x);
+		loc.setY(y);
+		
+		this.updateRoute();
+		this.sendWaypoints();
+	}
+	
 	public void sendWaypoints() {
 		NavigationWaypointsPacket packet = new NavigationWaypointsPacket(waypoints, target);
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
