@@ -29,4 +29,12 @@ public class CardinalSpline {
 		return new Location(tx, ty);
 	}
 	
+	public void importWaypoints(List<Waypoint> waypoints) {
+		controlPoints.clear();
+		
+		for(Waypoint waypoint : waypoints) {
+			controlPoints.add(waypoint.getLocation());
+		}
+	}
+	
 }
