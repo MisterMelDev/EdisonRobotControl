@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+import tech.mistermel.edisoncontrol.navigation.route.CardinalSplineRoute;
+import tech.mistermel.edisoncontrol.navigation.route.RouteProvider;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationWaypointsPacket;
@@ -26,7 +28,7 @@ public class NavigationHandler {
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
 	
-	private CardinalSpline cardinalSpline;
+	private RouteProvider routeProvider;
 	private List<Location> splinePoints;
 	
 	private boolean isActive = false;
@@ -39,7 +41,7 @@ public class NavigationHandler {
 	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
-		this.cardinalSpline = new CardinalSpline();
+		this.routeProvider = new CardinalSplineRoute();
 		
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
@@ -151,8 +153,8 @@ public class NavigationHandler {
 	}
 	
 	private void updateSpline() {
-		cardinalSpline.importWaypoints(waypoints);
-		this.splinePoints = cardinalSpline.calculatePoints(POINTS_PER_SEGMENT);
+		routeProvider.importWaypoints(waypoints);
+		this.splinePoints = routeProvider.calculatePoints(POINTS_PER_SEGMENT);
 		
 		RoutePacket routePacket = new RoutePacket(splinePoints);
 		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);

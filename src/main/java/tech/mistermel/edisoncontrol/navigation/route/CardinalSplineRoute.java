@@ -1,4 +1,4 @@
-package tech.mistermel.edisoncontrol.navigation;
+package tech.mistermel.edisoncontrol.navigation.route;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CardinalSpline {
+import tech.mistermel.edisoncontrol.navigation.Location;
+import tech.mistermel.edisoncontrol.navigation.Waypoint;
 
-	private static final Logger logger = LoggerFactory.getLogger(CardinalSpline.class);
+public class CardinalSplineRoute implements RouteProvider {
+
+	private static final Logger logger = LoggerFactory.getLogger(CardinalSplineRoute.class);
 	
 	private List<Location> controlPoints = new ArrayList<>();
 	
@@ -31,6 +34,7 @@ public class CardinalSpline {
 		return new Location(tx, ty);
 	}
 	
+	@Override
 	public List<Location> calculatePoints(int pointsPerSegment) {
 		List<Location> locations = new ArrayList<>();
 		float timeInterval = 1.0f / (float) pointsPerSegment;
@@ -44,6 +48,7 @@ public class CardinalSpline {
 		return locations;
 	}
 	
+	@Override
 	public void importWaypoints(List<Waypoint> waypoints) {
 		if(waypoints.size() < 3) {
 			throw new IllegalArgumentException("Waypoints list must contain at least 3 waypoints");
