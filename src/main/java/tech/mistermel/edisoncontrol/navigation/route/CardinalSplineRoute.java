@@ -57,8 +57,8 @@ public class CardinalSplineRoute implements RouteProvider {
 	
 	@Override
 	public void importWaypoints(List<Waypoint> waypoints) {
-		if(waypoints.size() < 3) {
-			throw new IllegalArgumentException("Waypoints list must contain at least 3 waypoints");
+		if(waypoints.size() < 2) {
+			throw new IllegalArgumentException("Waypoints list must contain at least 2 waypoints");
 		}
 		
 		controlPoints.clear();
