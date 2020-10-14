@@ -430,19 +430,20 @@ function handleMouseDown(e) {
         let waypointX = waypoint.x * mapRatio;
         let waypointY = waypoint.y * mapRatio;
 
-        console.log(Math.abs(waypointX - mousePos.x) + " " + Math.abs(waypointY - mousePos.y));
-
         if(Math.abs(waypointX - mousePos.x) < 5 && Math.abs(waypointY - mousePos.y) < 5) {
             draggingWaypoint = waypoint;
             draggingWaypointIndex = i;
             break;
         }
     }
-    console.log("Clicked waypoint not found");
 }
 mapCanvas.onmousedown = handleMouseDown;
 
 function handleMouseUp(e) {
+    if(!draggingWaypoint) {
+        return;
+    }
+
     socket.send(JSON.stringify({
         type: "nav_waypoints",
         index: draggingWaypointIndex,
