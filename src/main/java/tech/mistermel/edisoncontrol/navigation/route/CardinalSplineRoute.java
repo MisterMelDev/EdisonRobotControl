@@ -26,16 +26,18 @@ public class CardinalSplineRoute implements RouteProvider {
 		Location p2 = controlPoints.get(index + 1);
 		Location p3 = controlPoints.get(index + 2);
 	
+		float alpha = 1f;
+		
 		float t2 = t * t;
 		float t3 = t * t * t;
 		
-		float q1 = -t3 + 2.0f * t2 - t;
-		float q2 = 3.0f * t3 - 5.0f * t2 + 2.0f;
-		float q3 = -3.0f * t3 + 4.0f * t2 + t;
-		float q4 = t3 - t2;
+		float a = 2 * t3 - 3 * t2 + 1;
+		float b = -2 * t3 + 3 * t2;
+		float c = alpha * (t3 - 2 * t2 + t);
+		float d = alpha * (t3 - t2);
 		
-		float tx = 0.5f * (p0.getX() * q1 + p1.getX() * q2 + p2.getX() * q3 + p3.getX() * q4);
-		float ty = 0.5f * (p0.getY() * q1 + p1.getY() * q2 + p2.getY() * q3 + p3.getY() * q4);
+		float tx = a * p1.getX() + b * p2.getX() + c * (p2.getX() - p0.getX()) + d * (p3.getX() - p1.getX());
+		float ty = a * p1.getY() + b * p2.getY() + c * (p2.getY() - p0.getY()) + d * (p3.getY() - p1.getY());
 		return new Location(tx, ty);
 	}
 	
@@ -80,12 +82,7 @@ public class CardinalSplineRoute implements RouteProvider {
 	private Location extrapolate(Location first, Location second, boolean backwards) {
 		float dx = second.getX() - first.getX();
 		float dy = second.getY() - first.getY();
-		
-		if(backwards) {
-			return new Location(first.getX() - dx, first.getY() - dy);
-		}
-		
-		return new Location(first.getX() + dx, first.getY() + dy);
+		return new Location(first.getX() + (backwards ? -dx : dx), first.getY() + (backwards ? -dy : dy));
 	}
 	
 }
