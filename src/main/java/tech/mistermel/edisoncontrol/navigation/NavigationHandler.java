@@ -152,19 +152,18 @@ public class NavigationHandler {
 	private void updateRoute() {
 		if(waypoints.size() >= 3) {
 			this.updateSpline();
-			return;
+		} else {
+			// TODO: In this case (less than 3 waypoints), use the old method of simply following a straight line.
+			this.splinePoints = null;
 		}
 		
-		// TODO: In this case (less than 3 waypoints), use the old method of simply following a straight line.
-		this.splinePoints = null;
+		RoutePacket routePacket = new RoutePacket(splinePoints);
+		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);
 	}
 	
 	private void updateSpline() {
 		routeProvider.importWaypoints(waypoints);
 		this.splinePoints = routeProvider.calculatePoints();
-		
-		RoutePacket routePacket = new RoutePacket(splinePoints);
-		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);
 	}
 	
 	public void setTargetedWaypoint(Waypoint waypoint) {
@@ -234,6 +233,8 @@ public class NavigationHandler {
 	}
 	
 	public void removeWaypoint(Waypoint waypoint) {
+		logger.debug("Removing waypoints #{}}", waypoints.indexOf(waypoint));
+		
 		waypoints.remove(waypoint);
 		this.updateRoute();
 		this.sendWaypoints();

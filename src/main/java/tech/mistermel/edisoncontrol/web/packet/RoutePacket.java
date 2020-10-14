@@ -22,12 +22,14 @@ public class RoutePacket implements Packet {
 		JSONArray curvePointsJson = new JSONArray();
 		json.put("curve_points", curvePointsJson);
 		
-		for(Location curvePoint : curvePoints) {
-			JSONArray curvePointJson = new JSONArray();
-			curvePointJson.put(curvePoint.getX());
-			curvePointJson.put(curvePoint.getY());
-			
-			curvePointsJson.put(curvePointJson);
+		if(curvePoints != null) {
+			for(Location curvePoint : curvePoints) {
+				JSONArray curvePointJson = new JSONArray();
+				curvePointJson.put(curvePoint.getX());
+				curvePointJson.put(curvePoint.getY());
+				
+				curvePointsJson.put(curvePointJson);
+			}
 		}
 	}
 

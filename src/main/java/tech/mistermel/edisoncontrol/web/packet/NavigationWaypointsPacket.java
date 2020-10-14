@@ -49,19 +49,21 @@ public class NavigationWaypointsPacket implements Packet {
 		int index = json.optInt("index");
 		String action = json.optString("action");
 		
+		List<Waypoint> waypoints = EdisonControl.getInstance().getNavHandler().getWaypoints();
+		if(index > waypoints.size() - 1) {
+			logger.warn("Cannot edit waypoint (index {}) because it does not exist", index);
+			return;
+		}
+		
+		Waypoint waypoint = waypoints.get(index);
+		
 		if(action.equals("move")) {
 			float x = json.optFloat("x");
 			float y = json.optFloat("y");
 			
-			List<Waypoint> waypoints = EdisonControl.getInstance().getNavHandler().getWaypoints();
-			if(index > waypoints.size() - 1) {
-				logger.warn("Cannot move waypoint (index {}) because it does not exist", index);
-				return;
-			}
-			
-			EdisonControl.getInstance().getNavHandler().moveWaypoint(waypoints.get(index), x, y);
+			EdisonControl.getInstance().getNavHandler().moveWaypoint(waypoint, x, y);
 		} else if(action.equals("remove")) {
-			EdisonControl.getInstance().getNavHandler().removeWaypoint(waypoints.get(index));
+			EdisonControl.getInstance().getNavHandler().removeWaypoint(waypoint);
 		}
 	}
 

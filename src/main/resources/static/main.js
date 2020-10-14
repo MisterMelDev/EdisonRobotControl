@@ -431,6 +431,15 @@ function handleMouseDown(e) {
         let waypointY = waypoint.y * mapRatio;
 
         if(Math.abs(waypointX - mousePos.x) < 5 && Math.abs(waypointY - mousePos.y) < 5) {
+            if(e.ctrlKey) {
+                socket.send(JSON.stringify({
+                    type: "nav_waypoints",
+                    action: "remove",
+                    index: i,
+                }));
+                return;
+            }
+
             draggingWaypoint = waypoint;
             draggingWaypointIndex = i;
             break;
@@ -446,6 +455,7 @@ function handleMouseUp(e) {
 
     socket.send(JSON.stringify({
         type: "nav_waypoints",
+        action: "move",
         index: draggingWaypointIndex,
         x: draggingWaypoint.x,
         y: draggingWaypoint.y
