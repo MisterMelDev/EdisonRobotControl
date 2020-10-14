@@ -42,13 +42,12 @@ public class NavigationHandler {
 	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
-		JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
-		if(config == null) {
-			logger.warn("No config section 'navigation'. This will cause errors.");
-			return;
+		JSONObject configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
+		if(configSection == null) {
+			logger.warn("No 'navigation' configuration section present in config.json - this will cause errors!");
 		}
 		
-		this.routeProvider = new CardinalSplineRoute(config.optInt("points_per_segment", 50));
+		this.routeProvider = new CardinalSplineRoute(configSection.optInt("points_per_segment", 50));
 		
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
