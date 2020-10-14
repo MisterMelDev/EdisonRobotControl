@@ -171,6 +171,11 @@ socket.addEventListener("message", function(event) {
 
         return;
     }
+
+    if(msgType == "route") {
+        curvePoints = json.curve_points;
+        return;
+    }
 });
 
 const healthIcons = {
@@ -346,6 +351,10 @@ waypointBtn.addEventListener("click", function(e) {
 // Start of canvas stuff
 //
 
+const mapRatio = 40.0;
+const dotSize = 3.5;
+const headingIndicatorLength = 15.0;
+
 const mapCanvas = document.getElementById("map-canvas");
 const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
@@ -354,25 +363,34 @@ ctx.textAlign = "center";
 var x = 0, y = 0, h = 0, th = 0;
 var waypoints = {}, waypointLength = 0;
 
+var curvePoints = [];
+
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
 
-    let drawX = this.x * 40;
-    let drawY = this.y * 40;
+    let drawX = this.x * mapRatio;
+    let drawY = this.y * mapRatio;
     let hRadians = degToRad(h - 90);
     let thRadians = degToRad(th - 90);
 
     ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
     ctx.beginPath();
-    ctx.arc(drawX, drawY, 5, 0, 2 * Math.PI);
+    ctx.arc(drawX, drawY, dotSize, 0, 2 * Math.PI);
     ctx.fill();
+
+    ctx.strokeStyle = "#808080";
+    curvePoints.forEach((curvePoint) => {
+        ctx.beginPath();
+        ctx.arc(curvePoint[0] * mapRatio, curvePoint[1] * mapRatio, 0.5, 0, 2 * Math.PI);
+        ctx.stroke();
+    });
 
     for(let i = 0; i < waypointLength; i++) {
         let waypoint = waypoints[i];
         
         ctx.beginPath();
-        ctx.arc(waypoint.x * 40, waypoint.y * 40, 5, 0, 2 * Math.PI);
+        ctx.arc(waypoint.x * mapRatio, waypoint.y * mapRatio, dotSize, 0, 2 * Math.PI);
         ctx.fillStyle = waypoint.targeted ? "#ff0000" : "#000000";
         ctx.fill();
     }
@@ -380,17 +398,80 @@ function draw() {
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
-    ctx.lineTo(drawX + Math.cos(hRadians) * 15, drawY + Math.sin(hRadians) * 15);
+    ctx.lineTo(drawX + Math.cos(hRadians) * headingIndicatorLength, drawY + Math.sin(hRadians) * headingIndicatorLength);
     ctx.strokeStyle = "#000000";
     ctx.stroke();
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
-    ctx.lineTo(drawX + Math.cos(thRadians) * 15, drawY + Math.sin(thRadians) * 15);
+    ctx.lineTo(drawX + Math.cos(thRadians) * headingIndicatorLength, drawY + Math.sin(thRadians) * headingIndicatorLength);
     ctx.strokeStyle = "#ff0000";
     ctx.stroke();
 }
 setInterval(draw, 50);
+
+var draggingWaypoint = null, draggingWaypointIndex = -1;
+
+function handleMouseMove(e) {
+    if(!draggingWaypoint) {
+        return;
+    }
+
+    let mousePos = getCursorPosition(mapCanvas, e);
+    draggingWaypoint.x = mousePos.x / mapRatio;
+    draggingWaypoint.y = mousePos.y / mapRatio;
+}
+mapCanvas.onmousemove = handleMouseMove;
+
+function handleMouseDown(e) {
+    let mousePos = getCursorPosition(mapCanvas, e);
+    for(let i = 0; i < waypointLength; i++) {
+        let waypoint = waypoints[i];
+        let waypointX = waypoint.x * mapRatio;
+        let waypointY = waypoint.y * mapRatio;
+
+        if(Math.abs(waypointX - mousePos.x) < 5 && Math.abs(waypointY - mousePos.y) < 5) {
+            if(e.ctrlKey) {
+                socket.send(JSON.stringify({
+                    type: "nav_waypoints",
+                    action: "remove",
+                    index: i,
+                }));
+                return;
+            }
+
+            draggingWaypoint = waypoint;
+            draggingWaypointIndex = i;
+            break;
+        }
+    }
+}
+mapCanvas.onmousedown = handleMouseDown;
+
+function handleMouseUp(e) {
+    if(!draggingWaypoint) {
+        return;
+    }
+
+    socket.send(JSON.stringify({
+        type: "nav_waypoints",
+        action: "move",
+        index: draggingWaypointIndex,
+        x: draggingWaypoint.x,
+        y: draggingWaypoint.y
+    }));
+
+    draggingWaypoint = null;
+}
+mapCanvas.onmouseup = handleMouseUp;
+mapCanvas.onmouseout = handleMouseUp;
+
+function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    return {x, y};
+}
 
 function setCanvasInfo(x, y, h, th) {
     this.h = h;

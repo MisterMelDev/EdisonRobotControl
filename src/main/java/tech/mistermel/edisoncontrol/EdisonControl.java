@@ -17,6 +17,7 @@ import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationWaypointsPacket;
 import tech.mistermel.edisoncontrol.web.packet.ProcessTogglePacket;
+import tech.mistermel.edisoncontrol.web.packet.RoutePacket;
 import tech.mistermel.edisoncontrol.web.packet.SystemCommandPacket;
 import tech.mistermel.edisoncontrol.web.packet.SystemHealthPacket;
 import tech.mistermel.edisoncontrol.web.packet.TelemetryPacket;
@@ -60,6 +61,7 @@ public class EdisonControl {
 		webHandler.registerPacketType(NavigationTogglePacket.PACKET_NAME, NavigationTogglePacket.class);
 		webHandler.registerPacketType(NavigationWaypointsPacket.PACKET_NAME, NavigationWaypointsPacket.class);
 		webHandler.registerPacketType(ProcessTogglePacket.PACKET_NAME, ProcessTogglePacket.class);
+		webHandler.registerPacketType(RoutePacket.PACKET_NAME, RoutePacket.class);
 		webHandler.registerPacketType(SystemCommandPacket.PACKET_NAME, SystemCommandPacket.class);
 		webHandler.registerPacketType(SystemHealthPacket.PACKET_NAME, SystemHealthPacket.class);
 		webHandler.registerPacketType(TelemetryPacket.PACKET_NAME, TelemetryPacket.class);

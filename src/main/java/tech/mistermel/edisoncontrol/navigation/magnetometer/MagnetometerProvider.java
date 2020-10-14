@@ -1,4 +1,4 @@
-package tech.mistermel.edisoncontrol.navigation;
+package tech.mistermel.edisoncontrol.navigation.magnetometer;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;

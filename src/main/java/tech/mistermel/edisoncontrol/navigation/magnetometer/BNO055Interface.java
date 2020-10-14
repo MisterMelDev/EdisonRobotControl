@@ -1,4 +1,4 @@
-package tech.mistermel.edisoncontrol.navigation;
+package tech.mistermel.edisoncontrol.navigation.magnetometer;
 
 import java.io.IOException;
 

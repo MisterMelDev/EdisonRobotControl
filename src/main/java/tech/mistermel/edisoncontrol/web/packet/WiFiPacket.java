@@ -15,7 +15,7 @@ public class WiFiPacket implements Packet {
 	
 	@Override
 	public void send(JSONObject json) {
-		// This packet is incoming packet
+		// This packet is incoming only
 	}
 
 	@Override
