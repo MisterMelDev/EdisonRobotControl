@@ -45,6 +45,7 @@ public class NavigationHandler {
 		JSONObject configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
 		if(configSection == null) {
 			logger.warn("No 'navigation' configuration section present in config.json - this will cause errors!");
+			return;
 		}
 		
 		this.routeProvider = new CardinalSplineRoute(configSection.optInt("points_per_segment", 50));
