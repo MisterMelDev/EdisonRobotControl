@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+import tech.mistermel.edisoncontrol.navigation.magnetometer.BNO055Interface;
+import tech.mistermel.edisoncontrol.navigation.magnetometer.MagnetometerProvider;
 import tech.mistermel.edisoncontrol.navigation.route.CardinalSplineRoute;
 import tech.mistermel.edisoncontrol.navigation.route.RouteProvider;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
