@@ -206,7 +206,7 @@ public class NavigationHandler {
 	}
 	
 	public Waypoint createWaypoint(float x, float y) {
-		logger.info("Creating waypoint at x: {}, y: {}", x, y);
+		logger.debug("Creating waypoint at x: {}, y: {}", x, y);
 		
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
@@ -222,7 +222,7 @@ public class NavigationHandler {
 	}
 	
 	public void moveWaypoint(Waypoint waypoint, float x, float y) {
-		logger.info("Moving waypoint #{} to x: {}, y {}", waypoints.indexOf(waypoint), x, y);
+		logger.debug("Moving waypoint #{} to x: {}, y {}", waypoints.indexOf(waypoint), x, y);
 		
 		Location loc = waypoint.getLocation();
 		loc.setX(x);
