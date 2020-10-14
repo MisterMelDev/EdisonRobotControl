@@ -232,6 +232,12 @@ public class NavigationHandler {
 		this.sendWaypoints();
 	}
 	
+	public void removeWaypoint(Waypoint waypoint) {
+		waypoints.remove(waypoint);
+		this.updateRoute();
+		this.sendWaypoints();
+	}
+	
 	public void sendWaypoints() {
 		NavigationWaypointsPacket packet = new NavigationWaypointsPacket(waypoints, target);
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
