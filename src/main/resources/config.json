@@ -28,5 +28,8 @@
 	},
 	"compass": {
 		"offset": 32
+	},
+	"navigation": {
+		"points_per_segment": 100
 	}
 }

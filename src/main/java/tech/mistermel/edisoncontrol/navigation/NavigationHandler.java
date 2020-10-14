@@ -3,6 +3,7 @@ package tech.mistermel.edisoncontrol.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +26,6 @@ public class NavigationHandler {
 	private static final int ROTATE_IN_PLACE_TRESHOLD = 45;
 	private static final int SPEED = 200;
 	
-	private static final int POINTS_PER_SEGMENT = 100;
-	
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
 	
@@ -43,7 +42,13 @@ public class NavigationHandler {
 	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
-		this.routeProvider = new CardinalSplineRoute();
+		JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
+		if(config == null) {
+			logger.warn("No config section 'navigation'. This will cause errors.");
+			return;
+		}
+		
+		this.routeProvider = new CardinalSplineRoute(config.optInt("points_per_segment", 50));
 		
 		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
 		magnetometerProvider.start();
@@ -156,7 +161,7 @@ public class NavigationHandler {
 	
 	private void updateSpline() {
 		routeProvider.importWaypoints(waypoints);
-		this.splinePoints = routeProvider.calculatePoints(POINTS_PER_SEGMENT);
+		this.splinePoints = routeProvider.calculatePoints();
 		
 		RoutePacket routePacket = new RoutePacket(splinePoints);
 		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);

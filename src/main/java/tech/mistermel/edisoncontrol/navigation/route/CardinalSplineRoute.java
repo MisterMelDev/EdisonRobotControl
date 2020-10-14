@@ -14,6 +14,11 @@ public class CardinalSplineRoute implements RouteProvider {
 	private static final Logger logger = LoggerFactory.getLogger(CardinalSplineRoute.class);
 	
 	private List<Location> controlPoints = new ArrayList<>();
+	private int pointsPerSegment;
+	
+	public CardinalSplineRoute(int pointsPerSegment) {
+		this.pointsPerSegment = pointsPerSegment;
+	}
 	
 	public Location calculatePoint(int index, float t) {
 		Location p0 = controlPoints.get(index - 1);
@@ -35,7 +40,7 @@ public class CardinalSplineRoute implements RouteProvider {
 	}
 	
 	@Override
-	public List<Location> calculatePoints(int pointsPerSegment) {
+	public List<Location> calculatePoints() {
 		List<Location> locations = new ArrayList<>();
 		float timeInterval = 1.0f / (float) pointsPerSegment;
 		

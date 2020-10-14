@@ -7,7 +7,7 @@ import tech.mistermel.edisoncontrol.navigation.Waypoint;
 
 public interface RouteProvider {
 
-	public List<Location> calculatePoints(int pointsPerSegment);
+	public List<Location> calculatePoints();
 	public void importWaypoints(List<Waypoint> waypoints);
 	
 }
