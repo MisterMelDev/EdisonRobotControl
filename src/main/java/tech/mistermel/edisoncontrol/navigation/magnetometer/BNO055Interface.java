@@ -25,6 +25,8 @@ public class BNO055Interface implements MagnetometerInterface {
 	private static final byte SYS_TRIGGER_ADDR = 0x3F;
 	private static final byte EULER_REGISTER_ADDR = 0x1A;
 	
+	private static final byte CALIB_STAT_ADDR = 0x35;
+	
 	private I2CDevice device;
 	private float offset;
 	
@@ -37,7 +39,7 @@ public class BNO055Interface implements MagnetometerInterface {
 			this.device = bus.getDevice(DEVICE_ADDR);
 			
 			this.waitForSensor();
-			device.write(OPR_MODE_ADDR, (byte) 0X08);
+			device.write(OPR_MODE_ADDR, (byte) 0x09); // COMPASS mode
 			device.write(SYS_TRIGGER_ADDR, (byte) 0x80);
 			
 			logger.info("BNO055 initialized");
@@ -60,6 +62,22 @@ public class BNO055Interface implements MagnetometerInterface {
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while waiting for sensor", e);
 			Thread.currentThread().interrupt();
+		}
+	}
+	
+	@Override
+	public SystemStatus getStatus() {
+		try {	
+			int calibrationStatus = device.read(CALIB_STAT_ADDR);
+			int sysCalib = (calibrationStatus >> 6) & 0x03;
+			int gyroCalib = (calibrationStatus >> 4) & 0x03;
+			int accCalib = (calibrationStatus >> 2) & 0x03;
+			int magCalib = (calibrationStatus >> 0) & 0x03;
+			
+			return new SystemStatus(sysCalib, gyroCalib, accCalib, magCalib);
+		} catch(IOException e) {
+			logger.error("Error occurred while attempting to read status from BNO055", e);
+			return null;
 		}
 	}
 

@@ -6,6 +6,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.mistermel.edisoncontrol.navigation.magnetometer.MagnetometerProvider;
+import tech.mistermel.edisoncontrol.navigation.magnetometer.SystemStatus;
 import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
@@ -119,6 +121,7 @@ public class SystemHealthHandler {
 		public void run() {
 			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
 			DWMSerialInterface dwmSerialInterface = EdisonControl.getInstance().getDWMSerialInterface();
+			MagnetometerProvider magProvider = EdisonControl.getInstance().getNavHandler().getMagnetometerProvider();
 			
 			while(true) {	
 				try {
@@ -127,7 +130,7 @@ public class SystemHealthHandler {
 						logger.warn("Motherboard serial communication not working, setting FAULT state");
 						setStatus(Service.SERIAL_MOBO, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
 					} else if(moboStatus == HealthStatusType.FAULT && serialInterface.isCommunicationWorking()) {
-						logger.warn("Motherboard serial communication working normally, setting RUNNING state");
+						logger.info("Motherboard serial communication working normally, setting RUNNING state");
 						setStatus(Service.SERIAL_MOBO, HealthStatusType.RUNNING);
 					}
 					
@@ -136,8 +139,18 @@ public class SystemHealthHandler {
 						logger.warn("DWM serial communication not working, setting FAULT state");
 						setStatus(Service.SERIAL_DWM, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
 					} else if(dwmStatus == HealthStatusType.FAULT && dwmSerialInterface.isCommunicationWorking()) {
-						logger.warn("DWM serial communication working normally, setting RUNNING state");
+						logger.info("DWM serial communication working normally, setting RUNNING state");
 						setStatus(Service.SERIAL_DWM, HealthStatusType.RUNNING);
+					}
+					
+					HealthStatusType bnoStatus = getStatus(Service.BNO055);
+					SystemStatus bnoCalib = magProvider.getStatus();
+					if(bnoStatus == HealthStatusType.RUNNING && !bnoCalib.isCompletelyCalibrated()) {
+						logger.warn("BNO055 is not completely calibrated, setting REQUIRES_ATTENTION state");
+						setStatus(Service.BNO055, new HealthStatus(HealthStatusType.REQUIRES_ATTENTION, "Not fully calibrated"));
+					} else if(bnoStatus == HealthStatusType.REQUIRES_ATTENTION && bnoCalib.isCompletelyCalibrated()) {
+						logger.info("BNO055 calibration complete, setting RUNNING state");
+						setStatus(Service.BNO055, HealthStatusType.RUNNING);
 					}
 					
 					Thread.sleep(500);

@@ -294,4 +294,8 @@ public class NavigationHandler {
 		return isActive;
 	}
 	
+	public MagnetometerProvider getMagnetometerProvider() {
+		return magnetometerProvider;
+	}
+	
 }
