@@ -8,7 +8,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
-import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
 public class DWMSerialInterface extends Thread {
@@ -26,11 +26,11 @@ public class DWMSerialInterface extends Thread {
 	
 	@Override
 	public void run() {
-		EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatus.INITIALIZING);
+		EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatusType.INITIALIZING);
 		
 		this.port = SerialUtil.openSerial("dwm_serial", "/dev/ttyACM0", 115200);
 		if(port == null) {
-			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatus.FAULT);
+			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatusType.FAULT);
 			return;
 		}
 		
@@ -89,7 +89,7 @@ public class DWMSerialInterface extends Thread {
 		try {
 			this.initialize();
 			
-			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatus.RUNNING);
+			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatusType.RUNNING);
 			logger.info("DWM communication initialized");
 		} catch (InterruptedException e) {
 			logger.error("Interrupted while attempting to initialize DWM serial port", e);

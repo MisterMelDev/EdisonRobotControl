@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
 import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
@@ -127,6 +128,10 @@ public class EdisonControl {
 	
 	public static void setStatus(Service service, HealthStatus status) {
 		getInstance().getSystemHealthHandler().setStatus(service, status);
+	}
+	
+	public static void setStatus(Service service, HealthStatusType statusType) {
+		getInstance().getSystemHealthHandler().setStatus(service, statusType);
 	}
 	
 }

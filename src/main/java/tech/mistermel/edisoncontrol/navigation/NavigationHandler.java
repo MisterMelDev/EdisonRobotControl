@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
-import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.navigation.magnetometer.BNO055Interface;
 import tech.mistermel.edisoncontrol.navigation.magnetometer.MagnetometerProvider;
@@ -95,7 +95,7 @@ public class NavigationHandler {
 			if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
 				logger.warn("DWM serial is not working! Exiting navigation mode.");
 				setActive(false);
-				EdisonControl.setStatus(Service.STREAM, HealthStatus.FAULT);
+				EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT);
 				return;
 			}
 			
@@ -272,7 +272,7 @@ public class NavigationHandler {
 		NavigationTogglePacket packet = new NavigationTogglePacket(isActive);
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 		
-		EdisonControl.setStatus(Service.STREAM, isActive ? HealthStatus.RUNNING : HealthStatus.DISABLED);
+		EdisonControl.setStatus(Service.STREAM, isActive ? HealthStatusType.RUNNING : HealthStatusType.DISABLED);
 		return true;
 	}
 	

@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
-import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
 public class MagnetometerProvider extends Thread {
@@ -24,16 +24,16 @@ public class MagnetometerProvider extends Thread {
 		try {
 			JSONObject config = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("compass");
 			
-			EdisonControl.setStatus(Service.BNO055, HealthStatus.INITIALIZING);
+			EdisonControl.setStatus(Service.BNO055, HealthStatusType.INITIALIZING);
 			if(!intf.initialize(config)) {
-				EdisonControl.setStatus(Service.BNO055, HealthStatus.FAULT);
+				EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT);
 				
 				logger.warn("Magnetometer initialization failed, magnetometer provider thread exiting");
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(0);
 				return;
 			}
 			
-			EdisonControl.setStatus(Service.BNO055, HealthStatus.RUNNING);
+			EdisonControl.setStatus(Service.BNO055, HealthStatusType.RUNNING);
 			while(true) {
 				float heading = intf.getHeading();
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(heading);

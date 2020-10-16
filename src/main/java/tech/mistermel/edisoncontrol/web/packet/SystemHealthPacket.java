@@ -26,9 +26,16 @@ public class SystemHealthPacket implements Packet {
 		
 		int index = 0;
 		for(Entry<Service, HealthStatus> entry : statuses.entrySet()) {
+			Service service = entry.getKey();
+			HealthStatus status = entry.getValue();
+			
 			JSONObject serviceJson = new JSONObject();
-			serviceJson.put("name", entry.getKey().getDisplayName());
-			serviceJson.put("status", entry.getValue().name());
+			serviceJson.put("name", service.getDisplayName());
+			serviceJson.put("status", status.getType().name());
+			
+			if(status.hasExtraInfo()) {
+				serviceJson.put("extraInfo", status.getExtraInfo());
+			}
 			
 			servicesJson.put(Integer.toString(index), serviceJson);
 			index++;

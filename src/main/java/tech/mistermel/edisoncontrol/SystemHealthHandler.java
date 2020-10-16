@@ -15,23 +15,50 @@ public class SystemHealthHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(SystemHealthHandler.class);
 	
-	public enum HealthStatus {
-		UNKNOWN, DISABLED, INITIALIZING, RUNNING, STOPPING, FAULT;	
+	public enum HealthStatusType {
+		UNKNOWN, DISABLED, INITIALIZING, RUNNING, STOPPING, FAULT, REQUIRES_ATTENTION;	
+	}
+	
+	public class HealthStatus {
+		
+		private HealthStatusType type;
+		private String extraInfo;
+		
+		public HealthStatus(HealthStatusType type) {
+			this.type = type;
+		}
+		
+		public HealthStatus(HealthStatusType type, String extraInfo) {
+			this.type = type;
+			this.extraInfo = extraInfo;
+		}
+		
+		public HealthStatusType getType() {
+			return type;
+		}
+		
+		public boolean hasExtraInfo() {
+			return extraInfo != null && !extraInfo.isEmpty();
+		}
+		
+		public String getExtraInfo() {
+			return extraInfo;
+		}
 	}
 	
 	public enum Service {
 		SERIAL_MOBO("Motherboard Serial"), SERIAL_DWM("DWM1001 Serial"), BNO055("BNO055 IMU"),
-		STREAM("Stream", HealthStatus.DISABLED), NAVIGATION("Navigation", HealthStatus.DISABLED);
+		STREAM("Stream", HealthStatusType.DISABLED), NAVIGATION("Navigation", HealthStatusType.DISABLED);
 		
 		private String displayName;
-		private HealthStatus defaultStatus;
+		private HealthStatusType defaultStatus;
 		
 		private Service(String displayName) {
 			this.displayName = displayName;
-			this.defaultStatus = HealthStatus.UNKNOWN;
+			this.defaultStatus = HealthStatusType.UNKNOWN;
 		}
 		
-		private Service(String displayName, HealthStatus defaultStatus) {
+		private Service(String displayName, HealthStatusType defaultStatus) {
 			this.displayName = displayName;
 			this.defaultStatus = defaultStatus;
 		}
@@ -40,7 +67,7 @@ public class SystemHealthHandler {
 			return displayName;
 		}
 		
-		public HealthStatus getDefaultStatus() {
+		public HealthStatusType getDefaultStatus() {
 			return defaultStatus;
 		}
 	}
@@ -49,7 +76,7 @@ public class SystemHealthHandler {
 	
 	public SystemHealthHandler() {
 		for(Service service : Service.values()) {
-			statuses.put(service, service.getDefaultStatus());
+			statuses.put(service, new HealthStatus(service.getDefaultStatus()));
 		}
 	}
 	
@@ -67,15 +94,19 @@ public class SystemHealthHandler {
 		webHandler.sendPacket(packet);
 	}
 	
+	public void setStatus(Service service, HealthStatusType statusType) {
+		this.setStatus(service, new HealthStatus(statusType));
+	}
+	
 	public void setStatus(Service service, HealthStatus status) {
-		logger.debug("New status for service {}: {}", service.name(), status.name());
+		logger.debug("New status for service {}: {} ({})", service.name(), status.getType().name(), status.hasExtraInfo() ? status.getExtraInfo() : "no extra info");
 		
 		statuses.put(service, status);
 		this.sendPacket();
 	}
 	
-	public HealthStatus getStatus(Service service) {
-		return statuses.get(service);
+	public HealthStatusType getStatus(Service service) {
+		return statuses.get(service).getType();
 	}
 	
 	public Map<Service, HealthStatus> getStatuses() {
@@ -91,22 +122,22 @@ public class SystemHealthHandler {
 			
 			while(true) {	
 				try {
-					HealthStatus moboStatus = getStatus(Service.SERIAL_MOBO);
-					if(moboStatus != HealthStatus.FAULT && !serialInterface.isCommunicationWorking()) {
+					HealthStatusType moboStatus = getStatus(Service.SERIAL_MOBO);
+					if(moboStatus != HealthStatusType.FAULT && !serialInterface.isCommunicationWorking()) {
 						logger.warn("Motherboard serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_MOBO, HealthStatus.FAULT);
-					} else if(moboStatus == HealthStatus.FAULT && serialInterface.isCommunicationWorking()) {
+						setStatus(Service.SERIAL_MOBO, HealthStatusType.FAULT);
+					} else if(moboStatus == HealthStatusType.FAULT && serialInterface.isCommunicationWorking()) {
 						logger.warn("Motherboard serial communication working normally, setting RUNNING state");
-						setStatus(Service.SERIAL_MOBO, HealthStatus.RUNNING);
+						setStatus(Service.SERIAL_MOBO, HealthStatusType.RUNNING);
 					}
 					
-					HealthStatus dwmStatus = getStatus(Service.SERIAL_DWM);
-					if(dwmStatus != HealthStatus.FAULT && !dwmSerialInterface.isCommunicationWorking()) {
+					HealthStatusType dwmStatus = getStatus(Service.SERIAL_DWM);
+					if(dwmStatus != HealthStatusType.FAULT && !dwmSerialInterface.isCommunicationWorking()) {
 						logger.warn("DWM serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_DWM, HealthStatus.FAULT);
-					} else if(dwmStatus == HealthStatus.FAULT && dwmSerialInterface.isCommunicationWorking()) {
+						setStatus(Service.SERIAL_DWM, HealthStatusType.FAULT);
+					} else if(dwmStatus == HealthStatusType.FAULT && dwmSerialInterface.isCommunicationWorking()) {
 						logger.warn("DWM serial communication working normally, setting RUNNING state");
-						setStatus(Service.SERIAL_DWM, HealthStatus.RUNNING);
+						setStatus(Service.SERIAL_DWM, HealthStatusType.RUNNING);
 					}
 					
 					Thread.sleep(500);
