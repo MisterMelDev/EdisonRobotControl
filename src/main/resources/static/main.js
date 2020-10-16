@@ -185,7 +185,8 @@ const healthIcons = {
     "INITIALIZING": "sync",
     "RUNNING": "check",
     "STOPPING": "sync",
-    "FAULT": "times"
+    "FAULT": "times",
+    "REQUIRES_ATTENTION": "exclamation"
 };
 
 const healthColors = {
@@ -194,7 +195,8 @@ const healthColors = {
     "INITIALIZING": "green",
     "RUNNING": "green",
     "STOPPING": "orange",
-    "FAULT": "red"
+    "FAULT": "red",
+    "REQUIRES_ATTENTION": "orange"
 };
 
 socket.addEventListener("close", function(event) {
