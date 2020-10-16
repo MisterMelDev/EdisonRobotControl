@@ -40,7 +40,7 @@ public class SerialInterface extends Thread {
 		
 		this.port = SerialUtil.openSerial("motherboard_serial", "/dev/ttyS0", 38400);
 		if(port == null) {
-			EdisonControl.setStatus(Service.SERIAL_MOBO, HealthStatusType.FAULT);
+			EdisonControl.setStatus(Service.SERIAL_MOBO, HealthStatusType.FAULT, "Init failed");
 			return;
 		}
 		

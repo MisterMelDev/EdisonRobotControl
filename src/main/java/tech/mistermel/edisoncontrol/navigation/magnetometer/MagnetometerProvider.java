@@ -27,6 +27,7 @@ public class MagnetometerProvider extends Thread {
 			EdisonControl.setStatus(Service.BNO055, HealthStatusType.INITIALIZING);
 			if(!intf.initialize(config)) {
 				EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT);
+				EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT, "Init failed");
 				
 				logger.warn("Magnetometer initialization failed, magnetometer provider thread exiting");
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(0);
@@ -42,6 +43,7 @@ public class MagnetometerProvider extends Thread {
 			}
 		} catch(Exception e) {
 			logger.error("Error occurred in magnetometer reading thread", e);
+			EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT, "Error in reading thread");
 		}
 	}
 	

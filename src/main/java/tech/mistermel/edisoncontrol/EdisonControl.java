@@ -126,8 +126,8 @@ public class EdisonControl {
 		return instance;
 	}
 	
-	public static void setStatus(Service service, HealthStatus status) {
-		getInstance().getSystemHealthHandler().setStatus(service, status);
+	public static void setStatus(Service service, HealthStatusType statusType, String extraInfo) {
+		getInstance().getSystemHealthHandler().setStatus(service, new HealthStatus(statusType, extraInfo));
 	}
 	
 	public static void setStatus(Service service, HealthStatusType statusType) {

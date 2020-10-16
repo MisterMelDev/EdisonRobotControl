@@ -19,7 +19,7 @@ public class SystemHealthHandler {
 		UNKNOWN, DISABLED, INITIALIZING, RUNNING, STOPPING, FAULT, REQUIRES_ATTENTION;	
 	}
 	
-	public class HealthStatus {
+	public static class HealthStatus {
 		
 		private HealthStatusType type;
 		private String extraInfo;
@@ -125,7 +125,7 @@ public class SystemHealthHandler {
 					HealthStatusType moboStatus = getStatus(Service.SERIAL_MOBO);
 					if(moboStatus != HealthStatusType.FAULT && !serialInterface.isCommunicationWorking()) {
 						logger.warn("Motherboard serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_MOBO, HealthStatusType.FAULT);
+						setStatus(Service.SERIAL_MOBO, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
 					} else if(moboStatus == HealthStatusType.FAULT && serialInterface.isCommunicationWorking()) {
 						logger.warn("Motherboard serial communication working normally, setting RUNNING state");
 						setStatus(Service.SERIAL_MOBO, HealthStatusType.RUNNING);
@@ -134,7 +134,7 @@ public class SystemHealthHandler {
 					HealthStatusType dwmStatus = getStatus(Service.SERIAL_DWM);
 					if(dwmStatus != HealthStatusType.FAULT && !dwmSerialInterface.isCommunicationWorking()) {
 						logger.warn("DWM serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_DWM, HealthStatusType.FAULT);
+						setStatus(Service.SERIAL_DWM, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
 					} else if(dwmStatus == HealthStatusType.FAULT && dwmSerialInterface.isCommunicationWorking()) {
 						logger.warn("DWM serial communication working normally, setting RUNNING state");
 						setStatus(Service.SERIAL_DWM, HealthStatusType.RUNNING);

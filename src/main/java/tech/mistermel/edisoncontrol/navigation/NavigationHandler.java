@@ -95,7 +95,7 @@ public class NavigationHandler {
 			if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
 				logger.warn("DWM serial is not working! Exiting navigation mode.");
 				setActive(false);
-				EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT);
+				EdisonControl.setStatus(Service.NAVIGATION, HealthStatusType.FAULT, "DWM serial not working");
 				return;
 			}
 			
@@ -272,7 +272,7 @@ public class NavigationHandler {
 		NavigationTogglePacket packet = new NavigationTogglePacket(isActive);
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 		
-		EdisonControl.setStatus(Service.STREAM, isActive ? HealthStatusType.RUNNING : HealthStatusType.DISABLED);
+		EdisonControl.setStatus(Service.NAVIGATION, isActive ? HealthStatusType.RUNNING : HealthStatusType.DISABLED);
 		return true;
 	}
 	
