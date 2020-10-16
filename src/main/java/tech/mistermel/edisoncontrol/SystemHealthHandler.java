@@ -117,6 +117,10 @@ public class SystemHealthHandler {
 	
 	public class SystemHealthMonitorThread extends Thread {
 		
+		public SystemHealthMonitorThread() {
+			super("SystemHealthMonitorThread");
+		}
+		
 		@Override
 		public void run() {
 			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
@@ -145,12 +149,14 @@ public class SystemHealthHandler {
 					
 					HealthStatusType bnoStatus = getStatus(Service.BNO055);
 					SystemStatus bnoCalib = magProvider.getStatus();
-					if(bnoStatus == HealthStatusType.RUNNING && !bnoCalib.isCompletelyCalibrated()) {
-						logger.warn("BNO055 is not completely calibrated, setting REQUIRES_ATTENTION state");
-						setStatus(Service.BNO055, new HealthStatus(HealthStatusType.REQUIRES_ATTENTION, "Not fully calibrated"));
-					} else if(bnoStatus == HealthStatusType.REQUIRES_ATTENTION && bnoCalib.isCompletelyCalibrated()) {
-						logger.info("BNO055 calibration complete, setting RUNNING state");
-						setStatus(Service.BNO055, HealthStatusType.RUNNING);
+					if(bnoCalib != null) {
+						if(bnoStatus == HealthStatusType.RUNNING && !bnoCalib.isCompletelyCalibrated()) {
+							logger.warn("BNO055 is not completely calibrated, setting REQUIRES_ATTENTION state");
+							setStatus(Service.BNO055, new HealthStatus(HealthStatusType.REQUIRES_ATTENTION, "Not fully calibrated"));
+						} else if(bnoStatus == HealthStatusType.REQUIRES_ATTENTION && bnoCalib.isCompletelyCalibrated()) {
+							logger.info("BNO055 calibration complete, setting RUNNING state");
+							setStatus(Service.BNO055, HealthStatusType.RUNNING);
+						}
 					}
 					
 					Thread.sleep(500);

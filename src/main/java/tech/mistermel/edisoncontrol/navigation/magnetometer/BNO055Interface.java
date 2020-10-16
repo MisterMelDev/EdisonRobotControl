@@ -67,7 +67,11 @@ public class BNO055Interface implements MagnetometerInterface {
 	
 	@Override
 	public SystemStatus getStatus() {
-		try {	
+		if(device == null) {
+			return null;
+		}
+		
+		try {
 			int calibrationStatus = device.read(CALIB_STAT_ADDR);
 			int sysCalib = (calibrationStatus >> 6) & 0x03;
 			int gyroCalib = (calibrationStatus >> 4) & 0x03;
