@@ -66,13 +66,13 @@ public class CardinalSplineRoute implements RouteProvider {
 		// The Catmull-Rom spline requires two control points that the line will not go through
 		// in order to work. These two points are calculated here, based on the direction of the
 		// first 2 and last 2 actual points.
-		Location firstControlPoint = this.extrapolate(waypoints.get(0).getLocation(), waypoints.get(1).getLocation(), true);
+		Location firstControlPoint = this.extrapolate(waypoints.get(0), waypoints.get(1), true);
 		int n = waypoints.size() - 1;
-		Location lastControlPoint = this.extrapolate(waypoints.get(n).getLocation(), waypoints.get(n - 1).getLocation(), false);
+		Location lastControlPoint = this.extrapolate(waypoints.get(n), waypoints.get(n - 1), false);
 		
 		controlPoints.add(firstControlPoint);
 		for(Waypoint waypoint : waypoints) {
-			controlPoints.add(waypoint.getLocation());
+			controlPoints.add(waypoint);
 		}
 		controlPoints.add(lastControlPoint);
 		

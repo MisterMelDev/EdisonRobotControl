@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
-import tech.mistermel.edisoncontrol.navigation.Location;
 import tech.mistermel.edisoncontrol.navigation.Waypoint;
 
 public class NavigationWaypointsPacket implements Packet {
@@ -33,13 +32,12 @@ public class NavigationWaypointsPacket implements Packet {
 		waypointsJson.put("size", waypoints.size());
 		for(int i = 0; i < waypoints.size(); i++) {
 			Waypoint waypoint = waypoints.get(i);
-			Location waypointLoc = waypoint.getLocation();
 			
 			JSONObject waypointJson = new JSONObject();
 			waypointsJson.put(Integer.toString(i), waypointJson);
 			
-			waypointJson.put("x", waypointLoc.getX());
-			waypointJson.put("y", waypointLoc.getY());
+			waypointJson.put("x", waypoint.getX());
+			waypointJson.put("y", waypoint.getY());
 			waypointJson.put("isTarget", waypoint == targetWaypoint);
 		}
 	}

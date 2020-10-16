@@ -169,9 +169,7 @@ public class NavigationHandler {
 		}
 		
 		this.target = waypoint;
-		
-		Location targetLoc = target.getLocation();
-		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, targetLoc.getX(), targetLoc.getY());
+		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
 		
 		this.sendWaypoints();
 	}
@@ -181,9 +179,8 @@ public class NavigationHandler {
 		currentLoc.setY(y);
 		
 		if(target != null) {
-			Location targetLoc = target.getLocation();
-			this.targetHeading = calculateTargetHeading(x, y, targetLoc.getX(), targetLoc.getY());
-			this.targetDistance = calculateDistance(x, y, targetLoc.getX(), targetLoc.getY());
+			this.targetHeading = calculateTargetHeading(x, y, target.getX(), target.getY());
+			this.targetDistance = calculateDistance(x, y, target.getX(), target.getY());
 		}
 	}
 	
@@ -219,9 +216,8 @@ public class NavigationHandler {
 	public void moveWaypoint(Waypoint waypoint, float x, float y) {
 		logger.debug("Moving waypoint #{} to x: {}, y {}", waypoints.indexOf(waypoint), x, y);
 		
-		Location loc = waypoint.getLocation();
-		loc.setX(x);
-		loc.setY(y);
+		waypoint.setX(x);
+		waypoint.setY(y);
 		
 		this.updateRoute();
 		this.sendWaypoints();
