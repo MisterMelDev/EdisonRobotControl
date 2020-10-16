@@ -132,8 +132,7 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "nav") {
-        setCanvasInfo(json.x, json.y, json.h, json.th);
-        console.log(json.d);
+        setCanvasInfo(json.x, json.y, json.h, json.t);
         return;
     }
 
@@ -363,10 +362,11 @@ const ctx = mapCanvas.getContext("2d");
 ctx.font = "12px Arial";
 ctx.textAlign = "center";
 
-var x = 0, y = 0, h = 0, th = 0;
+var x = 0, y = 0, h = 0;
 var waypoints = {}, waypointLength = 0;
 
 var curvePoints = [];
+var closestSplinePoint = null;
 
 function draw() {
     ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
@@ -374,7 +374,6 @@ function draw() {
     let drawX = this.x * mapRatio;
     let drawY = this.y * mapRatio;
     let hRadians = degToRad(h - 90);
-    let thRadians = degToRad(th - 90);
 
     ctx.fillText(this.x + ", " + this.y, drawX, drawY + 15);
 
@@ -389,15 +388,16 @@ function draw() {
         ctx.stroke();
     });
 
+    ctx.fillStyle = "#000000";
     for(let i = 0; i < waypointLength; i++) {
         let waypoint = waypoints[i];
         
         ctx.beginPath();
         ctx.arc(waypoint.x * mapRatio, waypoint.y * mapRatio, dotSize, 0, 2 * Math.PI);
-        ctx.fillStyle = waypoint.targeted ? "#ff0000" : "#000000";
         ctx.fill();
+
+        ctx.fillText("#" + (i + 1), waypoint.x * mapRatio, waypoint.y * mapRatio - 10);
     }
-    ctx.fillStyle = "#000000";
 
     ctx.beginPath();
     ctx.moveTo(drawX, drawY);
@@ -405,11 +405,13 @@ function draw() {
     ctx.strokeStyle = "#000000";
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(drawX, drawY);
-    ctx.lineTo(drawX + Math.cos(thRadians) * headingIndicatorLength, drawY + Math.sin(thRadians) * headingIndicatorLength);
-    ctx.strokeStyle = "#ff0000";
-    ctx.stroke();
+    if(closestSplinePoint != null) {
+        ctx.beginPath();
+        ctx.moveTo(drawX, drawY);
+        ctx.lineTo(closestSplinePoint[0] * mapRatio, closestSplinePoint[1] * mapRatio);
+        ctx.strokeStyle = "#ff0000";
+        ctx.stroke();
+    }
 }
 setInterval(draw, 50);
 
@@ -476,9 +478,9 @@ function getCursorPosition(canvas, event) {
     return {x, y};
 }
 
-function setCanvasInfo(x, y, h, th) {
+function setCanvasInfo(x, y, h, t) {
     this.h = h;
-    this.th = th;
+    this.closestSplinePoint = t == -1 ? null : curvePoints[t];
     this.x = x;
     this.y = y;
 }

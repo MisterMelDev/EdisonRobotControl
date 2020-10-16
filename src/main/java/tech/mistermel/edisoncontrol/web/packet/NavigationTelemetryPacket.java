@@ -6,24 +6,22 @@ public class NavigationTelemetryPacket implements Packet {
 
 	public static final String PACKET_NAME = "nav";
 	
-	private float x, y, d;
-	private int heading, targetHeading;
+	private float x, y;
+	private int heading, targetIndex;
 	
-	public NavigationTelemetryPacket(float x, float y, float d, int heading, int targetHeading) {
+	public NavigationTelemetryPacket(float x, float y, int heading, int targetIndex) {
 		this.x = x;
 		this.y = y;
-		this.d = d;
 		this.heading = heading;
-		this.targetHeading = targetHeading;
+		this.targetIndex = targetIndex;
 	}
 	
 	@Override
 	public void send(JSONObject json) {
 		json.put("x", x);
 		json.put("y", y);
-		json.put("d", d);
 		json.put("h", heading);
-		json.put("th", targetHeading);
+		json.put("t", targetIndex);
 	}
 
 	@Override

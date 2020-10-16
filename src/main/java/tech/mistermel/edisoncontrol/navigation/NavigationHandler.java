@@ -32,6 +32,7 @@ public class NavigationHandler {
 	
 	private List<Waypoint> waypoints = new ArrayList<>();
 	private List<Location> splinePoints;
+	private Location closestSplinePoint;
 	
 	private Location currentLoc = new Location();
 	private float heading;
@@ -64,7 +65,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), 0, (int) heading, (int) 0);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint));
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -87,14 +88,34 @@ public class NavigationHandler {
 		}
 		
 		private void tick() {
-			if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
+			/*if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
 				logger.warn("DWM serial is not working! Exiting navigation mode.");
 				setActive(false);
 				EdisonControl.setStatus(Service.NAVIGATION, HealthStatusType.FAULT, "DWM serial not working");
 				return;
+			}*/
+			
+			closestSplinePoint = getClosestSplinePoint();
+			double cte = closestSplinePoint.distanceTo(currentLoc);
+		}
+		
+		private Location getClosestSplinePoint() {
+			if(splinePoints == null) {
+				return null;
 			}
 			
+			Location nearestPoint = null;
+			double nearestDistance = Double.MAX_VALUE;
 			
+			for(Location point : splinePoints) {
+				double distance = point.distanceTo(currentLoc);
+				if(distance < nearestDistance) {
+					nearestPoint = point;
+					nearestDistance = distance;
+				}
+			}
+			
+			return nearestPoint;
 		}
 		
 		private double getHeadingDistance(float a, float b) {
@@ -109,6 +130,10 @@ public class NavigationHandler {
 	
 	private void initialize() {
 		// Nothing implemented yet
+	}
+	
+	private void stop() {
+		this.closestSplinePoint = null;
 	}
 	
 	private void updateRoute() {
@@ -189,6 +214,8 @@ public class NavigationHandler {
 		
 		if(isActive) {
 			this.initialize();
+		} else {
+			this.stop();
 		}
 		
 		this.isActive = isActive;
