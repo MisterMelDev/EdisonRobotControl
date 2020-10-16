@@ -15,13 +15,11 @@ public class NavigationWaypointsPacket implements Packet {
 	private static final Logger logger = LoggerFactory.getLogger(NavigationWaypointsPacket.class);
 	
 	private List<Waypoint> waypoints;
-	private Waypoint targetWaypoint;
 	
 	public NavigationWaypointsPacket() {}
 	
-	public NavigationWaypointsPacket(List<Waypoint> waypoints, Waypoint targetWaypoint) {
+	public NavigationWaypointsPacket(List<Waypoint> waypoints) {
 		this.waypoints = waypoints;
-		this.targetWaypoint = targetWaypoint;
 	}
 
 	@Override
@@ -38,7 +36,6 @@ public class NavigationWaypointsPacket implements Packet {
 			
 			waypointJson.put("x", waypoint.getX());
 			waypointJson.put("y", waypoint.getY());
-			waypointJson.put("isTarget", waypoint == targetWaypoint);
 		}
 	}
 

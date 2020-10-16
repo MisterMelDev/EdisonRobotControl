@@ -23,23 +23,18 @@ public class NavigationHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(NavigationHandler.class);
 	private static final int UPDATES_PER_SECOND = 10;
-	private static final int ROTATE_IN_PLACE_TRESHOLD = 45;
-	private static final int SPEED = 200;
 	
 	private MagnetometerProvider magnetometerProvider;
 	private NavigationThread thread;
-	
 	private RouteProvider routeProvider;
-	private List<Location> splinePoints;
 	
 	private boolean isActive = false;
+	
 	private List<Waypoint> waypoints = new ArrayList<>();
+	private List<Location> splinePoints;
 	
 	private Location currentLoc = new Location();
 	private float heading;
-	
-	private Waypoint target;
-	private float targetHeading, targetDistance;
 	
 	public NavigationHandler() {
 		JSONObject configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
@@ -69,7 +64,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), targetDistance, (int) heading, (int) targetHeading);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), 0, (int) heading, (int) 0);
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -99,40 +94,7 @@ public class NavigationHandler {
 				return;
 			}
 			
-			if(targetDistance < 0.3) {
-				logger.info("Waypoint reached");
-				waypoints.remove(target);
-				
-				if(waypoints.isEmpty()) {
-					target = null;
-					targetHeading = 0;
-					targetDistance = 0;
-					
-					sendWaypoints();
-					setActive(false);
-					
-					logger.info("Navigation finished");
-					return;
-				}
-				
-				setTargetedWaypoint(waypoints.get(0));
-			}
 			
-			double headingDistance = getHeadingDistance(heading, targetHeading);
-			int steer = (int) headingDistance * 5;
-			
-			if(steer > SPEED) {
-				steer = SPEED;
-			} else if(steer < -SPEED) {
-				steer = -SPEED;
-			}
-			
-			if(Math.abs(headingDistance) >= ROTATE_IN_PLACE_TRESHOLD) {
-				setControls(0, steer);
-				return;
-			}
-			
-			setControls(SPEED, steer);
 		}
 		
 		private double getHeadingDistance(float a, float b) {
@@ -161,40 +123,13 @@ public class NavigationHandler {
 		EdisonControl.getInstance().getWebHandler().sendPacket(routePacket);
 	}
 	
-	public void setTargetedWaypoint(Waypoint waypoint) {
-		int waypointIndex = waypoints.indexOf(waypoint);
-		if(waypointIndex == -1) {
-			logger.warn("Cannot target waypoint, is not in waypoint list");
-			return;
-		}
-		
-		this.target = waypoint;
-		logger.info("New waypoint target (index: {}, x: {}, y: {})", waypointIndex, target.getX(), target.getY());
-		
-		this.sendWaypoints();
-	}
-	
 	public void onPositionReceived(float x, float y) {
 		currentLoc.setX(x);
 		currentLoc.setY(y);
-		
-		if(target != null) {
-			this.targetHeading = calculateTargetHeading(x, y, target.getX(), target.getY());
-			this.targetDistance = calculateDistance(x, y, target.getX(), target.getY());
-		}
 	}
 	
 	public void onHeadingReceived(float heading) {
 		this.heading = heading;
-	}
-	
-	private float calculateTargetHeading(float originX, float originY, float targetX, float targetY) {
-		double radians = Math.atan2(targetY - originY, targetX - originX);
-		return (float) Math.toDegrees(radians) + 90;
-	}
-	
-	private float calculateDistance(float originX, float originY, float targetX, float targetY) {
-		return (float) Math.sqrt(Math.pow(originX - targetX, 2) + Math.pow(originY - targetY, 2));
 	}
 	
 	public Waypoint createWaypoint(float x, float y) {
@@ -203,12 +138,7 @@ public class NavigationHandler {
 		Waypoint waypoint = new Waypoint(x, y);
 		waypoints.add(waypoint);
 		
-		this.updateRoute();
-		
-		if(waypoints.size() == 1) {
-			this.setTargetedWaypoint(waypoint);
-		}
-		
+		this.updateRoute();	
 		this.sendWaypoints();
 		return waypoint;
 	}
@@ -232,13 +162,12 @@ public class NavigationHandler {
 	}
 	
 	public void sendWaypoints() {
-		NavigationWaypointsPacket packet = new NavigationWaypointsPacket(waypoints, target);
+		NavigationWaypointsPacket packet = new NavigationWaypointsPacket(waypoints);
 		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 	}
 	
 	public void clearWaypoints() {
 		waypoints.clear();
-		target = null;
 	}
 	
 	public List<Waypoint> getWaypoints() {
