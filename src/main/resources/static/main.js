@@ -158,6 +158,7 @@ socket.addEventListener("message", function(event) {
 
             let spanElement = document.createElement("span");
             spanElement.innerHTML = service.name;
+            spanElement.title = service.extraInfo ? service.extraInfo : "No extra info";
             spanElement.classList.add("service");
             
             let iconElement = document.createElement("i");
