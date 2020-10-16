@@ -69,8 +69,13 @@ public class BNO055Interface implements MagnetometerInterface {
 			byte[] buffer = new byte[6];
 			device.read(EULER_REGISTER_ADDR, buffer, 0, buffer.length);
 			
-			float x = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0f;
-			return x + offset;
+			float heading = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0f;
+			
+			heading += offset;
+			if(heading >= 360) heading -= 360;
+			if(heading < 0) heading += 360;
+			
+			return heading;
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to read heading from BNO055", e);
 			return -1;
