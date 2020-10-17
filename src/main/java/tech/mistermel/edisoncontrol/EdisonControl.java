@@ -13,6 +13,7 @@ import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.WiFiConfigurationsRoute;
 import tech.mistermel.edisoncontrol.web.packet.ControlPacket;
 import tech.mistermel.edisoncontrol.web.packet.HeartbeatPacket;
+import tech.mistermel.edisoncontrol.web.packet.IMUCalibrationPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationCreateWaypointPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTogglePacket;
@@ -57,6 +58,7 @@ public class EdisonControl {
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
 		webHandler.registerPacketType(ControlPacket.PACKET_NAME, ControlPacket.class);
 		webHandler.registerPacketType(HeartbeatPacket.PACKET_NAME, HeartbeatPacket.class);
+		webHandler.registerPacketType(IMUCalibrationPacket.PACKET_NAME, IMUCalibrationPacket.class);
 		webHandler.registerPacketType(NavigationCreateWaypointPacket.PACKET_NAME, NavigationCreateWaypointPacket.class);
 		webHandler.registerPacketType(NavigationTelemetryPacket.PACKET_NAME, NavigationTelemetryPacket.class);
 		webHandler.registerPacketType(NavigationTogglePacket.PACKET_NAME, NavigationTogglePacket.class);

@@ -16,6 +16,7 @@ import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Monitorable;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+import tech.mistermel.edisoncontrol.web.packet.IMUCalibrationPacket;
 
 public class BNO055Interface implements IMUInterface, Monitorable {
 
@@ -131,7 +132,12 @@ public class BNO055Interface implements IMUInterface, Monitorable {
 
 	@Override
 	public boolean isWorking() {
-		return getStatus().isCompletelyCalibrated();
+		SystemStatus status = this.getStatus();
+		
+		IMUCalibrationPacket packet = new IMUCalibrationPacket(new int[] {status.getSysCalib(), status.getGyroCalib(), status.getAccCalib(), status.getMagCalib()});
+		EdisonControl.getInstance().getWebHandler().sendPacket(packet);
+		
+		return status.isCompletelyCalibrated();
 	}
 
 	@Override
