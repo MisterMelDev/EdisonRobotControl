@@ -11,10 +11,12 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Monitorable;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
-public class SerialInterface extends Thread {
+public class SerialInterface extends Thread implements Monitorable {
 
 	private static final int START_FRAME = 0xABCD;
 	private static final int SEND_INTERVAL = 50;
@@ -44,6 +46,7 @@ public class SerialInterface extends Thread {
 			return;
 		}
 		
+		EdisonControl.getInstance().getSystemHealthHandler().registerMonitorable(Service.SERIAL_MOBO, this);
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 			
 			@Override
@@ -110,8 +113,14 @@ public class SerialInterface extends Thread {
 		logger.warn("SerialInterface send loop exited");
 	}
 	
-	public boolean isCommunicationWorking() {
+	@Override
+	public boolean isWorking() {
 		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL;
+	}
+	
+	@Override
+	public HealthStatus getResultingStatus() {
+		return new HealthStatus(HealthStatusType.FAULT, "Communication interrupted");
 	}
 	
 	private int toSigned(int unsigned) {

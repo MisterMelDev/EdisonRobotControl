@@ -11,7 +11,13 @@ import com.pi4j.io.i2c.I2CDevice;
 import com.pi4j.io.i2c.I2CFactory;
 import com.pi4j.io.i2c.I2CFactory.UnsupportedBusNumberException;
 
-public class BNO055Interface implements MagnetometerInterface {
+import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Monitorable;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
+
+public class BNO055Interface implements MagnetometerInterface, Monitorable {
 
 	private static final Logger logger = LoggerFactory.getLogger(BNO055Interface.class);
 	
@@ -43,6 +49,7 @@ public class BNO055Interface implements MagnetometerInterface {
 			device.write(SYS_TRIGGER_ADDR, (byte) 0x80);
 			
 			logger.info("BNO055 initialized");
+			EdisonControl.getInstance().getSystemHealthHandler().registerMonitorable(Service.BNO055, this);
 			return true;
 		} catch(UnsupportedBusNumberException | IOException e) {
 			logger.error("Error while attempting to initialize BNO055 - is I2C enabled in raspi-config?");
@@ -102,6 +109,16 @@ public class BNO055Interface implements MagnetometerInterface {
 			logger.error("Error occurred while attempting to read heading from BNO055", e);
 			return -1;
 		}
+	}
+
+	@Override
+	public boolean isWorking() {
+		return getStatus().isCompletelyCalibrated();
+	}
+
+	@Override
+	public HealthStatus getResultingStatus() {
+		return new HealthStatus(HealthStatusType.REQUIRES_ATTENTION, "Not (completely) calibrated");
 	}
 
 }

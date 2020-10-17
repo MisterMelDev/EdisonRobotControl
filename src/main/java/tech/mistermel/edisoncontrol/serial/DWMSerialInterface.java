@@ -8,10 +8,12 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import com.fazecast.jSerialComm.SerialPortMessageListenerWithExceptions;
 
 import tech.mistermel.edisoncontrol.EdisonControl;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
+import tech.mistermel.edisoncontrol.SystemHealthHandler.Monitorable;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
-public class DWMSerialInterface extends Thread {
+public class DWMSerialInterface extends Thread implements Monitorable {
 
 	private static final Logger logger = LoggerFactory.getLogger(DWMSerialInterface.class);
 	
@@ -34,6 +36,7 @@ public class DWMSerialInterface extends Thread {
 			return;
 		}
 		
+		EdisonControl.getInstance().getSystemHealthHandler().registerMonitorable(Service.SERIAL_MOBO, this);
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 
 			@Override
@@ -97,6 +100,16 @@ public class DWMSerialInterface extends Thread {
 		}
 	}
 	
+	@Override
+	public boolean isWorking() {
+		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL;
+	}
+	
+	@Override
+	public HealthStatus getResultingStatus() {
+		return new HealthStatus(HealthStatusType.FAULT, "Communication interrupted");
+	}
+	
 	private void initialize() throws InterruptedException {
 		port.writeBytes(new byte[] { 0x0D, 0x0D }, 2);
 		Thread.sleep(1000); // This is quite hacky and should be changed, but eh, it works
@@ -107,10 +120,6 @@ public class DWMSerialInterface extends Thread {
 		logger.debug("Sending: {}", str.trim());
 		byte[] bytes = str.getBytes();
 		port.writeBytes(bytes, bytes.length);
-	}
-	
-	public boolean isCommunicationWorking() {
-		return System.currentTimeMillis() - lastMessage < MAX_RECEIVE_INTERVAL; 
 	}
 	
 }

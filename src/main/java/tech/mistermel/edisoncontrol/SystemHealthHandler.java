@@ -1,15 +1,13 @@
 package tech.mistermel.edisoncontrol;
 
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tech.mistermel.edisoncontrol.navigation.magnetometer.MagnetometerProvider;
-import tech.mistermel.edisoncontrol.navigation.magnetometer.SystemStatus;
-import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
-import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
 import tech.mistermel.edisoncontrol.web.packet.SystemHealthPacket;
 
@@ -74,12 +72,23 @@ public class SystemHealthHandler {
 		}
 	}
 	
+	public interface Monitorable {
+		public boolean isWorking();
+		public HealthStatus getResultingStatus();
+	}
+	
 	private Map<Service, HealthStatus> statuses = new EnumMap<>(Service.class);
+	private Map<Service, Monitorable> monitorables = new HashMap<>();
 	
 	public SystemHealthHandler() {
 		for(Service service : Service.values()) {
 			statuses.put(service, new HealthStatus(service.getDefaultStatus()));
 		}
+	}
+	
+	public void registerMonitorable(Service service, Monitorable monitorable) {
+		monitorables.put(service, monitorable);
+		logger.debug("New monitorable registered for {}: {}", service.name(), monitorable.getClass().getName());
 	}
 	
 	public void onStartupComplete() {
@@ -123,39 +132,22 @@ public class SystemHealthHandler {
 		
 		@Override
 		public void run() {
-			SerialInterface serialInterface = EdisonControl.getInstance().getSerialInterface();
-			DWMSerialInterface dwmSerialInterface = EdisonControl.getInstance().getDWMSerialInterface();
-			MagnetometerProvider magProvider = EdisonControl.getInstance().getNavHandler().getMagnetometerProvider();
-			
 			while(true) {	
 				try {
-					HealthStatusType moboStatus = getStatus(Service.SERIAL_MOBO);
-					if(moboStatus != HealthStatusType.FAULT && !serialInterface.isCommunicationWorking()) {
-						logger.warn("Motherboard serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_MOBO, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
-					} else if(moboStatus == HealthStatusType.FAULT && serialInterface.isCommunicationWorking()) {
-						logger.info("Motherboard serial communication working normally, setting RUNNING state");
-						setStatus(Service.SERIAL_MOBO, HealthStatusType.RUNNING);
-					}
-					
-					HealthStatusType dwmStatus = getStatus(Service.SERIAL_DWM);
-					if(dwmStatus != HealthStatusType.FAULT && !dwmSerialInterface.isCommunicationWorking()) {
-						logger.warn("DWM serial communication not working, setting FAULT state");
-						setStatus(Service.SERIAL_DWM, new HealthStatus(HealthStatusType.FAULT, "Communication interrupted"));
-					} else if(dwmStatus == HealthStatusType.FAULT && dwmSerialInterface.isCommunicationWorking()) {
-						logger.info("DWM serial communication working normally, setting RUNNING state");
-						setStatus(Service.SERIAL_DWM, HealthStatusType.RUNNING);
-					}
-					
-					HealthStatusType bnoStatus = getStatus(Service.BNO055);
-					SystemStatus bnoCalib = magProvider.getStatus();
-					if(bnoCalib != null) {
-						if(bnoStatus == HealthStatusType.RUNNING && !bnoCalib.isCompletelyCalibrated()) {
-							logger.warn("BNO055 is not completely calibrated, setting REQUIRES_ATTENTION state");
-							setStatus(Service.BNO055, new HealthStatus(HealthStatusType.REQUIRES_ATTENTION, "Not fully calibrated"));
-						} else if(bnoStatus == HealthStatusType.REQUIRES_ATTENTION && bnoCalib.isCompletelyCalibrated()) {
-							logger.info("BNO055 calibration complete, setting RUNNING state");
-							setStatus(Service.BNO055, HealthStatusType.RUNNING);
+					for(Entry<Service, Monitorable> entry : monitorables.entrySet()) {
+						Service service = entry.getKey();
+						HealthStatusType currentHealth = getStatus(service);
+						
+						Monitorable monitorable = entry.getValue();
+						boolean isWorking = monitorable.isWorking();
+						HealthStatus resultingStatus = monitorable.getResultingStatus();
+						
+						if(!isWorking && currentHealth == HealthStatusType.RUNNING) {
+							logger.warn("Service {} is not working, switching to {} state", service.name(), resultingStatus.getType().name());
+							setStatus(service, monitorable.getResultingStatus());
+						} else if(isWorking && currentHealth == resultingStatus.getType()) {
+							logger.info("Service {} is working normally again, switching to RUNNING state");
+							setStatus(service, HealthStatusType.RUNNING);
 						}
 					}
 					
