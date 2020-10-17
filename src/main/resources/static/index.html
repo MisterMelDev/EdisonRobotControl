@@ -36,7 +36,20 @@
 			</div>
 		</div>
 
-		<canvas class="canvas-centered" id="map-canvas" width="250" height="250" style="display: none;"></canvas>
+		<div id="map-section" class="div-centered" style="display: none;">
+			<canvas id="map-canvas" width="250" height="250"></canvas>
+			<div id="raw-sensor-section">
+				<p id="raw-sensor-section-title">Raw Sensor Data</p>
+				<ul>
+					<li>Heading: <span id="raw-heading">0</span>&deg;</li>
+					<li>Acceleration (X): <span id="raw-acc-x">0.0</span> m/s&#178;</li>
+					<li>Acceleration (Y): <span id="raw-acc-y">0.0</span> m/s&#178;</li>
+					<li>Acceleration (Z): <span id="raw-acc-z">0.0</span> m/s&#178;</li>
+					<li>Calibration status: <span id="raw-calib">0, 0, 0, 0</span></li>
+				</ul>
+			</div>
+		</div>
+		
 		<img class="image-centered" onerror="showStream(false)" id="camera-stream">
 
 		<div id="connection-error-modal" class="modal">

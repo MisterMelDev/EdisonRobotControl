@@ -38,6 +38,9 @@ public class IMUProvider extends Thread {
 				float heading = intf.getHeading();
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(heading);
 				
+				float[] acceleration = intf.getAcceleration();
+				EdisonControl.getInstance().getNavHandler().onAccelerationReceived(acceleration);
+				
 				Thread.sleep(100);
 			}
 		} catch(Exception e) {

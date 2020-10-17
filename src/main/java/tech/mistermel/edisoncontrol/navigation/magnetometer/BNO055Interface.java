@@ -119,9 +119,9 @@ public class BNO055Interface implements IMUInterface, Monitorable {
 			byte[] buffer = new byte[6];
 			device.read(ACC_DATA_ADDR, buffer, 0, buffer.length);
 			
-			float x = ((buffer[0] & 0xFF) | (buffer[1] << 8) & 0xFF00) / 100.0f;
-			float y = ((buffer[2] & 0xFF) | (buffer[3] << 8) & 0xFF00) / 100.0f;
-			float z = ((buffer[4] & 0xFF) | (buffer[5] << 8) & 0xFF00) / 100.0f;
+			float x = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 100.0f;
+			float y = ((buffer[2] & 0xFF) | ((buffer[3] << 8) & 0xFF00)) / 100.0f;
+			float z = ((buffer[4] & 0xFF) | ((buffer[5] << 8) & 0xFF00)) / 100.0f;
 			
 			return new float[] { x, y, z };
 		} catch (IOException e) {

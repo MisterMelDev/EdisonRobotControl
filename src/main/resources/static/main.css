@@ -144,3 +144,23 @@ label {
 .service-color-gray {
     color: gray;
 }
+
+#map-section {
+    width: 100%;
+    text-align: center;
+}
+
+#raw-sensor-section {
+    display: inline-block;
+    vertical-align: top;
+}
+
+#raw-sensor-section-title {
+    font-weight: bold;
+    margin: 0px;
+}
+
+#raw-sensor-section ul {
+    margin-top: 3px;
+    text-align: left;
+}

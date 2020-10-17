@@ -43,6 +43,13 @@ socket.addEventListener("message", function(event) {
 
     if(msgType == "nav") {
         setCanvasInfo(json.x, json.y, json.h, json.t);
+        setRawAcceleration(json.acc);
+        setRawHeading(json.h);
+        return;
+    }
+
+    if(msgType == "imu_calib") {
+        setRawCalib(json.calibStatuses);
         return;
     }
 
@@ -73,6 +80,29 @@ setInterval(function() {
         socket.send(JSON.stringify({type: "heartbeat"}));
     }
 }, 3000);
+
+/* Raw data section */
+
+const rawHeading = document.getElementById("raw-heading");
+const rawCalib = document.getElementById("raw-calib");
+
+const rawAccX = document.getElementById("raw-acc-x");
+const rawAccY = document.getElementById("raw-acc-y");
+const rawAccZ = document.getElementById("raw-acc-z");
+
+function setRawHeading(heading) {
+    rawHeading.innerHTML = heading;
+}
+
+function setRawCalib(calibData) {
+    rawCalib.innerHTML = "sys: " + calibData[0] + ", gyro: " + calibData[1] + ", acc: " + calibData[2] + ", mag: " + calibData[3];
+}
+
+function setRawAcceleration(rawAcc) {
+    rawAccX.innerHTML = rawAcc[0].toFixed(1);
+    rawAccY.innerHTML = rawAcc[1].toFixed(1);
+    rawAccZ.innerHTML = rawAcc[2].toFixed(1);
+}
 
 /* Stream */
 const streamPort = 8080;
@@ -261,6 +291,7 @@ streamToggle.addEventListener("click", function(e) {
 const navToggleButton = document.getElementById("nav-toggle");
 const waypointBtn = document.getElementById("waypoint-btn");
 const movementToggleButton = document.getElementById("movement-toggle");
+const mapSection = document.getElementById("map-section");
 let navigationEnabled = false;
 let movementEnabled = false;
 
@@ -269,7 +300,7 @@ function setNavigationEnabled(enabled) {
     navToggleButton.innerHTML = enabled ? "Hide map" : "Show map";
 
     setStreamSmall(enabled);
-    mapCanvas.style.display = enabled ? "block" : "none";
+    mapSection.style.display = enabled ? "block" : "none";
     waypointBtn.style.display = enabled ? "inline-block" : "none";
     movementToggleButton.style.display = enabled ? "inline-block" : "none";
 }

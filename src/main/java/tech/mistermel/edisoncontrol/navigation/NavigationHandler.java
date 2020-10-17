@@ -36,6 +36,7 @@ public class NavigationHandler {
 	
 	private Location currentLoc = new Location();
 	private float heading;
+	private float[] acceleration;
 	
 	public NavigationHandler() {
 		JSONObject configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
@@ -65,7 +66,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint));
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, acceleration, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint));
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -155,6 +156,10 @@ public class NavigationHandler {
 	
 	public void onHeadingReceived(float heading) {
 		this.heading = heading;
+	}
+	
+	public void onAccelerationReceived(float[] acceleration) {
+		this.acceleration = acceleration;
 	}
 	
 	public Waypoint createWaypoint(float x, float y) {
