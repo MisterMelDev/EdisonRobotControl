@@ -79,10 +79,16 @@ const streamPort = 8080;
 const cameraStreamElement = document.getElementById("camera-stream");
 
 function showStream(enabled) {
-    console.log(enabled);
     cameraStreamElement.src = enabled ? "http://" + window.location.hostname + ":" + streamPort + "/?action=stream" : "img-fail.png";
 }
-//showStream(true);
+
+function setStreamSmall(enabled) {
+    cameraStreamElement.width = enabled ? 1040 : 1280;
+    cameraStreamElement.height = enabled ? 585 : 720;
+}
+
+showStream(true);
+setStreamSmall(false);
 
 /* Modals */
 let modalActive = false;
@@ -262,7 +268,7 @@ function setNavigationEnabled(enabled) {
     navigationEnabled = enabled;
     navToggleButton.innerHTML = enabled ? "Hide map" : "Show map";
 
-    cameraStreamElement.height = enabled ? 580 : 720;
+    setStreamSmall(enabled);
     mapCanvas.style.display = enabled ? "block" : "none";
     waypointBtn.style.display = enabled ? "inline-block" : "none";
     movementToggleButton.style.display = enabled ? "inline-block" : "none";
