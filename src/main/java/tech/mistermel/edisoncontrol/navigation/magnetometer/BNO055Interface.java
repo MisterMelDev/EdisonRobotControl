@@ -17,7 +17,7 @@ import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Monitorable;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
-public class BNO055Interface implements MagnetometerInterface, Monitorable {
+public class BNO055Interface implements IMUInterface, Monitorable {
 
 	private static final Logger logger = LoggerFactory.getLogger(BNO055Interface.class);
 	
@@ -29,8 +29,9 @@ public class BNO055Interface implements MagnetometerInterface, Monitorable {
 	private static final byte CHIP_ID_ADDR = 0x00;
 	private static final byte OPR_MODE_ADDR = 0x3D;
 	private static final byte SYS_TRIGGER_ADDR = 0x3F;
-	private static final byte EULER_REGISTER_ADDR = 0x1A;
 	
+	private static final byte EULER_DATA_ADDR = 0x1A;
+	private static final byte ACC_DATA_ADDR = 0x08;
 	private static final byte CALIB_STAT_ADDR = 0x35;
 	
 	private I2CDevice device;
@@ -96,7 +97,7 @@ public class BNO055Interface implements MagnetometerInterface, Monitorable {
 	public float getHeading() {
 		try {
 			byte[] buffer = new byte[6];
-			device.read(EULER_REGISTER_ADDR, buffer, 0, buffer.length);
+			device.read(EULER_DATA_ADDR, buffer, 0, buffer.length);
 			
 			float heading = ((buffer[0] & 0xFF) | ((buffer[1] << 8) & 0xFF00)) / 16.0f;
 			
@@ -108,6 +109,23 @@ public class BNO055Interface implements MagnetometerInterface, Monitorable {
 		} catch (IOException e) {
 			logger.error("Error occurred while attempting to read heading from BNO055", e);
 			return -1;
+		}
+	}
+	
+	@Override
+	public float[] getAcceleration() {
+		try {
+			byte[] buffer = new byte[6];
+			device.read(ACC_DATA_ADDR, buffer, 0, buffer.length);
+			
+			float x = ((buffer[0] & 0xFF) | (buffer[1] << 8) & 0xFF00) / 100.0f;
+			float y = ((buffer[2] & 0xFF) | (buffer[3] << 8) & 0xFF00) / 100.0f;
+			float z = ((buffer[4] & 0xFF) | (buffer[5] << 8) & 0xFF00) / 100.0f;
+			
+			return new float[] { x, y, z };
+		} catch (IOException e) {
+			logger.error("Error occurred while attempting to read accelerometer data from BNO055", e);
+			return null;
 		}
 	}
 

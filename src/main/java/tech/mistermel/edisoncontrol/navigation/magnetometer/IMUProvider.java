@@ -8,13 +8,13 @@ import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 
-public class MagnetometerProvider extends Thread {
+public class IMUProvider extends Thread {
 
-	private static final Logger logger = LoggerFactory.getLogger(MagnetometerProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(IMUProvider.class);
 	
-	private MagnetometerInterface intf;
+	private IMUInterface intf;
 	
-	public MagnetometerProvider(MagnetometerInterface intf) {
+	public IMUProvider(IMUInterface intf) {
 		super("MagnetometerThread");
 		this.intf = intf;
 	}

@@ -11,7 +11,7 @@ import tech.mistermel.edisoncontrol.EdisonControl;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.navigation.magnetometer.BNO055Interface;
-import tech.mistermel.edisoncontrol.navigation.magnetometer.MagnetometerProvider;
+import tech.mistermel.edisoncontrol.navigation.magnetometer.IMUProvider;
 import tech.mistermel.edisoncontrol.navigation.route.CardinalSplineRoute;
 import tech.mistermel.edisoncontrol.navigation.route.RouteProvider;
 import tech.mistermel.edisoncontrol.web.packet.NavigationTelemetryPacket;
@@ -24,7 +24,7 @@ public class NavigationHandler {
 	private static final Logger logger = LoggerFactory.getLogger(NavigationHandler.class);
 	private static final int UPDATES_PER_SECOND = 10;
 	
-	private MagnetometerProvider magnetometerProvider;
+	private IMUProvider imuProvider;
 	private NavigationThread thread;
 	private RouteProvider routeProvider;
 	
@@ -46,8 +46,8 @@ public class NavigationHandler {
 		
 		this.routeProvider = new CardinalSplineRoute(configSection.optInt("points_per_segment", 50));
 		
-		this.magnetometerProvider = new MagnetometerProvider(new BNO055Interface());
-		magnetometerProvider.start();
+		this.imuProvider = new IMUProvider(new BNO055Interface());
+		imuProvider.start();
 		
 		this.thread = new NavigationThread();
 		thread.start();
@@ -246,8 +246,8 @@ public class NavigationHandler {
 		return isActive;
 	}
 	
-	public MagnetometerProvider getMagnetometerProvider() {
-		return magnetometerProvider;
+	public IMUProvider getIMUProvider() {
+		return imuProvider;
 	}
 	
 }
