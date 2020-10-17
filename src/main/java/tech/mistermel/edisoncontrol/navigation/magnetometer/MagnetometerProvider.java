@@ -26,7 +26,7 @@ public class MagnetometerProvider extends Thread {
 			
 			EdisonControl.setStatus(Service.BNO055, HealthStatusType.INITIALIZING);
 			if(!intf.initialize(config)) {
-				EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT, "Init failed");
+				EdisonControl.setStatus(Service.BNO055, HealthStatusType.FAULT, "Failed to connect to I2C");
 				
 				logger.warn("Magnetometer initialization failed, magnetometer provider thread exiting");
 				EdisonControl.getInstance().getNavHandler().onHeadingReceived(0);

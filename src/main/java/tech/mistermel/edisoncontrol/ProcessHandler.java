@@ -21,7 +21,7 @@ public class ProcessHandler {
 		File folder = new File("mjpg-streamer");
 		if(!folder.isDirectory()) {
 			logger.warn("Cannot start stream process, folder 'mjpg-streamer' does not exist");
-			EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT);
+			EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT, "Folder 'mjpg-streamer' does not exist");
 			return false;
 		}
 		
@@ -54,7 +54,7 @@ public class ProcessHandler {
 			return true;
 		} catch (IOException e) {
 			logger.error("Error while attempting to start streaming process", e);
-			EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT);
+			EdisonControl.setStatus(Service.STREAM, HealthStatusType.FAULT, "Error starting process");
 			return false;
 		}
 	}
@@ -65,8 +65,8 @@ public class ProcessHandler {
 			streamProcess = null;
 			
 			logger.info("Stopped stream process");
-			EdisonControl.setStatus(Service.STREAM, HealthStatusType.DISABLED);
 		}
+		EdisonControl.setStatus(Service.STREAM, HealthStatusType.DISABLED);
 	}
 	
 	public void setStreamProcess(boolean isEnabled) {

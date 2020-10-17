@@ -32,7 +32,7 @@ public class DWMSerialInterface extends Thread implements Monitorable {
 		
 		this.port = SerialUtil.openSerial("dwm_serial", "/dev/ttyACM0", 115200);
 		if(port == null) {
-			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatusType.FAULT, "Init failed");
+			EdisonControl.setStatus(Service.SERIAL_DWM, HealthStatusType.FAULT, "Failed to open port");
 			return;
 		}
 		
