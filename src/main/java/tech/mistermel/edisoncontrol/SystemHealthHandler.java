@@ -146,7 +146,7 @@ public class SystemHealthHandler {
 							logger.warn("Service {} is not working, switching to {} state", service.name(), resultingStatus.getType().name());
 							setStatus(service, monitorable.getResultingStatus());
 						} else if(isWorking && currentHealth == resultingStatus.getType()) {
-							logger.info("Service {} is working normally again, switching to RUNNING state");
+							logger.info("Service {} is working normally again, switching to RUNNING state", service.name());
 							setStatus(service, HealthStatusType.RUNNING);
 						}
 					}
