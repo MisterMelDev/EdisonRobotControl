@@ -133,7 +133,6 @@ socket.addEventListener("message", function(event) {
 
     if(msgType == "nav") {
         setCanvasInfo(json.x, json.y, json.h, json.th);
-        console.log(json.d);
         return;
     }
 
