@@ -33,7 +33,6 @@ public class WebHandler extends NanoWSD {
 		MIME_TYPES.put("js", "text/javascript");
 	}
 	
-	private File staticFolder;
 	private WebSocketHandler webSocketHandler;
 	
 	private Map<String, WebRoute> routes = new HashMap<>();
@@ -45,11 +44,6 @@ public class WebHandler extends NanoWSD {
 	
 	public WebHandler(int port) {
 		super(port);
-		
-		this.staticFolder = new File("static");
-		if(!staticFolder.isDirectory()) {
-			staticFolder.mkdirs();
-		}
 	}
 	
 	public void registerRoute(String uri, WebRoute route) {
