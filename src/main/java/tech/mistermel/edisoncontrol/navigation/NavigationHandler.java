@@ -99,12 +99,12 @@ public class NavigationHandler {
 		}
 		
 		private void tick() {
-			/*if(!EdisonControl.getInstance().getDWMSerialInterface().isCommunicationWorking()) {
+			if(EdisonControl.getInstance().getSystemHealthHandler().getStatus(Service.SERIAL_DWM) != HealthStatusType.RUNNING) {
 				logger.warn("DWM serial is not working! Exiting navigation mode.");
 				setActive(false);
 				EdisonControl.setStatus(Service.NAVIGATION, HealthStatusType.FAULT, "DWM serial not working");
 				return;
-			}*/
+			}
 			
 			closestSplinePoint = getClosestSplinePoint();
 			cte = (float) closestSplinePoint.distanceTo(currentLoc);
