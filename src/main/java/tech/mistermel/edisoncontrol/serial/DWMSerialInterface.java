@@ -36,7 +36,7 @@ public class DWMSerialInterface extends Thread implements Monitorable {
 			return;
 		}
 		
-		EdisonControl.getInstance().getSystemHealthHandler().registerMonitorable(Service.SERIAL_MOBO, this);
+		EdisonControl.getInstance().getSystemHealthHandler().registerMonitorable(Service.SERIAL_DWM, this);
 		port.addDataListener(new SerialPortMessageListenerWithExceptions() {
 
 			@Override
