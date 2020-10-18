@@ -15,10 +15,10 @@ public class NavigationTelemetryPacket implements Packet {
 	private int targetIndex;
 	
 	private float[] acceleration;
-	private float cte;
+	private float cte, steeringFactor;
 	private int steer, speed;
 	
-	public NavigationTelemetryPacket(Location currentLoc, int heading, int targetIndex, float[] acceleration, float cte, int steer, int speed) {
+	public NavigationTelemetryPacket(Location currentLoc, int heading, int targetIndex, float[] acceleration, float cte, float steeringFactor, int steer, int speed) {
 		this.currentLoc = currentLoc;
 		this.heading = heading;
 		
@@ -26,6 +26,7 @@ public class NavigationTelemetryPacket implements Packet {
 		
 		this.acceleration = acceleration;
 		this.cte = cte;
+		this.steeringFactor = steeringFactor;
 		this.steer = steer;
 		this.speed = speed;
 	}
@@ -48,6 +49,7 @@ public class NavigationTelemetryPacket implements Packet {
 		JSONArray paramsJson = new JSONArray();
 		json.put("params", paramsJson);
 		paramsJson.put(cte);
+		paramsJson.put(steeringFactor);
 		paramsJson.put(steer);
 		paramsJson.put(speed);
 	}

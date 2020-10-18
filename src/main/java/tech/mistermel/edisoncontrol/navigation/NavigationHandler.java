@@ -44,7 +44,8 @@ public class NavigationHandler {
 	private float heading;
 	private float[] acceleration;
 	
-	private float cte, cteSum, cteOld;
+	private float cte, cteOld;
+	private float steeringFactor;
 	private int steer, speed;
 	
 	public NavigationHandler() {
@@ -75,7 +76,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc, (int) heading, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint), acceleration, cte, steer, speed);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc, (int) heading, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint), acceleration, cte, steeringFactor, steer, speed);
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -109,12 +110,12 @@ public class NavigationHandler {
 			cte = (float) closestSplinePoint.distanceTo(currentLoc);
 			
 			float alpha = cte * P;
-			cteSum += DELTA_TIME * cte;
 			
 			float dtCte = (cte - cteOld) / DELTA_TIME;
 			alpha += D * dtCte;
 			cteOld = cte;
 			
+			steeringFactor = alpha;
 			setControls(0, (int) alpha);
 		}
 		

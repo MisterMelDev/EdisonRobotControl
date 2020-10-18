@@ -164,3 +164,8 @@ label {
     margin-top: 3px;
     text-align: left;
 }
+
+#control-status {
+    font-weight: bold;
+    color: red;
+}

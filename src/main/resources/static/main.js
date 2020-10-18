@@ -92,6 +92,7 @@ const rawAccY = document.getElementById("raw-acc-y");
 const rawAccZ = document.getElementById("raw-acc-z");
 
 const rawCte = document.getElementById("raw-cte");
+const rawSteerFactor = document.getElementById("raw-steer-factor");
 const rawSteer = document.getElementById("raw-steer");
 const rawSpeed = document.getElementById("raw-speed");
 
@@ -111,8 +112,9 @@ function setRawAcceleration(rawAcc) {
 
 function setRawNavigationParams(params) {
     rawCte.innerHTML = params[0].toFixed(3);
-    rawSteer.innerHTML = params[1];
-    rawSpeed.innerHTML = params[2];
+    rawSteerFactor.innerHTML = params[1].toFixed(2);
+    rawSteer.innerHTML = params[2];
+    rawSpeed.innerHTML = params[3];
 }
 
 /* Stream */
