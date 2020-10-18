@@ -10,13 +10,15 @@ public class NavigationTelemetryPacket implements Packet {
 	private float x, y;
 	private float[] acceleration;
 	private int heading, targetIndex;
+	private float cte;
 	
-	public NavigationTelemetryPacket(float x, float y, int heading, float[] acceleration, int targetIndex) {
+	public NavigationTelemetryPacket(float x, float y, int heading, float[] acceleration, int targetIndex, float cte) {
 		this.x = x;
 		this.y = y;
 		this.heading = heading;
 		this.acceleration = acceleration;
 		this.targetIndex = targetIndex;
+		this.cte = cte;
 	}
 	
 	@Override
@@ -30,6 +32,10 @@ public class NavigationTelemetryPacket implements Packet {
 			JSONArray accJson = new JSONArray(acceleration);
 			json.put("acc", accJson);
 		}
+		
+		JSONArray paramsJson = new JSONArray();
+		json.put("params", paramsJson);
+		paramsJson.put(cte);
 	}
 
 	@Override

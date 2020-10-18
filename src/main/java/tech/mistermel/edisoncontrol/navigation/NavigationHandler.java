@@ -36,6 +36,7 @@ public class NavigationHandler {
 	
 	private Location currentLoc = new Location();
 	private float heading;
+	private float cte;
 	private float[] acceleration;
 	
 	public NavigationHandler() {
@@ -66,7 +67,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, acceleration, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint));
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, acceleration, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint), cte);
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -97,7 +98,7 @@ public class NavigationHandler {
 			}*/
 			
 			closestSplinePoint = getClosestSplinePoint();
-			double cte = closestSplinePoint.distanceTo(currentLoc);
+			cte = (float) closestSplinePoint.distanceTo(currentLoc);
 		}
 		
 		private Location getClosestSplinePoint() {
@@ -135,6 +136,7 @@ public class NavigationHandler {
 	
 	private void stop() {
 		this.closestSplinePoint = null;
+		this.cte = 0;
 	}
 	
 	private void updateRoute() {

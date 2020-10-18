@@ -155,7 +155,7 @@ label {
     vertical-align: top;
 }
 
-#raw-sensor-section-title {
+.map-section-title {
     font-weight: bold;
     margin: 0px;
 }
