@@ -22,7 +22,13 @@ import tech.mistermel.edisoncontrol.web.packet.RoutePacket;
 public class NavigationHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(NavigationHandler.class);
+	
 	private static final int UPDATES_PER_SECOND = 10;
+	private static final float DELTA_TIME = 1.0f / UPDATES_PER_SECOND;
+	
+	private static final float P = 0f;
+	private static final float I = 0f;
+	private static final float D = 0f;
 	
 	private IMUProvider imuProvider;
 	private NavigationThread thread;
@@ -36,8 +42,10 @@ public class NavigationHandler {
 	
 	private Location currentLoc = new Location();
 	private float heading;
-	private float cte;
 	private float[] acceleration;
+	
+	private float cte, cteSum, cteOld;
+	private int steer, speed;
 	
 	public NavigationHandler() {
 		JSONObject configSection = EdisonControl.getInstance().getConfigHandler().getJson().optJSONObject("navigation");
@@ -67,7 +75,7 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), (int) heading, acceleration, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint), cte);
+				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc, (int) heading, splinePoints == null ? -1 : splinePoints.indexOf(closestSplinePoint), acceleration, cte, steer, speed);
 				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 				
 				if(isActive) {
@@ -99,6 +107,15 @@ public class NavigationHandler {
 			
 			closestSplinePoint = getClosestSplinePoint();
 			cte = (float) closestSplinePoint.distanceTo(currentLoc);
+			
+			float alpha = cte * P;
+			cteSum += DELTA_TIME * cte;
+			
+			float dtCte = (cte - cteOld) / DELTA_TIME;
+			alpha += D * dtCte;
+			cteOld = cte;
+			
+			setControls(0, (int) alpha);
 		}
 		
 		private Location getClosestSplinePoint() {
@@ -245,7 +262,9 @@ public class NavigationHandler {
 			return;
 		}
 		
-		logger.debug("Controlling! {} {}", speed, steer);
+		this.steer = steer;
+		this.speed = speed;
+		
 		EdisonControl.getInstance().getSerialInterface().setControls(speed, steer);
 	}
 	

@@ -3,29 +3,41 @@ package tech.mistermel.edisoncontrol.web.packet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import tech.mistermel.edisoncontrol.navigation.Location;
+
 public class NavigationTelemetryPacket implements Packet {
 
 	public static final String PACKET_NAME = "nav";
 	
-	private float x, y;
-	private float[] acceleration;
-	private int heading, targetIndex;
-	private float cte;
+	private Location currentLoc;
+	private int heading;
 	
-	public NavigationTelemetryPacket(float x, float y, int heading, float[] acceleration, int targetIndex, float cte) {
-		this.x = x;
-		this.y = y;
+	private int targetIndex;
+	
+	private float[] acceleration;
+	private float cte;
+	private int steer, speed;
+	
+	public NavigationTelemetryPacket(Location currentLoc, int heading, int targetIndex, float[] acceleration, float cte, int steer, int speed) {
+		this.currentLoc = currentLoc;
 		this.heading = heading;
-		this.acceleration = acceleration;
+		
 		this.targetIndex = targetIndex;
+		
+		this.acceleration = acceleration;
 		this.cte = cte;
+		this.steer = steer;
+		this.speed = speed;
 	}
 	
 	@Override
 	public void send(JSONObject json) {
-		json.put("x", x);
-		json.put("y", y);
-		json.put("h", heading);
+		JSONArray posJson = new JSONArray();
+		json.put("pos", posJson);
+		posJson.put(currentLoc.getX());
+		posJson.put(currentLoc.getY());
+		posJson.put(heading);
+		
 		json.put("t", targetIndex);
 		
 		if(acceleration != null) {
@@ -36,6 +48,8 @@ public class NavigationTelemetryPacket implements Packet {
 		JSONArray paramsJson = new JSONArray();
 		json.put("params", paramsJson);
 		paramsJson.put(cte);
+		paramsJson.put(steer);
+		paramsJson.put(speed);
 	}
 
 	@Override

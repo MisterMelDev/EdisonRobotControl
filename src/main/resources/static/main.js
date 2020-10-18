@@ -42,9 +42,9 @@ socket.addEventListener("message", function(event) {
     }
 
     if(msgType == "nav") {
-        setCanvasInfo(json.x, json.y, json.h, json.t);
+        setCanvasInfo(json.pos[0], json.pos[1], json.pos[2], json.t);
         setRawAcceleration(json.acc);
-        setRawHeading(json.h);
+        setRawHeading(json.pos[2]);
         setRawNavigationParams(json.params);
         return;
     }
@@ -92,6 +92,8 @@ const rawAccY = document.getElementById("raw-acc-y");
 const rawAccZ = document.getElementById("raw-acc-z");
 
 const rawCte = document.getElementById("raw-cte");
+const rawSteer = document.getElementById("raw-steer");
+const rawSpeed = document.getElementById("raw-speed");
 
 function setRawHeading(heading) {
     rawHeading.innerHTML = heading;
@@ -109,6 +111,8 @@ function setRawAcceleration(rawAcc) {
 
 function setRawNavigationParams(params) {
     rawCte.innerHTML = params[0].toFixed(3);
+    rawSteer.innerHTML = params[1];
+    rawSpeed.innerHTML = params[2];
 }
 
 /* Stream */
