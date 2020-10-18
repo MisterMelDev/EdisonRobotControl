@@ -105,9 +105,9 @@ function setRawCalib(calibData) {
 }
 
 function setRawAcceleration(rawAcc) {
-    rawAccX.innerHTML = rawAcc ? awAcc[0].toFixed(1) : 0;
-    rawAccY.innerHTML = rawAcc ? awAcc[1].toFixed(1) : 0;
-    rawAccZ.innerHTML = rawAcc ? awAcc[2].toFixed(1) : 0;
+    rawAccX.innerHTML = rawAcc ? rawAcc[0].toFixed(1) : 0;
+    rawAccY.innerHTML = rawAcc ? rawAcc[1].toFixed(1) : 0;
+    rawAccZ.innerHTML = rawAcc ? rawAcc[2].toFixed(1) : 0;
 }
 
 function setRawNavigationParams(params) {
