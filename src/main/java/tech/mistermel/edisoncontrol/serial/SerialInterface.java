@@ -20,7 +20,7 @@ public class SerialInterface extends Thread implements Monitorable {
 
 	private static final int START_FRAME = 0xABCD;
 	private static final int SEND_INTERVAL = 50;
-	private static final int MAX_RECEIVE_INTERVAL = 300;
+	private static final int MAX_RECEIVE_INTERVAL = 400;
 	
 	private static final Logger logger = LoggerFactory.getLogger(SerialInterface.class);
 	
