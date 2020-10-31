@@ -21,6 +21,19 @@ public class Location {
 		return Math.toDegrees(radians) + 90;
 	}
 	
+	public int directionTo(Location loc2, int heading) {
+		double headingDistance = this.getHeadingDistance(heading, (int) this.headingTo(loc2));
+		return headingDistance < 0 ? -1 : 1;
+	}
+	
+	private double getHeadingDistance(int a, int b) {
+		double left = a - b;
+		double right = b - a;
+		if(left < 0) left += 360;
+		if(right < 0) right += 360;
+		return left < right ? -left : right;
+	}
+	
 	public void setX(float x) {
 		this.x = x;
 	}

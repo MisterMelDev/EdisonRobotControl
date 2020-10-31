@@ -26,9 +26,13 @@ public class NavigationHandler {
 	private static final int UPDATES_PER_SECOND = 10;
 	private static final float DELTA_TIME = 1.0f / UPDATES_PER_SECOND;
 	
-	private static final float P = 0f;
+	private static final float P = 100f;
 	private static final float I = 0f;
 	private static final float D = 0f;
+	
+	private static final int MAX_SPEED = 200;
+	private static final int MAX_STEER_WHILE_DRIVING = 75;
+	private static final int MAX_STEER = 200;
 	
 	private IMUProvider imuProvider;
 	private NavigationThread thread;
@@ -40,7 +44,7 @@ public class NavigationHandler {
 	private List<Location> splinePoints;
 	private Location closestSplinePoint;
 	
-	private Location currentLoc = new Location();
+	private Location currentLoc = new Location(1, 1);
 	private float heading;
 	private float[] acceleration;
 	
@@ -116,7 +120,19 @@ public class NavigationHandler {
 			cteOld = cte;
 			
 			steeringFactor = alpha;
-			setControls(0, (int) alpha);
+			
+			int steer = (int) Math.min(alpha * currentLoc.directionTo(closestSplinePoint, (int) heading), MAX_STEER);
+			setControls(this.getSpeed(steer), steer);
+		}
+		
+		private int getSpeed(int steer) {
+			if(steer < MAX_STEER_WHILE_DRIVING)
+				return MAX_SPEED;
+			
+			int diff = steer - MAX_STEER_WHILE_DRIVING;
+			int speed = MAX_SPEED - diff * 2;
+			
+			return speed < 150 ? 0 : speed;
 		}
 		
 		private Location getClosestSplinePoint() {
@@ -136,14 +152,6 @@ public class NavigationHandler {
 			}
 			
 			return nearestPoint;
-		}
-		
-		private double getHeadingDistance(float a, float b) {
-			double left = a - b;
-			double right = b - a;
-			if(left < 0) left += 360;
-			if(right < 0) right += 360;
-			return left < right ? -left : right;
 		}
 		
 	}
