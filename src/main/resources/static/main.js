@@ -12,9 +12,6 @@ const confirmationModal = document.getElementById("confirmation-modal");
 const confirmationModalQuestion = document.getElementById("confirmation-modal-question");
 let confirmationModalCallback = null;
 
-const batteryVoltageElement = document.getElementById("battery-voltage");
-const boardTemperatureElement = document.getElementById("board-temperature");
-
 const speedInput = document.getElementById("speed-input");
 
 let webSocketOpened = false;
@@ -120,8 +117,9 @@ socket.addEventListener("message", function(event) {
     let msgType = json.type;
 
     if(msgType == "telemetry") {
-        batteryVoltageElement.innerHTML = json.voltage.toFixed(2) + "v";
-        boardTemperatureElement.innerHTML = json.temp.toFixed(1) + " &#8451;";
+        document.getElementById("battery-voltage-main").innerHTML = json.voltage.main.toFixed(2) + "v";
+        document.getElementById("battery-voltage-small").innerHTML = json.voltage.small.toFixed(2) + "v";
+        document.getElementById("board-temperature").innerHTML = json.temp.toFixed(1) + " &#8451;";
         return;
     }
 

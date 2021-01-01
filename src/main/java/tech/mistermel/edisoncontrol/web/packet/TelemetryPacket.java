@@ -6,16 +6,21 @@ public class TelemetryPacket implements Packet {
 
 	public static final String PACKET_NAME = "telemetry";
 	
-	private double voltage, temperature;
+	private double voltageMain, voltageSmall, temperature;
 	
-	public TelemetryPacket(double voltage, double temperature) {
-		this.voltage = voltage;
+	public TelemetryPacket(double voltageMain, double voltageSmall, double temperature) {
+		this.voltageMain = voltageMain;
+		this.voltageSmall = voltageSmall;
 		this.temperature = temperature;
 	}
 	
 	@Override
 	public void send(JSONObject json) {
-		json.put("voltage", voltage);
+		JSONObject voltageObj = new JSONObject();
+		json.put("voltage", voltageObj);
+		voltageObj.put("main", voltageMain);
+		voltageObj.put("small", voltageSmall);
+		
 		json.put("temp", temperature);
 	}
 

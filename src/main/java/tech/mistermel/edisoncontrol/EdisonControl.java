@@ -7,6 +7,7 @@ import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatus;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.HealthStatusType;
 import tech.mistermel.edisoncontrol.SystemHealthHandler.Service;
 import tech.mistermel.edisoncontrol.navigation.NavigationHandler;
+import tech.mistermel.edisoncontrol.sensor.INA219Interface;
 import tech.mistermel.edisoncontrol.serial.DWMSerialInterface;
 import tech.mistermel.edisoncontrol.serial.SerialInterface;
 import tech.mistermel.edisoncontrol.web.WebHandler;
@@ -36,6 +37,7 @@ public class EdisonControl {
 	private WiFiHandler wifiHandler;
 	private NavigationHandler navHandler;
 	private SystemHealthHandler systemHealthHandler;
+	private INA219Interface ina219Interface;
 	
 	public void start() {
 		this.systemHealthHandler = new SystemHealthHandler();
@@ -52,6 +54,8 @@ public class EdisonControl {
 		
 		this.dwmSerialInterface = new DWMSerialInterface();
 		dwmSerialInterface.start();
+		
+		this.ina219Interface = new INA219Interface();
 		
 		this.webHandler = new WebHandler(configHandler.getJson().optInt("web_port", 8888));
 		webHandler.registerRoute("/wifiConfigs", new WiFiConfigurationsRoute());
@@ -113,6 +117,10 @@ public class EdisonControl {
 	
 	public SystemHealthHandler getSystemHealthHandler() {
 		return systemHealthHandler;
+	}
+	
+	public INA219Interface getINA219Interface() {
+		return ina219Interface;
 	}
 	
 	private static EdisonControl instance;

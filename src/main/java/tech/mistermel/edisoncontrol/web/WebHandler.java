@@ -115,7 +115,7 @@ public class WebHandler extends NanoWSD {
 						EdisonControl.getInstance().getSystemHealthHandler().sendPacket();
 					}
 					
-					TelemetryPacket packet = new TelemetryPacket(serialInterface.getBattVoltage(), serialInterface.getBoardTemp());
+					TelemetryPacket packet = new TelemetryPacket(serialInterface.getBattVoltage(), EdisonControl.getInstance().getINA219Interface().readVoltage(), serialInterface.getBoardTemp());
 					sendPacket(packet);
 					
 					try {
