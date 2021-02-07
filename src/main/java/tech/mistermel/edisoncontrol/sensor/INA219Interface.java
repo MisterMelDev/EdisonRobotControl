@@ -31,6 +31,9 @@ public class INA219Interface {
 	}
 	
 	public double readVoltage() {
+		if(device == null)
+			return 0.0;
+		
 		try {
 			byte[] buffer = new byte[2];
 			device.read(BUS_VOLTAGE_ADDR, buffer, 0, buffer.length);
