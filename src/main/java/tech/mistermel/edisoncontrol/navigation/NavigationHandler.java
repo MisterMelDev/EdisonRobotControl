@@ -69,9 +69,6 @@ public class NavigationHandler {
 			while(true) {
 				long startTime = System.currentTimeMillis();
 				
-				NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), targetDistance, (int) heading, (int) targetHeading);
-				EdisonControl.getInstance().getWebHandler().sendPacket(packet);
-				
 				if(isActive) {
 					tick();
 				}
@@ -98,6 +95,9 @@ public class NavigationHandler {
 				EdisonControl.setStatus(Service.NAVIGATION, HealthStatusType.FAULT, "DWM serial not working");
 				return;
 			}
+			
+			NavigationTelemetryPacket packet = new NavigationTelemetryPacket(currentLoc.getX(), currentLoc.getY(), targetDistance, (int) heading, (int) targetHeading);
+			EdisonControl.getInstance().getWebHandler().sendPacket(packet);
 			
 			if(targetDistance < 0.3) {
 				logger.info("Waypoint reached");
